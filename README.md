@@ -32,25 +32,25 @@ Rancangan mengusulkan agar satu struk POS lunas dan aktif tercatat sebagai satu 
 
 ## Status pengerjaan per slice
 
-Snapshot 13 November 2026 berdasarkan riwayat Git yang tersedia di salinan lokal. Draf desain database tercatat di branch `planning-backend-BahauddinRahmanHakim` dan menunggu peninjauan. Implementasi aplikasi, UAT, dan penerapan belum terverifikasi dari riwayat tersebut. Minggu pada tabel mengikuti target relatif Project Charter.
+Draf desain database tercatat di branch `planning-backend-BahauddinRahmanHakim` dan menunggu peninjauan. Implementasi aplikasi, UAT, dan penerapan belum terverifikasi dari riwayat Git lokal.
 
-| Slice | Target | Pekerjaan dan indikator selesai | Status |
-| --- | --- | --- | --- |
-| 00 | Minggu 3 | Tinjau ERD, kamus data, aturan transaksi, urutan migrasi, dan kontrak data dengan frontend. Catat keputusan yang diperlukan untuk slice berikutnya. | Draf tersedia, menunggu tinjauan |
-| 01 | Minggu 4 | Login, logout, dan pembatasan akses. Kedua peran dapat masuk dan keluar. Akses langsung lintas peran dan permintaan perubahan tanpa token CSRF yang sah ditolak. | Direncanakan |
-| 02 | Minggu 4 | Master layanan dan harga. Kasir dapat menambah, melihat, mengubah, dan mengarsipkan layanan. Harga tidak sah ditolak. | Direncanakan |
-| 03 | Minggu 4 | Master kapster. Kasir dapat mengelola data kapster dan kapster yang diarsipkan hilang dari pilihan aktif. | Direncanakan |
-| 04 | Minggu 4 | Master pelanggan. Kasir dapat mengelola data pelanggan dan membedakan pelanggan bernama sama berdasarkan ID. | Direncanakan |
-| 05 | Minggu 4 | Checkout POS dan struk. Simpan pembayaran tunai atau nontunai, pertahankan harga historis, cegah struk ganda saat kirim ulang, dan batalkan seluruh penyimpanan jika salah satu item gagal. | Direncanakan |
-| 06 | Minggu 5 | Pemasukan otomatis dari POS. Setiap struk lunas dan aktif menghasilkan tepat satu pemasukan. | Direncanakan |
-| 07 | Minggu 5 | Pencatatan pengeluaran manual. Kasir dapat menyimpan pengeluaran yang sah dan kirim ulang permintaan yang sama tidak menggandakan catatan. | Direncanakan |
-| 08 | Minggu 5 | Pembatalan dan koreksi. Catatan asal dan pengganti dapat ditelusuri, pembukuan menghitung catatan yang aktif, dan tindakan dibatasi sesuai kewenangan yang disepakati. | Direncanakan |
-| 09 | Minggu 5 | Pembukuan Owner. Rekap pemasukan, pengeluaran, dan saldo per periode cocok dengan hitungan pembanding, dengan target selisih Rp0 pada data uji yang sama. | Direncanakan |
-| 10 | Minggu 5 | Dashboard pendapatan harian, mingguan, dan bulanan. Total pada grafik konsisten dengan pembukuan untuk periode yang sama. | Direncanakan |
-| 11 | Minggu 5 | Impor histori Juli–September 2026. Data aktual dapat direkonsiliasi dengan sumber dan impor ulang tidak menduplikasi catatan. | Direncanakan, menunggu contoh data aktual |
-| 12 | Minggu 5 | Proyeksi bulanan pada dashboard Owner. Tampilkan bulan target, nominal, periode sumber, dan status kecukupan data. | Direncanakan |
-| 13 | Minggu 6–7 | Uji integrasi MySQL, keamanan, dan UAT. Catat hasil uji terhadap QMP, temuan, perbaikan, dan hasil penerimaan pengguna. | Direncanakan |
-| 14 | Minggu 7–8 | Penerapan setelah fungsi inti lulus uji, lalu evaluasi dan penyerahan. Catat hasil pemeriksaan lingkungan target dan keputusan penerimaan. | Direncanakan |
+| Slice | Pekerjaan dan indikator selesai | Status |
+| --- | --- | --- |
+| 00 | Tinjau ERD, kamus data, aturan transaksi, urutan migrasi, dan kontrak data dengan frontend. Catat keputusan yang diperlukan untuk slice berikutnya. | Draf tersedia, menunggu tinjauan |
+| 01 | Login, logout, dan pembatasan akses. Kedua peran dapat masuk dan keluar. Akses langsung lintas peran dan permintaan perubahan tanpa token CSRF yang sah ditolak. | Direncanakan |
+| 02 | Master layanan dan harga. Kasir dapat menambah, melihat, mengubah, dan mengarsipkan layanan. Harga tidak sah ditolak. | Direncanakan |
+| 03 | Master kapster. Kasir dapat mengelola data kapster dan kapster yang diarsipkan hilang dari pilihan aktif. | Direncanakan |
+| 04 | Master pelanggan. Kasir dapat mengelola data pelanggan dan membedakan pelanggan bernama sama berdasarkan ID. | Direncanakan |
+| 05 | Checkout POS dan struk. Simpan pembayaran tunai atau nontunai, pertahankan harga historis, cegah struk ganda saat kirim ulang, dan batalkan seluruh penyimpanan jika salah satu item gagal. | Direncanakan |
+| 06 | Pemasukan otomatis dari POS. Setiap struk lunas dan aktif menghasilkan tepat satu pemasukan. | Direncanakan |
+| 07 | Pencatatan pengeluaran manual. Kasir dapat menyimpan pengeluaran yang sah dan kirim ulang permintaan yang sama tidak menggandakan catatan. | Direncanakan |
+| 08 | Pembatalan dan koreksi. Catatan asal dan pengganti dapat ditelusuri, pembukuan menghitung catatan yang aktif, dan tindakan dibatasi sesuai kewenangan yang disepakati. | Direncanakan |
+| 09 | Pembukuan Owner. Rekap pemasukan, pengeluaran, dan saldo per periode cocok dengan hitungan pembanding, dengan target selisih Rp0 pada data uji yang sama. | Direncanakan |
+| 10 | Dashboard pendapatan harian, mingguan, dan bulanan. Total pada grafik konsisten dengan pembukuan untuk periode yang sama. | Direncanakan |
+| 11 | Impor histori Juli–September 2026. Data aktual dapat direkonsiliasi dengan sumber dan impor ulang tidak menduplikasi catatan. | Direncanakan, menunggu contoh data aktual |
+| 12 | Proyeksi bulanan pada dashboard Owner. Tampilkan bulan target, nominal, periode sumber, dan status kecukupan data. | Direncanakan |
+| 13 | Uji integrasi MySQL, keamanan, dan UAT. Catat hasil uji terhadap QMP, temuan, perbaikan, dan hasil penerimaan pengguna. | Direncanakan |
+| 14 | Penerapan setelah fungsi inti lulus uji, lalu evaluasi dan penyerahan. Catat hasil pemeriksaan lingkungan target dan keputusan penerimaan. | Direncanakan |
 
 Simulasi kueri pada SQLite dengan data fiktif mendukung peninjauan desain. Pengujian migrasi, transaksi, dan konkurensi pada MySQL target dilakukan saat implementasi. Gunakan urutan dan dependensi pada desain database untuk mengambil tugas berikutnya. [Rincian pengerjaan per slice](docs/Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
 
@@ -82,6 +82,6 @@ Setiap anggota mengerjakan satu tugas atau slice pada branch tersendiri. Gunakan
 ## Dokumen acuan
 
 - **Manajemen Operasional Barbershop.pdf** untuk latar belakang dan kebutuhan operasional awal.
-- **menpro 2.pdf (Project Charter)** untuk cakupan, teknologi, dan jadwal proyek.
+- **menpro 2.pdf (Project Charter)** untuk cakupan dan teknologi proyek.
 - **Quality Management Plan_Kelompok 6_2023C.pdf** untuk kriteria penerimaan KP-01 sampai KP-07 dan prosedur UAT.
 - **Desain Database MySQL Barbershop** untuk ERD, kamus data, migrasi, contoh rekonsiliasi, dan rincian Slice 00–14. [Draf desain database](docs/Desain-Database-MySQL-Barbershop.md)
