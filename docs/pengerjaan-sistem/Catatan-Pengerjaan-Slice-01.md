@@ -2,7 +2,7 @@
 
 - **Branch** `feat/slice-01-auth-owner`
 - **Pull request** [PR #2 ke main](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/2)
-- **Status** Implementasi dan pengujian selesai. PR terbuka untuk review sebelum merge.
+- **Status** Implementasi dan pengujian selesai. PR #2 sudah di-merge ke `main` pada commit `34d6ace`.
 
 ## Dasar pengerjaan
 
@@ -46,4 +46,4 @@ Bukti di atas mendukung KP-04 dan bagian KP-05 yang terkait autentikasi, validas
 | [`c9afaf3`](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/commit/c9afaf3a54e7cba17c0aff30e92515c989ffd333) | Migrasi dan autentikasi Owner, pengujian, serta sinkronisasi dokumen. |
 | [`244b3c5`](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/commit/244b3c5be01010daab88fafec84999064f923171) | Penegasan bahwa Owner dan Admin merujuk pada akun yang sama. |
 
-Setelah PR #2 disetujui dan masuk ke `main`, lanjutkan ke Slice 02 untuk katalog layanan. Konfirmasi kewenangan pengelola katalog dan gunakan Layanan A serta Layanan B sebagai data uji sementara daftar resmi disiapkan. [Urutan pengerjaan per slice](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
+Slice 02 dimulai dari hasil merge PR #2. Owner mengelola katalog pada rancangan yang diterapkan, dengan Layanan A dan Layanan B sebagai data uji sementara daftar resmi disiapkan. [Urutan pengerjaan per slice](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
