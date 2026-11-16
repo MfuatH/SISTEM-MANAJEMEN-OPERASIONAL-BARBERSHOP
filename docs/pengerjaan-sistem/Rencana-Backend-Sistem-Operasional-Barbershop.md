@@ -1,95 +1,76 @@
 # Rencana Pengerjaan Backend Sistem Manajemen Operasional Barbershop
 
-**Penanggung jawab backend:** Bahauddin Rahman Hakim  
-**Tim:** Kelompok 6, Kelas 2023C  
-**Langkah pertama:** Susun dan sepakati desain database MySQL pada sesi terpisah. Setelah desain cukup untuk kebutuhan inti, implementasikan skema melalui migrasi Laravel.
+**Penanggung jawab backend** Bahauddin Rahman Hakim
 
-## 1. Dasar proyek
+**Tim** Kelompok 6, Kelas 2023C
 
-Project Charter menetapkan aplikasi web untuk satu lokasi barbershop dengan **Laravel, MySQL, dan satu model Regresi Linier melalui Python**. QMP versi 1.1 mencantumkan Pangkas Rambut Upin Ipin 11 sebagai lokasi uji dan menetapkan dua peran pengguna. **Karyawan/Kasir** menangani input transaksi dan pengeluaran. **Owner/Pemilik** melihat pembukuan, dashboard pendapatan, dan peramalan. Pembayaran tunai atau nontunai dicatat manual.
+## 1. Kebutuhan operasional terkini
 
-Pakai **Project Charter** untuk lingkup dan teknologi, serta **QMP** untuk kriteria dan bukti pengujian. Slide observasi memberi konteks masalah. Untuk keputusan penerimaan, QMP mencantumkan Andik Ari Mulyono sebagai penerima hasil, sementara kolom penerimaan akhir di Charter masih terbuka. Manajer Proyek menyelaraskan pencatatan wewenang ini sebelum penerimaan akhir.
+Sistem melayani satu lokasi. Stack yang disepakati adalah Laravel 13.x, PHP 8.5.x, dan MySQL 8.4 LTS, dengan Laragon untuk pengembangan lokal. Kebutuhan fitur mengikuti *Deskripsi Sistem (Terurut)* dan konfirmasi berikutnya. Project Charter dan QMP v1.1 mencatat lingkup dan kriteria penerimaan awal. QMP menetapkan Pangkas Rambut Upin Ipin 11 sebagai lokasi uji. [Desain database dan keputusan skema](Desain-Database-MySQL-Barbershop.md) · [Catatan fondasi Slice 00](Catatan-Pengerjaan-Slice-00.md)
 
-## 2. Prioritas pertama: desain database
+| Area | Alur dan keluaran |
+| --- | --- |
+| Sesi Kapster | Kapster memasukkan nama berbentuk teks dari beranda. Form menampilkan harga otomatis saat layanan dipilih. Server menyimpan nama Kapster, layanan, dan harga saat pencatatan. Satu simpan sah menghasilkan satu pemasukan. |
+| Owner/Admin | Owner masuk dengan username dan kata sandi. Area Owner memuat Home, Pemasukan, Pengeluaran, Rekap, dan Forecasting bila disetujui. |
+| Pemasukan dan pengeluaran | Pemasukan berasal dari pencatatan Kapster. Owner mengisi tanggal, deskripsi, dan jumlah pengeluaran, lalu sistem membuat ID. Metode pembayaran dan struk keluar dari cakupan. |
+| Periode dan ekspor | Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Home menampilkan dua total bulanan dan dua seri harian. Rekap memuat seluruh histori dengan filter bulan atau jenis. Pemasukan, Pengeluaran, dan Rekap mendukung pencarian dan ekspor Excel pada cakupan masing-masing. |
+| Koreksi | Draf menempatkan tindakan koreksi yang diaktifkan di area Owner/Admin. Cakupan koreksi, kebutuhan pembatalan mandiri, dan jejak audit perlu diputuskan sebelum Slice 08. |
+| Forecasting | Jika disetujui, Laravel memanggil satu model Regresi Linier Python secara internal. Tampilan memuat empat bulan aktual dan dua bulan prediksi yang diperbarui setiap bulan. Posisi dua bulan prediksi dan kebutuhan histori Juli–September 2026 masih perlu dikonfirmasi. |
 
-Mulai dari dua alur yang menentukan struktur data. Pertama, Kasir mencatat penjualan dan pengeluaran. Kedua, Owner melihat pembukuan dan pendapatan untuk suatu periode. Struktur peramalan mengikuti sumber dan bentuk data yang benar-benar tersedia.
+QMP mencantumkan Andik Ari Mulyono sebagai penerima hasil. Kolom penerimaan akhir pada Charter masih terbuka. Manajer Proyek menyelaraskan pencatatan wewenang serta kriteria QMP yang terdampak perubahan alur sebelum penerimaan akhir. [Acuan tugas kuliah](../tugas-kuliah/README.md)
 
-| Area | Kebutuhan dari dokumen proyek | Keputusan desain yang perlu diambil |
+## 2. Urutan pengerjaan backend
+
+| Slice | Pekerjaan | Dependensi dan kriteria selesai |
 | --- | --- | --- |
-| Akun dan hak akses | Ada akun Kasir dan Owner. Kapster dicatat sebagai data operasional. | Tentukan apakah setiap kapster memiliki akun atau cukup menjadi data kapster. Sepakati siapa yang boleh mengubah setiap data. |
-| Data master | Data layanan dan harga, kapster, serta pelanggan dikelola di database terpusat. | Tentukan field minimum pelanggan dan penanganan data master yang sudah dipakai dalam transaksi. Usulan awal adalah mengarsipkan data yang sudah direferensikan agar riwayat tetap utuh. Sepakati perilaku hapus untuk KP-01. |
-| Transaksi POS | Transaksi mencatat pelanggan, layanan, kapster, total, dan informasi pembayaran manual. | Pastikan satu transaksi bisa memuat satu atau beberapa layanan, serta apakah kapster dipilih per transaksi atau per layanan. Usulkan penyimpanan harga pada saat transaksi agar perubahan harga layanan tidak mengubah histori. |
-| Pemasukan dan pengeluaran | Pemasukan tercatat otomatis dari POS. Pengeluaran dicatat manual. | Usulan awal adalah menjadikan transaksi sah sebagai sumber pemasukan. Jika tim memilih tabel pemasukan terpisah, tetapkan satu referensi unik ke transaksi POS agar pendapatan tidak terhitung dua kali. |
-| Pembukuan dan dashboard | Total pendapatan harian, mingguan, dan bulanan sesuai data transaksi periode yang sama. | Sepakati tanggal yang dipakai dalam laporan, zona waktu, awal minggu, serta perlakuan atas koreksi atau pembatalan. Bedakan omzet dari selisih pemasukan dan pengeluaran jika keduanya ditampilkan. |
-| Data historis peramalan | Charter meminta minimal tiga bulan data transaksi Juli–September 2026 dalam CSV atau Excel. | Periksa contoh data, kolom tanggal dan nominal, granularitas, duplikasi, serta kelengkapan. Putuskan apakah data historis masuk ke POS atau disimpan sebagai sumber khusus peramalan. Jika sumber digabung, tentukan aturan deduplikasi. |
+| 00 | Fondasi Laravel dan MySQL, desain database, dan kontrak data awal. | Fondasi telah diuji. Ambil `main` terbaru untuk pekerjaan fitur setelah PR fondasi disetujui dan di-merge. |
+| 01 | Login username dan akses Owner/Admin dengan `users` serta `sessions` bawaan. | Username ditambahkan lewat migrasi baru. Uji login, logout, dan akses langsung ke rute Owner dari sesi Kapster. |
+| 02–04 | Katalog harga, sesi nama Kapster, serta master atau kolom pelanggan jika terbukti diperlukan. | Harga katalog tampil otomatis. Sepakati pengelola katalog, cakupan baca sesi, serta arti nama di form Tambah sebelum migrasi yang terdampak. |
+| 05–07 | Simpan pencatatan Kapster, tampilkan Pemasukan Owner, lalu siapkan pengeluaran dengan ID buatan sistem. | Simpan harga historis dan cegah catatan ganda saat kirim ulang. Daftar dan XLSX Pemasukan/Pengeluaran cocok untuk pencarian serta bulan yang sama. |
+| 08 | Koreksi Owner/Admin sesuai keputusan K6. | Tetapkan izin, aksi yang tersedia, perlakuan periode, dan histori audit sebelum migrasi. |
+| 09–10 | Rekap lintas periode dan Home bulanan. | Gunakan sumber data yang sama untuk daftar, grafik, total, dan ekspor. Uji batas awal bulan, bulan tanpa transaksi, dan histori yang tetap tersedia di Rekap. |
+| 11–12 | Impor histori dan Forecasting bila disetujui. | Konfirmasi bentuk file aktual, sumber per bulan, posisi prediksi, dan evaluasi galat. Simpan file impor di direktori privat. |
+| 13–14 | Integrasi MySQL, UAT, penerapan, dan penyerahan. | Simpan hasil uji, temuan, perbaikan, pemeriksaan lingkungan target, dan keputusan penerimaan. |
 
-**Keluaran sesi database:** ERD beserta kardinalitas, kamus data, aturan integritas, catatan keputusan terbuka, urutan migrasi, dan contoh data uji fiktif. Kamus data mencakup tipe kolom, kunci, relasi, indeks yang diperlukan, serta perilaku penghapusan. Gunakan representasi nilai uang yang presisi, misalnya kolom MySQL `DECIMAL`, dan pertahankan presisi yang sama pada perhitungan backend. [Dokumentasi MySQL tentang tipe nilai presisi](https://dev.mysql.com/doc/refman/8.4/en/fixed-point-types.html)
-
-**Desain cukup untuk mulai migrasi** jika alur transaksi, penyimpanan harga historis, sumber angka pembukuan, dan batas hak akses sudah bisa dijelaskan dari ERD. Keputusan yang memengaruhi struktur tabel perlu disepakati sebelum migrasi terkait dibuat. Pemetaan impor dan evaluasi peramalan bisa dirinci setelah contoh data tersedia.
+ERD, kamus data, integritas, indeks, dan urutan migrasi dijabarkan di [Desain Database MySQL](Desain-Database-MySQL-Barbershop.md). Gunakan `DECIMAL` untuk rupiah dan aritmetika presisi eksak di backend. [MySQL DECIMAL](https://dev.mysql.com/doc/refman/8.4/en/fixed-point-types.html)
 
 ## 3. Catatan historis jadwal awal
 
-Tabel ini merekam rencana awal backend berdasarkan jadwal delapan minggu pada Project Charter. Minggu pada tabel menunjukkan target yang tercantum dalam rencana awal. Untuk mengurutkan pekerjaan di GitHub, gunakan dependensi dan kriteria selesai pada [rincian pengerjaan per slice](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice).
+Project Charter mencatat rencana awal delapan minggu. Tabel ini merangkum target awal per tahap. Pengurutan pekerjaan aktif mengikuti [rincian slice dan dependensi](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice).
 
-| Waktu | Fokus dan pekerjaan backend | Keluaran |
-| --- | --- | --- |
-| **Minggu 1–2** | Petakan kebutuhan, alur kasir dan Owner, serta keterkaitannya dengan KP-01 sampai KP-07. Minta contoh data historis dan klarifikasi keputusan yang memengaruhi skema. | Daftar kebutuhan backend, rancangan awal database, dan catatan aturan bisnis yang perlu diputuskan. |
-| **Minggu 3** | Finalkan ERD dan kamus data. Sepakati dengan frontend bentuk pertukaran data, pesan validasi, dan contoh respons untuk POS, pengeluaran, dashboard, serta peramalan. | Desain database dan kontrak antarmuka yang dapat dipakai bersama. |
-| **Minggu 4** | Buat migrasi, model, dan data awal untuk lingkungan pengembangan. Kerjakan autentikasi sesi, otorisasi peran di server, CRUD master, dan alur simpan transaksi POS. Hitung total di server dan simpan semua catatan yang harus berhasil bersama dalam satu transaksi database. | Skema dapat dibangun ulang pada database pengembangan baru. Alur inti Kasir tersedia untuk integrasi. |
-| **Minggu 5** | Selesaikan pengeluaran, pembukuan, dan agregasi pendapatan harian, mingguan, serta bulanan. Integrasikan Laravel dengan skrip Python internal untuk proyeksi dan penanganan keadaan data belum cukup. | Modul backend siap diuji. Perhitungan laporan berasal dari sumber data yang disepakati. |
-| **Minggu 6–7** | Siapkan data dan lingkungan uji. Jalankan uji unit atau integrasi untuk aturan transaksi, uji rekonsiliasi, uji akses langsung ke rute terbatas, serta pemeriksaan sesi, hashing kata sandi, validasi input, CSRF, dan HTTPS. Dukung UAT bersama Kasir dan Owner, catat temuan, lalu lakukan uji ulang setelah perbaikan. | Bukti pengujian dan status tiap kriteria penerimaan. Laporan pengujian selesai akhir minggu ke-7. |
-| **Minggu 7** | Usulkan urutan uji fungsi inti dan UAT alur kritis, lalu perbaikan serta uji ulang bila diperlukan, sebelum penerapan. Siapkan konfigurasi produksi, cadangan data, migrasi, dan pemeriksaan singkat sesudah penerapan. | Sistem terpasang dan alur inti diperiksa di lingkungan target. |
-| **Minggu 8** | Serahkan dokumentasi pemasangan, skema, konfigurasi yang diperlukan, dan daftar masalah yang masih terbuka. Serahkan bukti uji kepada Manajer Proyek untuk evaluasi dan penerimaan akhir. | Dokumentasi backend dan paket bukti untuk keputusan penerimaan. |
-
-Tautan berikut memakai dokumentasi Laravel 13.x sebagai contoh. Cocokkan versinya dengan proyek sebelum mulai implementasi. [Migrasi Laravel](https://laravel.com/docs/13.x/migrations) · [Transaksi database Laravel](https://laravel.com/docs/13.x/database#database-transactions) · [Otorisasi Laravel](https://laravel.com/docs/13.x/authorization)
+| Waktu rencana awal | Target |
+| --- | --- |
+| Minggu 1–2 | Pemetaan kebutuhan dan kriteria penerimaan. |
+| Minggu 3 | Perancangan ERD, kamus data, dan kontrak frontend. |
+| Minggu 4 | Migrasi, data awal, akses, dan alur pencatatan inti. |
+| Minggu 5 | Integrasi laporan dan fitur pendukung. |
+| Minggu 6–7 | Pengujian, UAT, perbaikan, dan pemeriksaan ulang. |
+| Minggu 7 | Penyiapan lingkungan dan pemeriksaan setelah penerapan. |
+| Minggu 8 | Dokumentasi, evaluasi, dan penerimaan akhir. |
 
 ## 4. Bukti yang harus disiapkan backend
 
-| Kriteria QMP | Pemeriksaan dan bukti |
+| Kriteria QMP awal | Pemeriksaan pada rancangan terkini |
 | --- | --- |
-| **KP-01 Data operasional** | Uji operasi layanan, kapster, dan pelanggan sesuai peran. Periksa perlakuan terhadap data master yang sudah terhubung ke transaksi. Simpan hasil aktual tiap skenario. |
-| **KP-02 POS dan pembukuan** | Simpan transaksi uji dan pengeluaran. Bandingkan total POS serta pembukuan dengan perhitungan pembanding independen untuk data dan periode yang sama. Target QMP adalah **selisih Rp0**. Uji kegagalan simpan agar transaksi tidak tertinggal separuh. |
-| **KP-03 Dashboard** | Rekonsiliasi total harian, mingguan, dan bulanan terhadap data transaksi, termasuk data di batas periode. Simpan data uji, hasil pembanding, dan keluaran dashboard. |
-| **KP-04 dan KP-05 Akses dan keamanan** | Uji akses sah dan penolakan akses yang dilarang untuk kedua peran, termasuk permintaan langsung ke server. Catat bukti verifikasi sesi, hashing, validasi, CSRF, HTTPS, dan eksekusi modul peramalan secara internal. |
-| **KP-06 Peramalan** | Periksa proyeksi tampil di dashboard secara terpisah dari evaluasi galat. Jika data memadai, evaluasi menggunakan nilai aktual dari periode setelah data latih. MAE dalam rupiah adalah usulan metrik di QMP. Jika data pembanding belum cukup, catat evaluasi galat sebagai **belum terverifikasi** dan laporkan ke Manajer Proyek. [Dokumentasi pemisahan data menurut waktu](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html) |
-| **KP-07 Penyerahan** | Catat versi aplikasi dan migrasi, hasil pemeriksaan sebelum penerapan, laporan uji, catatan perbaikan, dan cara menjalankan ulang sistem. |
+| KP-01 · Data operasional | Uji katalog, harga, dan pengarsipan sesuai izin. Selaraskan cakupan data Kapster dan pelanggan dengan keputusan desain. |
+| KP-02 · Pencatatan dan pembukuan | Simpan pemasukan Kapster dan pengeluaran Owner. Uji kirim ulang serta kegagalan penyimpanan. Rekonsiliasi daftar, Rekap, dan XLSX dengan pembanding independen. Target selisih **Rp0**. |
+| KP-03 · Dashboard | Cocokkan total bulan berjalan dan grafik harian, termasuk batas pergantian bulan. Selaraskan kriteria mingguan dari rancangan awal dengan tampilan terbaru. |
+| KP-04 · Autentikasi dan akses | Uji login Owner/Admin, akses langsung ke rute terbatas, dan cakupan dua sesi Kapster bernama sama. Periksa izin koreksi bila diterapkan. |
+| KP-05 · Keamanan | Verifikasi sesi Laravel, hash kata sandi, validasi server, CSRF, serta HTTPS. Jika Forecasting dipakai, periksa pemanggilan Python secara internal. |
+| KP-06 · Peramalan | Jika disetujui, uji empat aktual dan dua prediksi serta pembaruan bulanan. Gunakan data uji setelah periode latih untuk menilai galat. Catat **belum terverifikasi** jika pembanding belum memadai. Jika fitur dikeluarkan, selaraskan KP-06 dengan Sponsor/Owner. |
+| KP-07 · Penyerahan | Catat versi aplikasi dan migrasi, hasil uji, catatan perbaikan, dan cara menjalankan ulang sistem. |
 
-## 5. Brief siap disalin ke chat database
+## 5. Persiapan tugas implementasi
 
-```text
-Saya backend developer Laravel untuk Sistem Manajemen Operasional Barbershop,
-Kelompok 6 Kelas 2023C. Fokus sesi ini adalah merancang database MySQL.
-Saya akan melampirkan Project Charter (menpro 2.pdf) dan Quality Management Plan
-versi 1.1. Gunakan Charter untuk lingkup dan QMP untuk kriteria KP-01 sampai KP-07.
-
-Sistem melayani satu lokasi dengan dua peran, Karyawan/Kasir dan Owner/Pemilik.
-Fitur inti meliputi layanan dan harga, kapster, pelanggan, transaksi POS dengan
-pembayaran tunai/nontunai yang dicatat manual, pemasukan otomatis, pengeluaran
-manual, pembukuan, dashboard pendapatan harian/mingguan/bulanan, dan satu model
-Regresi Linier Python untuk proyeksi bulanan. Charter meminta data historis
-transaksi Juli–September 2026 dalam CSV/Excel. Struktur file aktual belum saya
-berikan, jadi catat asumsi yang diperlukan.
-
-Buat ERD dengan kardinalitas, kamus data, kunci primer dan kunci asing, aturan
-integritas dan penghapusan, indeks utama, serta urutan migrasi Laravel.
-Sertakan alur pencatatan transaksi sampai laporan dan contoh data uji fiktif
-untuk membuktikan total sesuai perhitungan pembanding serta pemasukan tidak
-terhitung ganda.
-
-Sebelum menetapkan desain, identifikasi keputusan yang memengaruhi skema:
-jumlah layanan per transaksi, hubungan akun dengan kapster, penyimpanan harga
-historis, pembatalan atau koreksi, sumber pemasukan, batas periode laporan,
-dan perlakuan terhadap data historis. Tandai pilihan teknis sebagai usulan
-dan kebutuhan yang belum dikonfirmasi sebagai keputusan terbuka.
-Mulai dari desain, lalu saya akan meninjau hasilnya sebelum implementasi.
-```
+Ambil satu slice per branch. Periksa migrasi yang sudah ada dan gunakan migrasi baru untuk setiap perubahan skema. Catat keputusan yang memengaruhi tabel terkait, contoh masukan dan keluaran untuk frontend, serta bukti uji MySQL sebelum mengajukan PR ke `main`. Gunakan data fiktif dari desain database saat memeriksa rekap dan ekspor. [Alur kerja Git dan GitHub](../../README.md#alur-kerja-git-dan-github)
 
 ## Dokumen acuan proyek
 
-- Project Charter, hlm. 1–2, untuk lingkup, teknologi, batasan, data historis transaksi, dan jadwal awal.
-- Quality Management Plan versi 1.1, hlm. 1 dan 4–6, untuk lokasi uji, peran, metrik, kriteria penerimaan, dan UAT.
-- Presentasi Manajemen Operasional Barbershop, slide 5–12 dan 15, untuk masalah awal, alur kerja, dan jadwal awal.
+- *Deskripsi Sistem (Terurut)* dan konfirmasi kebutuhan berikutnya menjadi dasar alur terkini. Ringkasan acuannya tersedia pada bagian 1 dan [keputusan desain](Desain-Database-MySQL-Barbershop.md#2-perubahan-kebutuhan-dan-keputusan-terbuka).
+- Project Charter, hlm. 1–2, mencatat lingkup, teknologi, batasan, dan jadwal awal.
+- Quality Management Plan versi 1.1, hlm. 1 dan 4–6, mencatat kriteria penerimaan, bukti pengujian, dan UAT.
+- Presentasi Manajemen Operasional Barbershop, slide 5–12 dan 15, memberi konteks observasi dan jadwal awal.
 
 ## Jadwal pelaksanaan aktual
 
-Durasi pelaksanaan proyek adalah **15 minggu**. Rincian target tiap minggu, pembagian slice, dan milestone akan ditambahkan di bagian ini setelah jadwal tim disepakati.
+Durasi pelaksanaan proyek adalah **15 minggu**. Rincian target mingguan dan milestone mengikuti keputusan tim.
