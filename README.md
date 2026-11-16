@@ -17,13 +17,13 @@ Pembayaran dicatat manual pada POS. Ruang lingkup pengembangan berfokus pada ope
 
 ## Stack teknis
 
-Stack berikut mengikuti Project Charter dan draf desain database. Versi dependensi akan dicatat saat kerangka aplikasi dan berkas dependensi tersedia di repositori.
+Stack proyek mengikuti Project Charter dan draf desain database. Laravel 13.x, PHP 8.5.x, dan MySQL 8.4 LTS menjadi acuan versi tim. Versi dependensi PHP yang terpasang dicatat di `composer.lock` saat aplikasi diinisialisasi.
 
 | Bagian | Teknologi | Penggunaan |
 | --- | --- | --- |
-| Backend web | PHP, Laravel | Rute web, autentikasi berbasis sesi, otorisasi Kasir/Owner, validasi di server, dan logika operasional. |
+| Backend web | PHP 8.5.x, Laravel 13.x | Rute web, autentikasi berbasis sesi, otorisasi Kasir/Owner, validasi di server, dan logika operasional. |
 | Frontend | JavaScript dan tampilan web Laravel | Form master dan POS, pembukuan, serta dashboard Owner. |
-| Database | MySQL | Penyimpanan data operasional melalui migrasi Laravel. Draf mengusulkan InnoDB, `utf8mb4`, dan tipe `DECIMAL` untuk nominal rupiah. |
+| Database | MySQL 8.4 LTS | Penyimpanan data operasional melalui migrasi Laravel. Draf mengusulkan InnoDB, `utf8mb4`, dan tipe `DECIMAL` untuk nominal rupiah. |
 | Peramalan | Python, pandas, scikit-learn | Satu model Regresi Linier memproyeksikan omzet bulan berikutnya dari rekap pendapatan bulanan. Laravel menjalankan skrip Python secara internal. |
 | Lingkungan target | VPS dan HTTPS | Menjalankan aplikasi web, database, dan skrip peramalan. Pengamanan aplikasi mencakup hash kata sandi, pemeriksaan hak akses, validasi input, dan perlindungan CSRF. |
 | Kolaborasi | Git dan GitHub | Branch per tugas, pull request, peninjauan, dan merge ke `main`. |
@@ -90,8 +90,8 @@ Aplikasi Laravel ditempatkan di root repositori. Tampilan Kasir dan Owner memaka
 ### Memulai dari scaffold
 
 1. Salin isi folder scaffold ke root repositori di branch tugas. Sertakan `.gitignore` dan file `.gitkeep` agar Git menyimpan struktur folder kosong. Jika dokumen teknis sudah ada langsung di `docs/`, catat perpindahannya ke `docs/pengerjaan-sistem/` pada commit yang sama dengan pembaruan tautan.
-2. Saat menyiapkan Slice 00, sepakati versi PHP, Laravel, MySQL, dan Python. Buat proyek Laravel di direktori kosong terpisah, lalu gabungkan kerangka aplikasinya ke root repositori sambil mempertahankan README, dokumentasi, dan aturan Git di `.gitignore` serta `storage/app/private/.gitignore`. Berkas seperti `artisan`, `composer.json`, dan `routes/web.php` berasal dari langkah ini. [Panduan penyiapan proyek Laravel](https://laravel.com/index.php/learn/getting-started-with-laravel/setting-up-your-laravel-project)
-3. Gunakan `.env` lokal untuk koneksi MySQL. Simpan CSV/Excel aktual di `storage/app/private/imports/` dan gunakan data fiktif untuk data uji yang ikut di-commit. Tambahkan skrip dan berkas dependensi Python ke `forecasting/` saat Slice 11–12 dikerjakan.
+2. Pada Slice 00, pilih PHP 8.5.x dan MySQL 8.4 LTS di Laragon. Buat proyek Laravel 13.x di direktori kosong terpisah, lalu gabungkan kerangka aplikasinya ke root repositori sambil mempertahankan README, dokumentasi, dan aturan Git di `.gitignore` serta `storage/app/private/.gitignore`. Berkas seperti `artisan`, `composer.json`, dan `routes/web.php` berasal dari langkah ini. [Panduan penyiapan proyek Laravel](https://laravel.com/index.php/learn/getting-started-with-laravel/setting-up-your-laravel-project)
+3. Atur koneksi MySQL melalui `.env` lokal. Jalankan `php artisan about` untuk memeriksa aplikasi dan `php artisan db:show` untuk memastikan aplikasi terhubung ke MySQL 8.4 sebelum menjalankan migrasi bawaan pada database pengembangan. Simpan CSV/Excel aktual di `storage/app/private/imports/` dan gunakan data fiktif untuk data uji yang ikut di-commit. Tambahkan skrip dan berkas dependensi Python ke `forecasting/` saat Slice 11–12 dikerjakan.
 
 ## Status pengerjaan per slice
 
