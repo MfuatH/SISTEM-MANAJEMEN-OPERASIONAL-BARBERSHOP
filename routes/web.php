@@ -1,12 +1,24 @@
 <?php
 
+use App\Http\Controllers\BarberSessionController;
 use App\Http\Controllers\OwnerAuthController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Middleware\EnsureBarberSession;
 use App\Http\Middleware\EnsureOwnerIsActive;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome');
+Route::view('/', 'welcome')->name('home');
 Route::get('/services/active', [ServiceController::class, 'active'])->name('services.active');
+
+Route::prefix('kapster')->name('barber.')->middleware('guest')->group(function (): void {
+    Route::post('sesi', [BarberSessionController::class, 'store'])->name('session.store');
+
+    Route::middleware(EnsureBarberSession::class)->group(function (): void {
+        Route::view('/', 'pos.dashboard')->name('dashboard');
+        Route::get('tambah', [BarberSessionController::class, 'entryForm'])->name('entry-form');
+        Route::post('keluar', [BarberSessionController::class, 'destroy'])->name('session.destroy');
+    });
+});
 
 Route::prefix('owner')->group(function (): void {
     Route::middleware('guest')->group(function (): void {

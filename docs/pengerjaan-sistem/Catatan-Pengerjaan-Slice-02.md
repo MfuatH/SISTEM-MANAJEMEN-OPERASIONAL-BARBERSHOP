@@ -2,7 +2,7 @@
 
 - **Branch** `feat/slice-02-katalog-layanan`
 - **Pull request** [PR #3 ke main](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/3)
-- **Status** Implementasi dan pengujian selesai. PR terbuka untuk review sebelum merge.
+- **Status** Implementasi dan pengujian selesai. PR #3 telah di-merge ke `main` pada commit `808e9a6`.
 
 ## Dasar pengerjaan
 
@@ -44,4 +44,4 @@ Bukti ini mendukung KP-01 untuk katalog layanan dan KP-04 untuk pembatasan penge
 | --- | --- |
 | [`19118ef`](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/commit/19118ef7aec1bec163d486934d86ab5d5069c309) | Migrasi katalog, halaman pengelolaan Owner, daftar layanan aktif, dan pengujian. |
 
-Setelah PR #3 disetujui dan masuk ke `main`, lanjutkan ke **Slice 03 — Sesi Kapster dengan nama teks**. Daftar layanan aktif dari Slice 02 dapat dipakai kembali saat form pencatatan Kapster dikerjakan. [Urutan pengerjaan per slice](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
+Slice 03 dimulai dari hasil merge PR #3 dan memakai katalog aktif untuk pratinjau di form Tambah. [Catatan pengerjaan Slice 03](Catatan-Pengerjaan-Slice-03.md). [Urutan pengerjaan per slice](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)

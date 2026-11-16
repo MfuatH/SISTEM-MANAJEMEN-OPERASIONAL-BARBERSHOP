@@ -25,7 +25,9 @@ QMP mencantumkan Andik Ari Mulyono sebagai penerima hasil. Kolom penerimaan akhi
 | --- | --- | --- |
 | 00 | Fondasi Laravel dan MySQL, desain database, dan kontrak data awal. | Fondasi telah diuji. Ambil `main` terbaru untuk pekerjaan fitur setelah PR fondasi disetujui dan di-merge. |
 | 01 | Login username dan akses Owner dengan `users` serta `sessions` bawaan. | Migrasi menambahkan username unik dan meniadakan atribut email akun. Provisioning melalui `php artisan owner:create`. Uji login, logout, dan akses langsung ke rute Owner dari sesi tamu. |
-| 02–04 | Katalog harga, sesi nama Kapster, serta master atau kolom pelanggan jika terbukti diperlukan. | Harga katalog tampil otomatis. Sepakati pengelola katalog, cakupan baca sesi, serta arti nama di form Tambah sebelum migrasi yang terdampak. |
+| 02 | Katalog dan harga layanan aktif. | Sudah di-merge ke `main`. [Catatan Slice 02](Catatan-Pengerjaan-Slice-02.md) |
+| 03 | Sesi Kapster dengan nama teks dan pratinjau harga. | Implementasi diuji. Sesi menggunakan `sessions` bawaan. [Catatan Slice 03](Catatan-Pengerjaan-Slice-03.md) |
+| 04 | Master atau kolom pelanggan jika terbukti diperlukan. | Pastikan arti nama pada form Tambah sebelum mengubah skema pencatatan. |
 | 05–07 | Simpan pencatatan Kapster, tampilkan Pemasukan Owner, lalu siapkan pengeluaran dengan ID buatan sistem. | Simpan harga historis dan cegah catatan ganda saat kirim ulang. Daftar dan XLSX Pemasukan/Pengeluaran cocok untuk pencarian serta bulan yang sama. |
 | 08 | Koreksi Owner sesuai keputusan K6. | Tetapkan izin, aksi yang tersedia, perlakuan periode, dan histori audit sebelum migrasi. |
 | 09–10 | Rekap lintas periode dan Home bulanan. | Gunakan sumber data yang sama untuk daftar, grafik, total, dan ekspor. Uji batas awal bulan, bulan tanpa transaksi, dan histori yang tetap tersedia di Rekap. |
