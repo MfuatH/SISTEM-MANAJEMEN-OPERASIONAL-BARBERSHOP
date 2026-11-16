@@ -147,3 +147,6 @@ Setiap anggota mengerjakan satu tugas atau slice pada branch tersendiri. Gunakan
 - **Dokumen tugas kuliah** memuat daftar acuan observasi, Project Charter, dan Quality Management Plan. [Acuan tugas kuliah](docs/tugas-kuliah/README.md)
 - **Desain Database MySQL Barbershop** untuk ERD, kamus data, migrasi, contoh rekonsiliasi, dan rincian Slice 00–14. [Draf desain database](docs/pengerjaan-sistem/Desain-Database-MySQL-Barbershop.md)
 - **Rencana Backend** untuk konteks pengerjaan dan bukti yang perlu disiapkan. [Rencana backend](docs/pengerjaan-sistem/Rencana-Backend-Sistem-Operasional-Barbershop.md)
+- **Manajemen Operasional Barbershop.pdf** untuk latar belakang dan kebutuhan operasional awal.
+- **menpro 2.pdf (Project Charter)** untuk cakupan dan teknologi proyek.
+- **Quality Management Plan_Kelompok 6_2023C.pdf** untuk kriteria penerimaan KP-01 sampai KP-07 dan prosedur UAT.
