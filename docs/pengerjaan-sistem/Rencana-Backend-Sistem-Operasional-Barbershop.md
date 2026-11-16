@@ -11,7 +11,7 @@ Sistem melayani satu lokasi. Stack yang disepakati adalah Laravel 13.x, PHP 8.5.
 | Area | Alur dan keluaran |
 | --- | --- |
 | Sesi Kapster | Kapster memasukkan nama berbentuk teks dari beranda. Form menampilkan harga otomatis saat layanan dipilih. Server menyimpan nama Kapster, layanan, dan harga saat pencatatan. Satu simpan sah menghasilkan satu pemasukan. |
-| Owner | Owner dan Admin adalah orang yang sama. Owner masuk dengan username dan kata sandi. Area Owner memuat Home, Pemasukan, Pengeluaran, Rekap, dan Forecasting bila disetujui. |
+| Owner | Owner, yang juga disebut Admin dalam deskripsi sistem, masuk dengan akun yang sama melalui username dan kata sandi. Area Owner memuat Home, Pemasukan, Pengeluaran, Rekap, dan Forecasting bila disetujui. |
 | Pemasukan dan pengeluaran | Pemasukan berasal dari pencatatan Kapster. Owner mengisi tanggal, deskripsi, dan jumlah pengeluaran, lalu sistem membuat ID. Metode pembayaran dan struk keluar dari cakupan. |
 | Periode dan ekspor | Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Home menampilkan dua total bulanan dan dua seri harian. Rekap memuat seluruh histori dengan filter bulan atau jenis. Pemasukan, Pengeluaran, dan Rekap mendukung pencarian dan ekspor Excel pada cakupan masing-masing. |
 | Koreksi | Draf menempatkan tindakan koreksi yang diaktifkan di area Owner. Cakupan koreksi, kebutuhan pembatalan mandiri, dan jejak audit perlu diputuskan sebelum Slice 08. |

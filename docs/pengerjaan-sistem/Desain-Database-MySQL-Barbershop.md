@@ -15,7 +15,7 @@ erDiagram
 
 ### Tabel `users`
 
-**Isi dan fungsi.** Akun yang dapat diprovisikan untuk login Owner. Owner dan Admin adalah sebutan untuk orang yang sama. Implementasi memakai satu akun Owner dengan username dan kata sandi. Slice 01 mengubah tabel bawaan melalui migrasi baru.
+**Isi dan fungsi.** Akun untuk login Owner dengan username dan kata sandi. Owner adalah sebutan lain untuk Admin. Kedua istilah merujuk pada akun dan izin yang sama. Slice 01 mengubah tabel bawaan melalui migrasi baru.
 
 | Kolom | Tipe MySQL | Kunci dan fungsi | Status |
 | --- | --- | --- | --- |
@@ -54,7 +54,7 @@ Satu Owner dapat mencatat nol hingga banyak pengeluaran. Satu record `sessions` 
 | K4 | **Dikonfirmasi.** Sistem membuat ID pengeluaran. | Gunakan `expenses.id` yang dibuat oleh database. Usulan format tampilan dan ekspor adalah `EXP-{id}`. |
 | K5 | **Dikonfirmasi.** Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Rekap mencakup seluruh histori. | Pada pergantian bulan, halaman bulanan memakai rentang baru. Rekap tetap dapat membaca bulan sebelumnya dan menyediakan filter bulan atau jenis. |
 | K6 | **Dikonfirmasi.** Pencatatan memakai layanan dan nominal, dengan aksi Kapster sebatas menambah. **Tafsiran draf.** Koreksi dan pembatalan yang diaktifkan berada di area Owner. | Kolom metode pembayaran dikeluarkan dari skema. Sebelum Slice 08, pastikan apakah Owner membutuhkan pembatalan tanpa pengganti atau cukup koreksi, cakupan pemasukan/pengeluaran, perlakuan periode, dan histori audit. Master pelanggan dan pencatatan mundur pemasukan masih terbuka. |
-| K7 | **Dikonfirmasi.** Owner dan Admin adalah orang yang sama. Login memakai username dan kata sandi. | Satu jenis akun Owner. Slice 01 menambahkan username dan menghapus atribut email akun. |
+| K7 | **Dikonfirmasi.** Owner dan Admin adalah dua sebutan untuk akun yang sama. | Satu jenis akun Owner. Slice 01 menambahkan username dan menghapus atribut email akun. |
 | K8 | Apakah Forecasting disetujui, posisi prediksi di mana, dan apa yang diproyeksikan? Apakah data Juli–September 2026 masih diperlukan? | Usulan targetnya pemasukan bulanan, memakai empat bulan aktual terakhir yang sudah lengkap pada grafik dan dua bulan prediksi sesudahnya. Frasa “6 bulan kebelakang” juga dapat berarti dua prediksi atas bulan historis. Konfirmasi arti tersebut, sumber data, dan ketentuan baru sebelum Slice 11–12. |
 
 ## 3. Kamus tabel lainnya
@@ -131,7 +131,7 @@ Tabel berikut digunakan oleh infrastruktur Laravel. `sessions.user_id` dan `pass
 
 | Tabel | Indeks utama selain PK | Pemakaian |
 | --- | --- | --- |
-| `users` | UQ `email` yang sudah ada, UQ `username` usulan | Identitas akun dan login. |
+| `users` | UQ `username` | Identitas akun dan login. |
 | `services` | `(archived_at, name)` | Daftar layanan aktif. |
 | `income_entries` | `(recorded_at, id)`, indeks `service_id`, UQ `request_key` | Rekap periode, FK layanan, dan pencarian catatan berdasarkan kunci permintaan. |
 | `expenses` | `(incurred_on, id)`, UQ `(recorded_by_user_id, request_key)` | Rekap periode, FK pencatat, dan simpan ulang. Pencarian ID yang tepat memakai PK `id`. |
