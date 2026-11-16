@@ -6,14 +6,14 @@ Proyek pengembangan aplikasi web untuk operasional satu lokasi barbershop oleh K
 
 Pencatatan transaksi, pemasukan, dan pengeluaran secara manual menyulitkan pengecekan selisih kas serta penyusunan laporan. Karyawan juga merangkap sebagai kasir, sementara pemilik membutuhkan rekap pendapatan yang bisa diperiksa tanpa menunggu pencatatan ulang.
 
-Aplikasi menyatukan pencatatan transaksi dan pengeluaran dengan pembukuan, dashboard pendapatan, dan proyeksi omzet bulanan. Pembagian akses mengikuti dua peran operasional.
+Aplikasi menyatukan pencatatan pemasukan, pengeluaran, dan laporan bulanan untuk satu lokasi.
 
-| Peran | Alur utama |
+| Sesi | Alur utama |
 | --- | --- |
-| Karyawan/Kasir | Mengelola data layanan dan harga, kapster, serta pelanggan. Mencatat penjualan di POS, pembayaran tunai atau nontunai, dan pengeluaran. |
-| Owner/Pemilik | Memeriksa pembukuan, dashboard pendapatan harian, mingguan, dan bulanan, serta proyeksi omzet bulan berikutnya. |
+| Kapster | Mulai dari beranda dengan nama berbentuk teks. Pilih layanan untuk melihat harga katalog, lalu simpan pencatatan yang menjadi pemasukan. |
+| Owner/Admin | Masuk dengan username dan kata sandi. Catat pengeluaran, buka Home, Pemasukan, Pengeluaran, dan Rekap, serta ekspor laporan ke Excel. |
 
-Pembayaran dicatat manual pada POS. Ruang lingkup pengembangan berfokus pada operasional satu lokasi. Booking daring, payment gateway otomatis, dan pengelolaan multi-cabang berada di luar cakupan.
+Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Pada pergantian bulan, tampilan beralih ke periode baru. Rekap tetap menyediakan histori seluruh periode dan filter bulan atau jenis. Metode pembayaran dan pembuatan struk keluar dari cakupan. Forecasting bersifat opsional. [Rincian kebutuhan dan keputusan](docs/pengerjaan-sistem/Desain-Database-MySQL-Barbershop.md#2-perubahan-kebutuhan-dan-keputusan-terbuka)
 
 ## Stack teknis
 
@@ -21,20 +21,20 @@ Stack proyek mengikuti Project Charter dan draf desain database. Tim menetapkan 
 
 | Bagian | Teknologi dan versi | Penggunaan |
 | --- | --- | --- |
-| Backend web | PHP **8.5.12**, Laravel **13.42.0** | Rute web, autentikasi berbasis sesi, otorisasi Kasir/Owner, validasi di server, dan logika operasional. |
-| Frontend | JavaScript dan Blade Laravel | Form master dan POS, pembukuan, serta dashboard Owner. |
+| Backend web | PHP **8.5.12**, Laravel **13.42.0** | Rute web, sesi Kapster, autentikasi Owner/Admin, validasi di server, dan logika operasional. |
+| Frontend | JavaScript dan Blade Laravel | Form pencatatan Kapster dan pengeluaran, Rekap, serta dashboard Owner. |
 | Database | MySQL **8.4.3 LTS** | Penyimpanan data operasional melalui migrasi Laravel. Draf mengusulkan InnoDB, `utf8mb4`, dan tipe `DECIMAL` untuk nominal rupiah. |
 | Pengembangan lokal | Laragon **8.8.0**, Composer **2.10.3** | Menjalankan PHP dan MySQL secara lokal serta memasang dependensi Laravel. |
 | Pengujian | PHPUnit **12.5.44** | Menjalankan pengujian PHP melalui `php artisan test`. |
-| Peramalan | Python, pandas, scikit-learn | Satu model Regresi Linier memproyeksikan omzet bulan berikutnya dari rekap pendapatan bulanan. Laravel menjalankan skrip Python secara internal. Versi paket peramalan dicatat saat Slice 11–12 dikerjakan. |
-| Lingkungan target | VPS dan HTTPS | Menjalankan aplikasi web, database, dan skrip peramalan. Pengamanan aplikasi mencakup hash kata sandi, pemeriksaan hak akses, validasi input, dan perlindungan CSRF. |
+| Peramalan | Python, pandas, scikit-learn | Jika disetujui, satu model Regresi Linier dipanggil secara internal oleh Laravel. Dashboard memuat empat bulan aktual dan dua prediksi. Versi paket dicatat saat Slice 11–12 dikerjakan. |
+| Lingkungan target | VPS dan HTTPS | Menjalankan aplikasi web dan database, serta skrip peramalan jika disetujui. Pengamanan aplikasi mencakup hash kata sandi, pemeriksaan hak akses, validasi input, dan perlindungan CSRF. |
 | Kolaborasi | Git dan GitHub | Branch per tugas, pull request, peninjauan, dan merge ke `main`. |
 
-Rancangan mengusulkan agar satu struk POS lunas dan aktif tercatat sebagai satu pemasukan, termasuk ketika struk memuat beberapa layanan. Harga jual disimpan per item agar perubahan harga master tidak mengubah nilai struk lama. Data historis untuk peramalan berasal dari CSV/Excel dengan periode awal Juli–September 2026. Pemetaan dan rekonsiliasi impor bergantung pada contoh data aktual.
+Satu pencatatan Kapster menghasilkan satu pemasukan. Nama Kapster dan harga tersimpan pada catatan agar laporan historis memakai nilai saat pencatatan. Koreksi yang diaktifkan berada di area Owner/Admin. Rincian tindakan dan kebijakan audit masih ditinjau.
 
 ## Struktur folder
 
-Aplikasi Laravel ditempatkan di root repositori. Tampilan Kasir dan Owner memakai Blade dan JavaScript di `resources/`. Modul peramalan berada di `forecasting/` dan dipanggil Laravel sebagai proses internal. [Dokumentasi struktur Laravel](https://laravel.com/framework/docs/structure)
+Aplikasi Laravel ditempatkan di root repositori. Rencana tampilan Kapster dan Owner memakai Blade dan JavaScript di `resources/`. Folder `forecasting/` menampung modul Python bila disetujui. [Dokumentasi struktur Laravel](https://laravel.com/framework/docs/structure)
 
 ```text
 .
@@ -42,11 +42,11 @@ Aplikasi Laravel ditempatkan di root repositori. Tampilan Kasir dan Owner memaka
 │   ├── Console/
 │   │   └── Commands/              # Perintah Artisan untuk impor histori
 │   ├── Http/
-│   │   ├── Controllers/           # Alur web Kasir dan Owner
+│   │   ├── Controllers/           # Alur web Kapster dan Owner
 │   │   ├── Middleware/            # Pemeriksaan sesi dan hak akses
 │   │   └── Requests/              # Validasi input
 │   ├── Models/                    # Model Eloquent
-│   └── Services/                  # Checkout, pembukuan, dan pemanggilan Python
+│   └── Services/                  # Pencatatan Kapster, Rekap, dan peramalan opsional
 ├── bootstrap/                    # Bootstrap Laravel saat proyek diinisialisasi
 ├── config/                       # Konfigurasi aplikasi, database, dan peramalan
 ├── database/
@@ -62,10 +62,10 @@ Aplikasi Laravel ditempatkan di root repositori. Tampilan Kasir dan Owner memaka
 │   ├── css/                       # CSS sumber
 │   ├── js/                        # JavaScript sumber
 │   └── views/
-│       ├── auth/                   # Login
-│       ├── master/                 # Layanan, kapster, dan pelanggan
-│       ├── pos/                    # Checkout dan struk
-│       ├── expenses/               # Input pengeluaran
+│       ├── auth/                   # Login Owner/Admin
+│       ├── master/                 # Katalog layanan dan pelanggan bila dibutuhkan
+│       ├── pos/                    # Folder scaffold untuk pencatatan Kapster
+│       ├── expenses/               # Input pengeluaran Owner/Admin
 │       └── owner/                  # Pembukuan, dashboard, dan proyeksi
 ├── routes/                       # Rute web dan console Laravel
 ├── storage/
@@ -82,49 +82,49 @@ Aplikasi Laravel ditempatkan di root repositori. Tampilan Kasir dan Owner memaka
 | Slice | Folder yang dipakai |
 | --- | --- |
 | 00 | `docs/pengerjaan-sistem/`, `bootstrap/`, `config/` untuk rancangan, kontrak data, dan penyiapan Laravel. |
-| 01 | `app/Http/`, `app/Models/`, `routes/`, dan `resources/views/auth/` untuk login dan akses peran. |
-| 02–04 | `database/`, `app/Models/`, `app/Http/`, dan `resources/views/master/` untuk data master. |
-| 05–08 | `app/Services/`, `database/migrations/`, serta tampilan `pos/` dan `expenses/` untuk transaksi, pemasukan, pengeluaran, dan koreksi. |
+| 01 | `app/Http/`, `app/Models/`, `routes/`, dan `resources/views/auth/` untuk login dan akses Owner/Admin. |
+| 02–04 | `database/`, `app/Models/`, `app/Http/`, dan `resources/views/master/` untuk katalog, sesi Kapster, serta data pelanggan bila dibutuhkan. |
+| 05–08 | `app/Services/`, `database/migrations/`, serta tampilan `pos/`, `expenses/`, dan `owner/` untuk pencatatan, pemasukan, pengeluaran, dan koreksi bersyarat. |
 | 09–10 | `app/Services/`, `resources/views/owner/`, dan `resources/js/` untuk pembukuan serta dashboard. |
-| 11–12 | `app/Console/Commands/` untuk impor, `storage/app/private/imports/` untuk file lokal, serta `forecasting/`, `app/Services/`, dan `resources/views/owner/` untuk proyeksi. |
+| 11–12 | `app/Console/Commands/`, `storage/app/private/imports/`, `forecasting/`, dan `resources/views/owner/` jika impor histori atau proyeksi disetujui. |
 | 13–14 | `tests/` untuk kode uji, `docs/pengerjaan-sistem/` untuk bukti UAT dan penyerahan, serta `config/` dan `public/` untuk pengaturan lingkungan target. |
 
-### Memulai dari scaffold
+### Menyiapkan lingkungan lokal
 
-1. Salin isi folder scaffold ke root repositori di branch tugas. Sertakan `.gitignore` dan file `.gitkeep` agar Git menyimpan struktur folder kosong. Jika dokumen teknis sudah ada langsung di `docs/`, catat perpindahannya ke `docs/pengerjaan-sistem/` pada commit yang sama dengan pembaruan tautan.
-2. Pada Slice 00, pilih PHP 8.5.x dan MySQL 8.4 LTS di Laragon. Buat proyek Laravel 13.x di direktori kosong terpisah, lalu gabungkan kerangka aplikasinya ke root repositori sambil mempertahankan README, dokumentasi, dan aturan Git di `.gitignore` serta `storage/app/private/.gitignore`. Berkas seperti `artisan`, `composer.json`, dan `routes/web.php` berasal dari langkah ini. [Panduan penyiapan proyek Laravel](https://laravel.com/index.php/learn/getting-started-with-laravel/setting-up-your-laravel-project)
-3. Atur koneksi MySQL melalui `.env` lokal. Jalankan `php artisan about` untuk memeriksa aplikasi dan `php artisan db:show` untuk memastikan aplikasi terhubung ke MySQL 8.4 sebelum menjalankan migrasi bawaan pada database pengembangan. Simpan CSV/Excel aktual di `storage/app/private/imports/` dan gunakan data fiktif untuk data uji yang ikut di-commit. Tambahkan skrip dan berkas dependensi Python ke `forecasting/` saat Slice 11–12 dikerjakan.
+1. Pilih PHP 8.5.x dan MySQL 8.4 LTS di Terminal Laragon, lalu jalankan `composer install` dari root repositori.
+2. Gunakan `.env.example` sebagai acuan untuk `.env` dan `.env.testing`. Arahkan keduanya ke skema terpisah, `barbershop_dev` dan `barbershop_test`, sesuai port MySQL lokal.
+3. Jalankan `php artisan about`, `php artisan db:show`, dan `php artisan db:show --env=testing` sebelum menerapkan migrasi bawaan. Simpan CSV/Excel aktual di `storage/app/private/imports/` dan gunakan data fiktif untuk pengujian. [Panduan dan bukti Slice 00](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-00.md#cara-mengulang-pemeriksaan)
 
 ## Status pengerjaan per slice
 
-Draf desain database tercatat di branch `planning-backend-BahauddinRahmanHakim` dan menunggu peninjauan. Implementasi aplikasi, UAT, dan penerapan belum terverifikasi dari riwayat Git lokal.
+Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan diajukan melalui [PR #1](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/1). Desain berikut menjadi acuan peninjauan fitur.
 
 | Slice | Pekerjaan dan indikator selesai | Status |
 | --- | --- | --- |
-| 00 | Tinjau ERD, kontrak data dengan frontend, dan keputusan yang diperlukan untuk slice berikutnya. Siapkan Laravel dan verifikasi migrasi bawaan pada MySQL 8.4. | Fondasi diuji, dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-00.md) |
-| 01 | Login, logout, dan pembatasan akses. Kedua peran dapat masuk dan keluar. Akses langsung lintas peran dan permintaan perubahan tanpa token CSRF yang sah ditolak. | Direncanakan |
-| 02 | Master layanan dan harga. Kasir dapat menambah, melihat, mengubah, dan mengarsipkan layanan. Harga tidak sah ditolak. | Direncanakan |
-| 03 | Master kapster. Kasir dapat mengelola data kapster dan kapster yang diarsipkan hilang dari pilihan aktif. | Direncanakan |
-| 04 | Master pelanggan. Kasir dapat mengelola data pelanggan dan membedakan pelanggan bernama sama berdasarkan ID. | Direncanakan |
-| 05 | Checkout POS dan struk. Simpan pembayaran tunai atau nontunai, pertahankan harga historis, cegah struk ganda saat kirim ulang, dan batalkan seluruh penyimpanan jika salah satu item gagal. | Direncanakan |
-| 06 | Pemasukan otomatis dari POS. Setiap struk lunas dan aktif menghasilkan tepat satu pemasukan. | Direncanakan |
-| 07 | Pencatatan pengeluaran manual. Kasir dapat menyimpan pengeluaran yang sah dan kirim ulang permintaan yang sama tidak menggandakan catatan. | Direncanakan |
-| 08 | Pembatalan dan koreksi. Catatan asal dan pengganti dapat ditelusuri, pembukuan menghitung catatan yang aktif, dan tindakan dibatasi sesuai kewenangan yang disepakati. | Direncanakan |
-| 09 | Pembukuan Owner. Rekap pemasukan, pengeluaran, dan saldo per periode cocok dengan hitungan pembanding, dengan target selisih Rp0 pada data uji yang sama. | Direncanakan |
-| 10 | Dashboard pendapatan harian, mingguan, dan bulanan. Total pada grafik konsisten dengan pembukuan untuk periode yang sama. | Direncanakan |
-| 11 | Impor histori Juli–September 2026. Data aktual dapat direkonsiliasi dengan sumber dan impor ulang tidak menduplikasi catatan. | Direncanakan, menunggu contoh data aktual |
-| 12 | Proyeksi bulanan pada dashboard Owner. Tampilkan bulan target, nominal, periode sumber, dan status kecukupan data. | Direncanakan |
-| 13 | Uji integrasi MySQL, keamanan, dan UAT. Catat hasil uji terhadap QMP, temuan, perbaikan, dan hasil penerimaan pengguna. | Direncanakan |
-| 14 | Penerapan setelah fungsi inti lulus uji, lalu evaluasi dan penyerahan. Catat hasil pemeriksaan lingkungan target dan keputusan penerimaan. | Direncanakan |
+| 00 | Verifikasi fondasi Laravel dan MySQL, lalu tinjau kontrak data dan keputusan desain terbaru. | Fondasi diuji, dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-00.md) |
+| 01 | Owner/Admin dapat login dengan username, logout, dan mengakses rute sesuai izin. | Direncanakan |
+| 02 | Katalog layanan menyediakan pilihan aktif dan harga yang valid untuk form Kapster, sesuai kewenangan pengelola yang disepakati. | Direncanakan |
+| 03 | Kapster memulai sesi dengan nama teks. Dashboard menampilkan catatan sesuai cakupan sesi yang disepakati. | Direncanakan |
+| 04 | Tentukan kebutuhan nama pelanggan dan relasi master sesuai keputusan K1. | Bersyarat |
+| 05 | Simpan pencatatan Kapster dengan harga otomatis, snapshot harga, dan satu pemasukan per penyimpanan sah. | Direncanakan |
+| 06 | Pemasukan Owner menampilkan bulan berjalan. Hasil pencarian dan XLSX dapat direkonsiliasi. | Direncanakan |
+| 07 | Owner mencatat pengeluaran dengan ID buatan sistem. Riwayat dan XLSX mengikuti bulan berjalan. | Direncanakan |
+| 08 | Jika disetujui, Owner/Admin menjalankan tindakan koreksi yang dicatat untuk audit. | Bersyarat |
+| 09 | Rekap menggabungkan pemasukan dan pengeluaran lintas periode serta menyediakan filter dan XLSX. Target selisih Rp0. | Direncanakan |
+| 10 | Home menampilkan dua total bulanan dan grafik harian. Pergantian bulan memakai rentang baru dan histori tersedia di Rekap. | Direncanakan |
+| 11 | Bila sumber historis dipakai, rekonsiliasi CSV/Excel privat dan uji impor ulang. | Opsional |
+| 12 | Bila disetujui, perbarui tampilan empat bulan aktual dan dua prediksi setiap bulan. | Opsional |
+| 13 | Uji integrasi MySQL, pembatasan akses, rekonsiliasi laporan, ekspor, dan UAT. | Direncanakan |
+| 14 | Periksa fungsi inti sebelum penerapan, lalu catat evaluasi dan penerimaan. | Direncanakan |
 
-Simulasi kueri pada SQLite dengan data fiktif mendukung peninjauan desain. Pengujian migrasi, transaksi, dan konkurensi pada MySQL target dilakukan saat implementasi. Gunakan urutan dan dependensi pada desain database untuk mengambil tugas berikutnya. [Rincian pengerjaan per slice](docs/pengerjaan-sistem/Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
+Contoh kueri Rekap telah diperiksa pada MySQL 8.4.3 menggunakan data fiktif. Gunakan urutan dan kriteria selesai pada desain database untuk mengambil tugas berikutnya. [Rincian pengerjaan per slice](docs/pengerjaan-sistem/Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
 
 ## Alur kerja Git dan GitHub
 
-Setiap anggota mengerjakan satu tugas atau slice pada branch tersendiri. Gunakan `main` sebagai tujuan pull request. Salinan lokal saat penyusunan README memiliki `master` dan branch perencanaan. Pengelola repositori memeriksa branch default di GitHub dan menyiapkan `main` jika belum tersedia sebelum tim mengikuti langkah berikut.
+Setiap anggota mengerjakan satu tugas atau slice pada branch tersendiri. Gunakan `main` sebagai tujuan pull request.
 
 1. **Ambil tugas.** Cantumkan nomor slice, penanggung jawab, dependensi, dan kriteria selesai di catatan tugas atau issue. Untuk pekerjaan frontend dan backend yang saling terkait, sepakati format data serta respons validasi sebelum implementasi.
-2. **Buat branch dari `main` terbaru.** Gunakan nama yang menunjukkan pekerjaan, misalnya `feat/slice-01-auth-akses`. Nama seperti `fix/slice-05-cegah-struk-ganda` dan `docs/slice-00-kontrak-data` bisa dipakai untuk perbaikan dan dokumentasi.
+2. **Buat branch dari `main` terbaru.** Gunakan nama yang menunjukkan pekerjaan, misalnya `feat/slice-01-auth-akses`. Nama seperti `fix/slice-05-cegah-pencatatan-ganda` dan `docs/slice-00-kontrak-data` bisa dipakai untuk perbaikan dan dokumentasi.
 
    ```bash
    git fetch origin
@@ -150,5 +150,5 @@ Setiap anggota mengerjakan satu tugas atau slice pada branch tersendiri. Gunakan
 - **Desain Database MySQL Barbershop** untuk ERD, kamus data, migrasi, contoh rekonsiliasi, dan rincian Slice 00–14. [Draf desain database](docs/pengerjaan-sistem/Desain-Database-MySQL-Barbershop.md)
 - **Rencana Backend** untuk konteks pengerjaan dan bukti yang perlu disiapkan. [Rencana backend](docs/pengerjaan-sistem/Rencana-Backend-Sistem-Operasional-Barbershop.md)
 - **Manajemen Operasional Barbershop.pdf** untuk latar belakang dan kebutuhan operasional awal.
-- **menpro 2.pdf (Project Charter)** untuk cakupan dan teknologi proyek.
+- **menpro 2.pdf (Project Charter)** untuk cakupan awal dan teknologi proyek.
 - **Quality Management Plan_Kelompok 6_2023C.pdf** untuk kriteria penerimaan KP-01 sampai KP-07 dan prosedur UAT.

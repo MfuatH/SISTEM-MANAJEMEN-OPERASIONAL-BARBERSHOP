@@ -53,7 +53,7 @@
 | `0001_01_01_000001_create_cache_table.php` | `cache`, `cache_locks` |
 | `0001_01_01_000002_create_jobs_table.php` | `jobs`, `job_batches`, `failed_jobs` |
 
-Laravel juga membuat tabel `migrations`. Setelah migrasi, setiap skema berisi sembilan tabel. Slice 01 akan menambah kolom `role` untuk Kasir dan Owner lewat migrasi baru. Tabel `sessions` bawaan tersedia untuk driver sesi database.
+Laravel juga membuat tabel `migrations`. Setelah migrasi, setiap skema berisi sembilan tabel. Rancangan Slice 01 mengusulkan kolom `username` dan `disabled_at` untuk Owner/Admin melalui migrasi baru. Tabel `sessions` bawaan menjadi dasar sesi Laravel untuk Owner/Admin dan sesi nama Kapster.
 
 ## Bukti pemeriksaan
 
@@ -81,4 +81,8 @@ Laravel juga membuat tabel `migrations`. Setelah migrasi, setiap skema berisi se
 | [`6b5bd60`](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/commit/6b5bd6061227c4f9374a0c76b83aa9be6ffafa70) | Inisialisasi Laravel, konfigurasi MySQL, dan skema uji terpisah. |
 | [`b098fd9`](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/commit/b098fd9b37fc1f79e722c18be9b8fbffb16f55c9) | Pencatatan versi pasti stack pada README. |
 
-Setelah PR #1 disetujui dan di-merge, ambil `main` terbaru untuk branch Slice 01. Tambahkan migrasi peran akun, lalu uji login, logout, dan pembatasan akses Kasir/Owner sesuai KP-04 dan KP-05. Migrasi master dan POS menyusul pada branch tugas masing-masing setelah keputusan skemanya dikonfirmasi. [Urutan pengerjaan per slice](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice) · [Rencana backend](Rencana-Backend-Sistem-Operasional-Barbershop.md)
+### Revisi desain setelah uji fondasi
+
+Desain kini memakai nama Kapster berbentuk teks, harga dari katalog, serta ID pengeluaran buatan sistem. Home, Pemasukan, dan Pengeluaran berpindah ke bulan berjalan. Rekap menyediakan histori seluruh periode. Kueri Rekap telah diuji dengan data fiktif pada MySQL 8.4.3. [Keputusan desain](Desain-Database-MySQL-Barbershop.md#2-perubahan-kebutuhan-dan-keputusan-terbuka) · [Bukti rekonsiliasi](Desain-Database-MySQL-Barbershop.md#8-data-uji-fiktif-dan-rekonsiliasi)
+
+Setelah PR #1 disetujui dan di-merge, ambil `main` terbaru untuk branch Slice 01. Tambahkan username Owner/Admin melalui migrasi baru, lalu uji autentikasi dan akses rute sesuai KP-04 dan KP-05. Lanjutkan ke katalog layanan, sesi Kapster, dan pencatatan berdasarkan keputusan skema tiap slice. [Urutan pengerjaan per slice](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice) · [Rencana backend](Rencana-Backend-Sistem-Operasional-Barbershop.md)
