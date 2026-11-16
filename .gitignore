@@ -1,0 +1,23 @@
+# Konfigurasi lokal dan kredensial
+.env
+.env.*
+!.env.example
+/auth.json
+/storage/*.key
+
+# Dependensi, build, dan keluaran pengujian Laravel
+/vendor/
+/node_modules/
+/public/build/
+/public/hot
+/public/storage
+/.phpunit.cache/
+/.phpunit.result.cache
+/storage/logs/*.log
+/database/*.sqlite*
+
+# Lingkungan dan cache Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/

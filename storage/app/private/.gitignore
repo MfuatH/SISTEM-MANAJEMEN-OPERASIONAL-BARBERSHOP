@@ -1,0 +1,5 @@
+# Simpan file impor aktual hanya di lingkungan lokal.
+*
+!.gitignore
+!imports/
+!imports/.gitkeep
