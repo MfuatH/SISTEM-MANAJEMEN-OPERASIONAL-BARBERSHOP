@@ -11,7 +11,7 @@
 | Pemeriksaan repositori dan inisialisasi Laravel | Selesai | Scaffold di `main` diperiksa pada commit `34c3672`. Fondasi Laravel ditambahkan melalui branch Slice 00. |
 | Penyiapan Laragon dan MySQL | Selesai di lingkungan lokal | PHP 8.5 dan MySQL 8.4 aktif untuk proyek. Database pengembangan dan pengujian menggunakan skema dan akun masing-masing. |
 | Migrasi bawaan dan pengujian | Lulus | Ketiga migrasi bawaan tercatat `Ran` di kedua skema. Rollback, migrasi ulang, dan dua tes bawaan Laravel lulus. |
-| Review dan merge fondasi | Dalam review | Implementasi diajukan melalui PR #1. Slice 01 bergantung pada persetujuan dan merge ke `main`. |
+| Review dan merge fondasi | Selesai | Fondasi masuk ke `main` pada commit `505f053`. |
 | Keputusan bisnis dan kontrak fitur | Terbuka sesuai slice terkait | Gunakan daftar keputusan di desain database dan sepakati kontrak dengan frontend sebelum menulis migrasi yang terdampak. |
 
 ## Kondisi awal
@@ -53,7 +53,7 @@
 | `0001_01_01_000001_create_cache_table.php` | `cache`, `cache_locks` |
 | `0001_01_01_000002_create_jobs_table.php` | `jobs`, `job_batches`, `failed_jobs` |
 
-Laravel juga membuat tabel `migrations`. Setelah migrasi, setiap skema berisi sembilan tabel. Rancangan Slice 01 mengusulkan kolom `username` dan `disabled_at` untuk Owner/Admin melalui migrasi baru. Tabel `sessions` bawaan menjadi dasar sesi Laravel untuk Owner/Admin dan sesi nama Kapster.
+Laravel juga membuat tabel `migrations`. Setelah migrasi, setiap skema berisi sembilan tabel. Slice 01 menambahkan kolom `username` dan `disabled_at` untuk Owner melalui migrasi baru. Skema akun pada Slice 01 memakai username dan kata sandi. Tabel `sessions` bawaan menjadi dasar sesi Laravel untuk Owner dan sesi nama Kapster.
 
 ## Bukti pemeriksaan
 
@@ -85,4 +85,4 @@ Laravel juga membuat tabel `migrations`. Setelah migrasi, setiap skema berisi se
 
 Desain kini memakai nama Kapster berbentuk teks, harga dari katalog, serta ID pengeluaran buatan sistem. Home, Pemasukan, dan Pengeluaran berpindah ke bulan berjalan. Rekap menyediakan histori seluruh periode. Kueri Rekap telah diuji dengan data fiktif pada MySQL 8.4.3. [Keputusan desain](Desain-Database-MySQL-Barbershop.md#2-perubahan-kebutuhan-dan-keputusan-terbuka) · [Bukti rekonsiliasi](Desain-Database-MySQL-Barbershop.md#8-data-uji-fiktif-dan-rekonsiliasi)
 
-Setelah PR #1 disetujui dan di-merge, ambil `main` terbaru untuk branch Slice 01. Tambahkan username Owner/Admin melalui migrasi baru, lalu uji autentikasi dan akses rute sesuai KP-04 dan KP-05. Lanjutkan ke katalog layanan, sesi Kapster, dan pencatatan berdasarkan keputusan skema tiap slice. [Urutan pengerjaan per slice](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice) · [Rencana backend](Rencana-Backend-Sistem-Operasional-Barbershop.md)
+Fondasi telah di-merge ke `main`. Branch Slice 01 memakai commit tersebut untuk implementasi login Owner. Setelah Slice 01 ditinjau, lanjutkan ke katalog layanan, sesi Kapster, dan pencatatan berdasarkan keputusan tiap slice. [Urutan pengerjaan per slice](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice) · [Rencana backend](Rencana-Backend-Sistem-Operasional-Barbershop.md)

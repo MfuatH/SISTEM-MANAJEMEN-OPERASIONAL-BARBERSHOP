@@ -11,7 +11,7 @@ Aplikasi menyatukan pencatatan pemasukan, pengeluaran, dan laporan bulanan untuk
 | Sesi | Alur utama |
 | --- | --- |
 | Kapster | Mulai dari beranda dengan nama berbentuk teks. Pilih layanan untuk melihat harga katalog, lalu simpan pencatatan yang menjadi pemasukan. |
-| Owner/Admin | Masuk dengan username dan kata sandi. Catat pengeluaran, buka Home, Pemasukan, Pengeluaran, dan Rekap, serta ekspor laporan ke Excel. |
+| Owner | Masuk dengan username dan kata sandi. Catat pengeluaran, buka Home, Pemasukan, Pengeluaran, dan Rekap, serta ekspor laporan ke Excel. |
 
 Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Pada pergantian bulan, tampilan beralih ke periode baru. Rekap tetap menyediakan histori seluruh periode dan filter bulan atau jenis. Metode pembayaran dan pembuatan struk keluar dari cakupan. Forecasting bersifat opsional. [Rincian kebutuhan dan keputusan](docs/pengerjaan-sistem/Desain-Database-MySQL-Barbershop.md#2-perubahan-kebutuhan-dan-keputusan-terbuka)
 
@@ -21,7 +21,7 @@ Stack proyek mengikuti Project Charter dan draf desain database. Tim menetapkan 
 
 | Bagian | Teknologi dan versi | Penggunaan |
 | --- | --- | --- |
-| Backend web | PHP **8.5.12**, Laravel **13.42.0** | Rute web, sesi Kapster, autentikasi Owner/Admin, validasi di server, dan logika operasional. |
+| Backend web | PHP **8.5.12**, Laravel **13.42.0** | Rute web, sesi Kapster, autentikasi Owner, validasi di server, dan logika operasional. |
 | Frontend | JavaScript dan Blade Laravel | Form pencatatan Kapster dan pengeluaran, Rekap, serta dashboard Owner. |
 | Database | MySQL **8.4.3 LTS** | Penyimpanan data operasional melalui migrasi Laravel. Draf mengusulkan InnoDB, `utf8mb4`, dan tipe `DECIMAL` untuk nominal rupiah. |
 | Pengembangan lokal | Laragon **8.8.0**, Composer **2.10.3** | Menjalankan PHP dan MySQL secara lokal serta memasang dependensi Laravel. |
@@ -30,7 +30,7 @@ Stack proyek mengikuti Project Charter dan draf desain database. Tim menetapkan 
 | Lingkungan target | VPS dan HTTPS | Menjalankan aplikasi web dan database, serta skrip peramalan jika disetujui. Pengamanan aplikasi mencakup hash kata sandi, pemeriksaan hak akses, validasi input, dan perlindungan CSRF. |
 | Kolaborasi | Git dan GitHub | Branch per tugas, pull request, peninjauan, dan merge ke `main`. |
 
-Satu pencatatan Kapster menghasilkan satu pemasukan. Nama Kapster dan harga tersimpan pada catatan agar laporan historis memakai nilai saat pencatatan. Koreksi yang diaktifkan berada di area Owner/Admin. Rincian tindakan dan kebijakan audit masih ditinjau.
+Satu pencatatan Kapster menghasilkan satu pemasukan. Nama Kapster dan harga tersimpan pada catatan agar laporan historis memakai nilai saat pencatatan. Koreksi yang diaktifkan berada di area Owner. Rincian tindakan dan kebijakan audit masih ditinjau.
 
 ## Struktur folder
 
@@ -62,10 +62,10 @@ Aplikasi Laravel ditempatkan di root repositori. Rencana tampilan Kapster dan Ow
 │   ├── css/                       # CSS sumber
 │   ├── js/                        # JavaScript sumber
 │   └── views/
-│       ├── auth/                   # Login Owner/Admin
+│       ├── auth/                   # Login Owner
 │       ├── master/                 # Katalog layanan dan pelanggan bila dibutuhkan
 │       ├── pos/                    # Folder scaffold untuk pencatatan Kapster
-│       ├── expenses/               # Input pengeluaran Owner/Admin
+│       ├── expenses/               # Input pengeluaran Owner
 │       └── owner/                  # Pembukuan, dashboard, dan proyeksi
 ├── routes/                       # Rute web dan console Laravel
 ├── storage/
@@ -82,7 +82,7 @@ Aplikasi Laravel ditempatkan di root repositori. Rencana tampilan Kapster dan Ow
 | Slice | Folder yang dipakai |
 | --- | --- |
 | 00 | `docs/pengerjaan-sistem/`, `bootstrap/`, `config/` untuk rancangan, kontrak data, dan penyiapan Laravel. |
-| 01 | `app/Http/`, `app/Models/`, `routes/`, dan `resources/views/auth/` untuk login dan akses Owner/Admin. |
+| 01 | `app/Http/`, `app/Models/`, `routes/`, dan `resources/views/auth/` untuk login dan akses Owner. |
 | 02–04 | `database/`, `app/Models/`, `app/Http/`, dan `resources/views/master/` untuk katalog, sesi Kapster, serta data pelanggan bila dibutuhkan. |
 | 05–08 | `app/Services/`, `database/migrations/`, serta tampilan `pos/`, `expenses/`, dan `owner/` untuk pencatatan, pemasukan, pengeluaran, dan koreksi bersyarat. |
 | 09–10 | `app/Services/`, `resources/views/owner/`, dan `resources/js/` untuk pembukuan serta dashboard. |
@@ -95,21 +95,27 @@ Aplikasi Laravel ditempatkan di root repositori. Rencana tampilan Kapster dan Ow
 2. Gunakan `.env.example` sebagai acuan untuk `.env` dan `.env.testing`. Arahkan keduanya ke skema terpisah, `barbershop_dev` dan `barbershop_test`, sesuai port MySQL lokal.
 3. Jalankan `php artisan about`, `php artisan db:show`, dan `php artisan db:show --env=testing` sebelum menerapkan migrasi bawaan. Simpan CSV/Excel aktual di `storage/app/private/imports/` dan gunakan data fiktif untuk pengujian. [Panduan dan bukti Slice 00](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-00.md#cara-mengulang-pemeriksaan)
 
+### Menyiapkan akun Owner
+
+Jalankan `php artisan migrate`, lalu `php artisan owner:create pemilik --name="Pemilik"` pada lingkungan lokal. Masukkan kata sandi saat diminta, lalu buka `/owner/login`. Perintah membuat akun Owner dengan username dan kata sandi. Nama hanya digunakan untuk tampilan.
+
+Untuk menguji alur di MySQL, jalankan `php artisan migrate --env=testing`, lalu `php artisan test --env=testing`.
+
 ## Status pengerjaan per slice
 
-Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan diajukan melalui [PR #1](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/1). Desain berikut menjadi acuan peninjauan fitur.
+Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [PR #1](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/1). Desain berikut menjadi acuan peninjauan fitur.
 
 | Slice | Pekerjaan dan indikator selesai | Status |
 | --- | --- | --- |
-| 00 | Verifikasi fondasi Laravel dan MySQL, lalu tinjau kontrak data dan keputusan desain terbaru. | Fondasi diuji, dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-00.md) |
-| 01 | Owner/Admin dapat login dengan username, logout, dan mengakses rute sesuai izin. | Direncanakan |
+| 00 | Verifikasi fondasi Laravel dan MySQL, lalu tinjau kontrak data dan keputusan desain terbaru. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-00.md) |
+| 01 | Owner dapat login dengan username, logout, dan mengakses rute sesuai izin. | Implementasi diuji |
 | 02 | Katalog layanan menyediakan pilihan aktif dan harga yang valid untuk form Kapster, sesuai kewenangan pengelola yang disepakati. | Direncanakan |
 | 03 | Kapster memulai sesi dengan nama teks. Dashboard menampilkan catatan sesuai cakupan sesi yang disepakati. | Direncanakan |
 | 04 | Tentukan kebutuhan nama pelanggan dan relasi master sesuai keputusan K1. | Bersyarat |
 | 05 | Simpan pencatatan Kapster dengan harga otomatis, snapshot harga, dan satu pemasukan per penyimpanan sah. | Direncanakan |
 | 06 | Pemasukan Owner menampilkan bulan berjalan. Hasil pencarian dan XLSX dapat direkonsiliasi. | Direncanakan |
 | 07 | Owner mencatat pengeluaran dengan ID buatan sistem. Riwayat dan XLSX mengikuti bulan berjalan. | Direncanakan |
-| 08 | Jika disetujui, Owner/Admin menjalankan tindakan koreksi yang dicatat untuk audit. | Bersyarat |
+| 08 | Jika disetujui, Owner menjalankan tindakan koreksi yang dicatat untuk audit. | Bersyarat |
 | 09 | Rekap menggabungkan pemasukan dan pengeluaran lintas periode serta menyediakan filter dan XLSX. Target selisih Rp0. | Direncanakan |
 | 10 | Home menampilkan dua total bulanan dan grafik harian. Pergantian bulan memakai rentang baru dan histori tersedia di Rekap. | Direncanakan |
 | 11 | Bila sumber historis dipakai, rekonsiliasi CSV/Excel privat dan uji impor ulang. | Opsional |

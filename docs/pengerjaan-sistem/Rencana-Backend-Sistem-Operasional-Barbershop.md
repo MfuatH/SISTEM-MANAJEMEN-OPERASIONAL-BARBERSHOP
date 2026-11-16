@@ -11,10 +11,10 @@ Sistem melayani satu lokasi. Stack yang disepakati adalah Laravel 13.x, PHP 8.5.
 | Area | Alur dan keluaran |
 | --- | --- |
 | Sesi Kapster | Kapster memasukkan nama berbentuk teks dari beranda. Form menampilkan harga otomatis saat layanan dipilih. Server menyimpan nama Kapster, layanan, dan harga saat pencatatan. Satu simpan sah menghasilkan satu pemasukan. |
-| Owner/Admin | Owner masuk dengan username dan kata sandi. Area Owner memuat Home, Pemasukan, Pengeluaran, Rekap, dan Forecasting bila disetujui. |
+| Owner | Owner dan Admin adalah orang yang sama. Owner masuk dengan username dan kata sandi. Area Owner memuat Home, Pemasukan, Pengeluaran, Rekap, dan Forecasting bila disetujui. |
 | Pemasukan dan pengeluaran | Pemasukan berasal dari pencatatan Kapster. Owner mengisi tanggal, deskripsi, dan jumlah pengeluaran, lalu sistem membuat ID. Metode pembayaran dan struk keluar dari cakupan. |
 | Periode dan ekspor | Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Home menampilkan dua total bulanan dan dua seri harian. Rekap memuat seluruh histori dengan filter bulan atau jenis. Pemasukan, Pengeluaran, dan Rekap mendukung pencarian dan ekspor Excel pada cakupan masing-masing. |
-| Koreksi | Draf menempatkan tindakan koreksi yang diaktifkan di area Owner/Admin. Cakupan koreksi, kebutuhan pembatalan mandiri, dan jejak audit perlu diputuskan sebelum Slice 08. |
+| Koreksi | Draf menempatkan tindakan koreksi yang diaktifkan di area Owner. Cakupan koreksi, kebutuhan pembatalan mandiri, dan jejak audit perlu diputuskan sebelum Slice 08. |
 | Forecasting | Jika disetujui, Laravel memanggil satu model Regresi Linier Python secara internal. Tampilan memuat empat bulan aktual dan dua bulan prediksi yang diperbarui setiap bulan. Posisi dua bulan prediksi dan kebutuhan histori Juli–September 2026 masih perlu dikonfirmasi. |
 
 QMP mencantumkan Andik Ari Mulyono sebagai penerima hasil. Kolom penerimaan akhir pada Charter masih terbuka. Manajer Proyek menyelaraskan pencatatan wewenang serta kriteria QMP yang terdampak perubahan alur sebelum penerimaan akhir. [Acuan tugas kuliah](../tugas-kuliah/README.md)
@@ -24,10 +24,10 @@ QMP mencantumkan Andik Ari Mulyono sebagai penerima hasil. Kolom penerimaan akhi
 | Slice | Pekerjaan | Dependensi dan kriteria selesai |
 | --- | --- | --- |
 | 00 | Fondasi Laravel dan MySQL, desain database, dan kontrak data awal. | Fondasi telah diuji. Ambil `main` terbaru untuk pekerjaan fitur setelah PR fondasi disetujui dan di-merge. |
-| 01 | Login username dan akses Owner/Admin dengan `users` serta `sessions` bawaan. | Username ditambahkan lewat migrasi baru. Uji login, logout, dan akses langsung ke rute Owner dari sesi Kapster. |
+| 01 | Login username dan akses Owner dengan `users` serta `sessions` bawaan. | Migrasi menambahkan username unik dan meniadakan atribut email akun. Provisioning melalui `php artisan owner:create`. Uji login, logout, dan akses langsung ke rute Owner dari sesi tamu. |
 | 02–04 | Katalog harga, sesi nama Kapster, serta master atau kolom pelanggan jika terbukti diperlukan. | Harga katalog tampil otomatis. Sepakati pengelola katalog, cakupan baca sesi, serta arti nama di form Tambah sebelum migrasi yang terdampak. |
 | 05–07 | Simpan pencatatan Kapster, tampilkan Pemasukan Owner, lalu siapkan pengeluaran dengan ID buatan sistem. | Simpan harga historis dan cegah catatan ganda saat kirim ulang. Daftar dan XLSX Pemasukan/Pengeluaran cocok untuk pencarian serta bulan yang sama. |
-| 08 | Koreksi Owner/Admin sesuai keputusan K6. | Tetapkan izin, aksi yang tersedia, perlakuan periode, dan histori audit sebelum migrasi. |
+| 08 | Koreksi Owner sesuai keputusan K6. | Tetapkan izin, aksi yang tersedia, perlakuan periode, dan histori audit sebelum migrasi. |
 | 09–10 | Rekap lintas periode dan Home bulanan. | Gunakan sumber data yang sama untuk daftar, grafik, total, dan ekspor. Uji batas awal bulan, bulan tanpa transaksi, dan histori yang tetap tersedia di Rekap. |
 | 11–12 | Impor histori dan Forecasting bila disetujui. | Konfirmasi bentuk file aktual, sumber per bulan, posisi prediksi, dan evaluasi galat. Simpan file impor di direktori privat. |
 | 13–14 | Integrasi MySQL, UAT, penerapan, dan penyerahan. | Simpan hasil uji, temuan, perbaikan, pemeriksaan lingkungan target, dan keputusan penerimaan. |
@@ -55,7 +55,7 @@ Project Charter mencatat rencana awal delapan minggu. Tabel ini merangkum target
 | KP-01 · Data operasional | Uji katalog, harga, dan pengarsipan sesuai izin. Selaraskan cakupan data Kapster dan pelanggan dengan keputusan desain. |
 | KP-02 · Pencatatan dan pembukuan | Simpan pemasukan Kapster dan pengeluaran Owner. Uji kirim ulang serta kegagalan penyimpanan. Rekonsiliasi daftar, Rekap, dan XLSX dengan pembanding independen. Target selisih **Rp0**. |
 | KP-03 · Dashboard | Cocokkan total bulan berjalan dan grafik harian, termasuk batas pergantian bulan. Selaraskan kriteria mingguan dari rancangan awal dengan tampilan terbaru. |
-| KP-04 · Autentikasi dan akses | Uji login Owner/Admin, akses langsung ke rute terbatas, dan cakupan dua sesi Kapster bernama sama. Periksa izin koreksi bila diterapkan. |
+| KP-04 · Autentikasi dan akses | Uji login Owner, akses langsung ke rute terbatas, dan cakupan dua sesi Kapster bernama sama. Periksa izin koreksi bila diterapkan. |
 | KP-05 · Keamanan | Verifikasi sesi Laravel, hash kata sandi, validasi server, CSRF, serta HTTPS. Jika Forecasting dipakai, periksa pemanggilan Python secara internal. |
 | KP-06 · Peramalan | Jika disetujui, uji empat aktual dan dua prediksi serta pembaruan bulanan. Gunakan data uji setelah periode latih untuk menilai galat. Catat **belum terverifikasi** jika pembanding belum memadai. Jika fitur dikeluarkan, selaraskan KP-06 dengan Sponsor/Owner. |
 | KP-07 · Penyerahan | Catat versi aplikasi dan migrasi, hasil uji, catatan perbaikan, dan cara menjalankan ulang sistem. |
