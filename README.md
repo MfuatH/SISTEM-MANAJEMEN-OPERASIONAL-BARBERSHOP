@@ -113,7 +113,7 @@ Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [P
 | --- | --- | --- |
 | 00 | Verifikasi fondasi Laravel dan MySQL, lalu tinjau kontrak data dan keputusan desain terbaru. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-00.md) |
 | 01 | Owner dapat login dengan username, logout, dan mengakses rute sesuai izin. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-01.md) |
-| 02 | Owner mengelola katalog layanan. Daftar baca-saja menyajikan layanan aktif beserta harga. | Implementasi diuji |
+| 02 | Owner mengelola katalog layanan. Daftar baca-saja menyajikan layanan aktif beserta harga. | Implementasi diuji, dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-02.md) |
 | 03 | Kapster memulai sesi dengan nama teks. Dashboard menampilkan catatan sesuai cakupan sesi yang disepakati. | Direncanakan |
 | 04 | Tentukan kebutuhan nama pelanggan dan relasi master sesuai keputusan K1. | Bersyarat |
 | 05 | Simpan pencatatan Kapster dengan harga otomatis, snapshot harga, dan satu pemasukan per penyimpanan sah. | Direncanakan |
@@ -153,6 +153,8 @@ Setiap anggota mengerjakan satu tugas atau slice pada branch tersendiri. Gunakan
 4. **Buka pull request ke `main`.** Cantumkan nomor slice, ringkasan perubahan, cara mencoba, dan bukti uji. Jika skema berubah, jelaskan cara menjalankan migrasi dan rollback. Jika ada perubahan antarmuka, sertakan contoh input dan keluaran untuk frontend.
 5. **Tinjau, perbaiki, dan merge.** Anggota tim meninjau perubahan terhadap kriteria slice dan QMP yang terkait. Jika ada temuan atau konflik, perbaiki di branch tugas dan jalankan ulang pemeriksaan yang terdampak. Merge ke `main` setelah review disetujui dan pemeriksaan yang berlaku lulus.
 6. **Perbarui status.** Catat tautan pull request dan ubah status slice sesuai hasil. Gunakan **Dalam pengerjaan** saat implementasi dimulai, **Dalam review** setelah pull request siap, dan **Selesai** setelah kriteria terpenuhi serta perubahan di-merge. Untuk UAT dan penyerahan, catat juga bukti uji atau keputusan penerimaan. Ambil `main` terbaru sebelum memulai tugas berikutnya.
+
+7. **Catat pengerjaan tiap slice.** Buat satu dokumen `docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-XX.md` dengan nomor slice dua digit. Catat status, perubahan, keputusan, bukti uji, dan langkah berikutnya. Untuk pekerjaan lanjutan pada slice yang sama, perbarui atau tambahkan isi pada dokumen tersebut. Tautkan catatan dari tabel status slice.
 
 ## Dokumen acuan
 
