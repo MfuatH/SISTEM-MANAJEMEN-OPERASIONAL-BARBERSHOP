@@ -101,7 +101,7 @@ Draf desain database tercatat di branch `planning-backend-BahauddinRahmanHakim` 
 
 | Slice | Pekerjaan dan indikator selesai | Status |
 | --- | --- | --- |
-| 00 | Tinjau ERD, kamus data, aturan transaksi, urutan migrasi, dan kontrak data dengan frontend. Catat keputusan yang diperlukan untuk slice berikutnya. | Draf tersedia, menunggu tinjauan |
+| 00 | Tinjau ERD, kontrak data dengan frontend, dan keputusan yang diperlukan untuk slice berikutnya. Siapkan Laravel dan verifikasi migrasi bawaan pada MySQL 8.4. | Fondasi diuji, dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-00.md) |
 | 01 | Login, logout, dan pembatasan akses. Kedua peran dapat masuk dan keluar. Akses langsung lintas peran dan permintaan perubahan tanpa token CSRF yang sah ditolak. | Direncanakan |
 | 02 | Master layanan dan harga. Kasir dapat menambah, melihat, mengubah, dan mengarsipkan layanan. Harga tidak sah ditolak. | Direncanakan |
 | 03 | Master kapster. Kasir dapat mengelola data kapster dan kapster yang diarsipkan hilang dari pilihan aktif. | Direncanakan |
