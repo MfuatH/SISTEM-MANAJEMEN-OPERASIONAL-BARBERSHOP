@@ -17,14 +17,16 @@ Pembayaran dicatat manual pada POS. Ruang lingkup pengembangan berfokus pada ope
 
 ## Stack teknis
 
-Stack proyek mengikuti Project Charter dan draf desain database. Laravel 13.x, PHP 8.5.x, dan MySQL 8.4 LTS menjadi acuan versi tim. Versi dependensi PHP yang terpasang dicatat di `composer.lock` saat aplikasi diinisialisasi.
+Stack proyek mengikuti Project Charter dan draf desain database. Tim menetapkan Laravel 13.x, PHP 8.5.x, dan MySQL 8.4 LTS. Tabel berikut mencatat versi yang digunakan pada Slice 00. Versi persis dependensi PHP tersimpan di `composer.lock`.
 
-| Bagian | Teknologi | Penggunaan |
+| Bagian | Teknologi dan versi | Penggunaan |
 | --- | --- | --- |
-| Backend web | PHP 8.5.x, Laravel 13.x | Rute web, autentikasi berbasis sesi, otorisasi Kasir/Owner, validasi di server, dan logika operasional. |
-| Frontend | JavaScript dan tampilan web Laravel | Form master dan POS, pembukuan, serta dashboard Owner. |
-| Database | MySQL 8.4 LTS | Penyimpanan data operasional melalui migrasi Laravel. Draf mengusulkan InnoDB, `utf8mb4`, dan tipe `DECIMAL` untuk nominal rupiah. |
-| Peramalan | Python, pandas, scikit-learn | Satu model Regresi Linier memproyeksikan omzet bulan berikutnya dari rekap pendapatan bulanan. Laravel menjalankan skrip Python secara internal. |
+| Backend web | PHP **8.5.12**, Laravel **13.42.0** | Rute web, autentikasi berbasis sesi, otorisasi Kasir/Owner, validasi di server, dan logika operasional. |
+| Frontend | JavaScript dan Blade Laravel | Form master dan POS, pembukuan, serta dashboard Owner. |
+| Database | MySQL **8.4.3 LTS** | Penyimpanan data operasional melalui migrasi Laravel. Draf mengusulkan InnoDB, `utf8mb4`, dan tipe `DECIMAL` untuk nominal rupiah. |
+| Pengembangan lokal | Laragon **8.8.0**, Composer **2.10.3** | Menjalankan PHP dan MySQL secara lokal serta memasang dependensi Laravel. |
+| Pengujian | PHPUnit **12.5.44** | Menjalankan pengujian PHP melalui `php artisan test`. |
+| Peramalan | Python, pandas, scikit-learn | Satu model Regresi Linier memproyeksikan omzet bulan berikutnya dari rekap pendapatan bulanan. Laravel menjalankan skrip Python secara internal. Versi paket peramalan dicatat saat Slice 11–12 dikerjakan. |
 | Lingkungan target | VPS dan HTTPS | Menjalankan aplikasi web, database, dan skrip peramalan. Pengamanan aplikasi mencakup hash kata sandi, pemeriksaan hak akses, validasi input, dan perlindungan CSRF. |
 | Kolaborasi | Git dan GitHub | Branch per tugas, pull request, peninjauan, dan merge ke `main`. |
 
