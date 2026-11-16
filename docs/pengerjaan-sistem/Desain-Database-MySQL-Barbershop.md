@@ -50,7 +50,7 @@ Satu Owner dapat mencatat nol hingga banyak pengeluaran. Satu record `sessions` 
 | --- | --- | --- |
 | K1 | **Terbuka.** Siapa yang dimaksud dengan nama pada form Tambah? | Usulan inti memakai nama Kapster dari sesi untuk label pencatatan. Jika form juga memerlukan nama pelanggan bebas, tambahkan `customer_name VARCHAR(120)`. Jika pelanggan dipilih dari master, tentukan `customers` dan FK `customer_id` sebelum Slice 04–05. |
 | K2 | **Dikonfirmasi.** Nama Kapster adalah teks, dengan nama sama diperbolehkan. **Usulan teknis.** Dashboard Kapster hanya menampilkan pencatatan yang dibuat pada sesi browser aktif. | Simpan `barber_name` pada setiap pemasukan. Gunakan sesi Laravel bawaan dan kunci permintaan per pencatatan untuk membatasi cakupan baca. Konfirmasi jika Kapster perlu melihat riwayat dari sesi sebelumnya. |
-| K3 | **Dikonfirmasi.** Harga muncul otomatis setelah layanan dipilih. **Terbuka.** Apa daftar layanan resmi, siapa yang mengelola katalog, dan apakah satu simpan memuat lebih dari satu layanan? | Harga tampil sebagai nilai baca-saja. Saat simpan, server mengambil harga katalog dan menyimpan snapshot. Baseline mengusulkan Owner mengelola katalog dan satu layanan per pencatatan. |
+| K3 | **Dikonfirmasi.** Harga muncul otomatis setelah layanan dipilih. **Terbuka.** Apa daftar layanan resmi dan apakah satu simpan memuat lebih dari satu layanan? | Slice 02 menerapkan usulan Owner mengelola katalog. Daftar aktif menyediakan ID, nama, dan harga. Pada pencatatan Kapster, harga tampil sebagai nilai baca-saja. Server menyimpan snapshot setelah memeriksa harga katalog. |
 | K4 | **Dikonfirmasi.** Sistem membuat ID pengeluaran. | Gunakan `expenses.id` yang dibuat oleh database. Usulan format tampilan dan ekspor adalah `EXP-{id}`. |
 | K5 | **Dikonfirmasi.** Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Rekap mencakup seluruh histori. | Pada pergantian bulan, halaman bulanan memakai rentang baru. Rekap tetap dapat membaca bulan sebelumnya dan menyediakan filter bulan atau jenis. |
 | K6 | **Dikonfirmasi.** Pencatatan memakai layanan dan nominal, dengan aksi Kapster sebatas menambah. **Tafsiran draf.** Koreksi dan pembatalan yang diaktifkan berada di area Owner. | Kolom metode pembayaran dikeluarkan dari skema. Sebelum Slice 08, pastikan apakah Owner membutuhkan pembatalan tanpa pengganti atau cukup koreksi, cakupan pemasukan/pengeluaran, perlakuan periode, dan histori audit. Master pelanggan dan pencatatan mundur pemasukan masih terbuka. |
@@ -61,9 +61,9 @@ Satu Owner dapat mencatat nol hingga banyak pengeluaran. Satu record `sessions` 
 
 Pada tabel usulan, `ID` berarti `BIGINT UNSIGNED`, dengan `AUTO_INCREMENT` untuk PK tunggal `id`. `Rp` berarti `DECIMAL(15,0)` untuk rupiah utuh. `UTC` berarti `DATETIME(6)` berisi waktu UTC. Kolom wajib diisi kecuali dinyatakan `NULL`. PK adalah kunci primer, FK kunci asing, dan UQ kunci unik. Gunakan InnoDB, `utf8mb4`, dan hitung nominal dengan aritmetika presisi eksak. [MySQL DECIMAL](https://dev.mysql.com/doc/refman/8.4/en/fixed-point-types.html)
 
-### Tabel `services` · usulan, bergantung pada K3
+### Tabel `services` · implementasi Slice 02
 
-**Isi dan fungsi.** Katalog pilihan layanan beserta harga aktif. Satu layanan dapat dirujuk oleh banyak pemasukan.
+**Isi dan fungsi.** Katalog pilihan layanan beserta harga aktif. Owner mengelola katalog di `/owner/services`. Endpoint baca-saja `GET /services/active` menyediakan `id`, `name`, dan `current_price` sebagai teks angka rupiah dari layanan dengan `archived_at IS NULL`. Satu layanan dapat dirujuk oleh banyak pemasukan.
 
 | Kolom | Tipe | Kunci dan kegunaan |
 | --- | --- | --- |
@@ -187,13 +187,13 @@ Jika impor CSV/Excel lama tetap diminta, periksa contoh file, unit per baris, id
 
 ## 7. Urutan migrasi Laravel yang diusulkan
 
-Pemeriksaan repo menemukan tiga migrasi bawaan `0001_01_01_000000_create_users_table.php`, `0001_01_01_000001_create_cache_table.php`, dan `0001_01_01_000002_create_jobs_table.php`. `migrate:status --env=testing` menunjukkan ketiganya `Ran`. Ketiga migrasi yang terdaftar meliputi fondasi Laravel. Seluruh migrasi operasional berada pada daftar usulan di bawah. Fondasi Slice 00 tercatat diuji dan sudah masuk ke `main`. [Catatan Slice 00](Catatan-Pengerjaan-Slice-00.md)
+Pemeriksaan repo menemukan tiga migrasi bawaan `0001_01_01_000000_create_users_table.php`, `0001_01_01_000001_create_cache_table.php`, dan `0001_01_01_000002_create_jobs_table.php`. `migrate:status --env=testing` menunjukkan ketiganya `Ran`. Ketiga migrasi yang terdaftar meliputi fondasi Laravel. Migrasi akun Slice 01 telah masuk ke `main` pada commit `34d6ace`. Slice 02 menambahkan migrasi katalog `0001_01_01_000004_create_services_table.php`. [Catatan Slice 00](Catatan-Pengerjaan-Slice-00.md)
 
 | Urutan | Slice | Perubahan skema yang diusulkan | Dependensi dan keputusan |
 | --- | --- | --- | --- |
 | Dasar | 00 | Pertahankan migrasi bawaan `users`, `sessions`, cache, dan jobs serta riwayatnya. | Mulai migrasi fitur setelah PR fondasi disetujui dan di-merge. |
 | 1 | 01 | `0001_01_01_000003_configure_owner_accounts.php` menambahkan username unik dan atribut penonaktifan, serta menghapus atribut email akun. | Akun aktif diprovisikan dengan `php artisan owner:create`. Rollback mengembalikan format skema awal dengan email placeholder unik bagi baris yang ada. |
-| 2 | 02 | Buat `services`. | K3 mencakup pengelola, jumlah pilihan per simpan, dan aturan arsip. Harga pada form mengikuti katalog. |
+| 2 | 02 | Migrasi `0001_01_01_000004_create_services_table.php` membuat `services` dengan harga positif dan indeks `(archived_at, name)`. | Owner mengelola katalog. Layanan diarsipkan lewat `archived_at`. Daftar resmi dan jumlah pilihan per pencatatan mengikuti K3. |
 | – | 03 | Sesi Kapster memakai `sessions` bawaan Laravel. | Simpan nama sebagai teks pada payload dan batasi daftar menurut cakupan sesi yang disepakati. |
 | 3, bersyarat | 04 | Buat `customers` jika dibutuhkan. | K1 menentukan kebutuhan nama pelanggan bebas atau referensi master. |
 | 4 | 05 | Buat `income_entries`. | Bergantung pada `services` dan keputusan tentang nama pada form, kardinalitas layanan, serta tanggal pencatatan. Harga dan nama Kapster disalin saat simpan. |

@@ -13,12 +13,20 @@
         input { box-sizing: border-box; width: 100%; margin: .3rem 0 .25rem; padding: .55rem .7rem; border: 1px solid #89968e; border-radius: .3rem; font: inherit; }
         button { padding: .55rem .9rem; border: 0; border-radius: .3rem; background: #164b39; color: white; font: inherit; cursor: pointer; }
         a { color: #164b39; }
+        .wide { width: min(62rem, calc(100% - 2rem)); }
+        .button { display: inline-block; padding: .55rem .9rem; border-radius: .3rem; background: #164b39; color: white; text-decoration: none; }
+        .secondary { background: #edf2ed; color: #164b39; }
+        .table-scroll { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { border-bottom: 1px solid #d8dfd9; padding: .65rem .7rem; }
+        .actions { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem; }
+        nav.actions { margin-top: 1rem; }
         .field { margin-bottom: 1rem; }
         .error { color: #972e29; }
         :focus-visible { outline: 2px solid #164b39; outline-offset: 3px; }
     </style>
 </head>
 <body>
-    <main>@yield('content')</main>
+    <main class="@yield('main-class')">@yield('content')</main>
 </body>
 </html>

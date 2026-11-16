@@ -11,7 +11,7 @@ Aplikasi menyatukan pencatatan pemasukan, pengeluaran, dan laporan bulanan untuk
 | Sesi | Alur utama |
 | --- | --- |
 | Kapster | Mulai dari beranda dengan nama berbentuk teks. Pilih layanan untuk melihat harga katalog, lalu simpan pencatatan yang menjadi pemasukan. |
-| Owner | Istilah Admin pada deskripsi sistem merujuk ke akun Owner yang sama. Masuk dengan username dan kata sandi. Catat pengeluaran, buka Home, Pemasukan, Pengeluaran, dan Rekap, serta ekspor laporan ke Excel. |
+| Owner | Istilah Admin pada deskripsi sistem merujuk ke akun Owner yang sama. Masuk dengan username dan kata sandi. Kelola katalog layanan, catat pengeluaran, buka Home, Pemasukan, Pengeluaran, dan Rekap, serta ekspor laporan ke Excel. |
 
 Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Pada pergantian bulan, tampilan beralih ke periode baru. Rekap tetap menyediakan histori seluruh periode dan filter bulan atau jenis. Metode pembayaran dan pembuatan struk keluar dari cakupan. Forecasting bersifat opsional. [Rincian kebutuhan dan keputusan](docs/pengerjaan-sistem/Desain-Database-MySQL-Barbershop.md#2-perubahan-kebutuhan-dan-keputusan-terbuka)
 
@@ -101,6 +101,10 @@ Jalankan `php artisan migrate`, lalu `php artisan owner:create pemilik --name="P
 
 Untuk menguji alur di MySQL, jalankan `php artisan migrate --env=testing`, lalu `php artisan test --env=testing`.
 
+### Mencoba katalog layanan
+
+Setelah migrasi, masuk sebagai Owner dan buka **Katalog layanan** di `/owner/services`. Anda dapat menambah layanan, mengubah nama atau harga, serta mengarsipkannya. **Layanan A** dan **Layanan B** dapat dibuat sebagai data uji sementara. Daftar layanan aktif untuk form Kapster dapat dibaca dari `GET /services/active`.
+
 ## Status pengerjaan per slice
 
 Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [PR #1](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/1). Desain berikut menjadi acuan peninjauan fitur.
@@ -108,8 +112,8 @@ Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [P
 | Slice | Pekerjaan dan indikator selesai | Status |
 | --- | --- | --- |
 | 00 | Verifikasi fondasi Laravel dan MySQL, lalu tinjau kontrak data dan keputusan desain terbaru. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-00.md) |
-| 01 | Owner dapat login dengan username, logout, dan mengakses rute sesuai izin. | Implementasi diuji, dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-01.md) |
-| 02 | Katalog layanan menyediakan pilihan aktif dan harga yang valid untuk form Kapster, sesuai kewenangan pengelola yang disepakati. | Direncanakan |
+| 01 | Owner dapat login dengan username, logout, dan mengakses rute sesuai izin. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-01.md) |
+| 02 | Owner mengelola katalog layanan. Daftar baca-saja menyajikan layanan aktif beserta harga. | Implementasi diuji |
 | 03 | Kapster memulai sesi dengan nama teks. Dashboard menampilkan catatan sesuai cakupan sesi yang disepakati. | Direncanakan |
 | 04 | Tentukan kebutuhan nama pelanggan dan relasi master sesuai keputusan K1. | Bersyarat |
 | 05 | Simpan pencatatan Kapster dengan harga otomatis, snapshot harga, dan satu pemasukan per penyimpanan sah. | Direncanakan |
