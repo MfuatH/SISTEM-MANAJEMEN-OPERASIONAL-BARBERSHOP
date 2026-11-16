@@ -2,7 +2,7 @@
 
 **Kelompok 6, Kelas 2023C · Revisi kebutuhan · Draf untuk peninjauan**
 
-Acuan kebutuhan fungsional adalah *Deskripsi Sistem (Terurut)* dari `deskripsi-sistem (2).md`, bagian 1–7, beserta konfirmasi kebutuhan lanjutan yang dicatat pada bagian 2. Sistem melayani satu lokasi. Kapster memulai sesi dengan nama dari beranda. Owner/Admin masuk menggunakan username dan kata sandi. Stack yang disepakati adalah Laravel 13.x, PHP 8.5.x, dan MySQL 8.4 LTS dengan Laragon. Perubahan terhadap lingkup dan kriteria penerimaan awal dicatat pada bagian 9. [Catatan fondasi Slice 00](Catatan-Pengerjaan-Slice-00.md) · [Acuan tugas kuliah](../tugas-kuliah/README.md)
+Acuan kebutuhan fungsional adalah *Deskripsi Sistem (Terurut)* dari `deskripsi-sistem (2).md`, bagian 1–7, beserta konfirmasi kebutuhan lanjutan yang dicatat pada bagian 2. Sistem melayani satu lokasi. Kapster memulai sesi dengan nama dari beranda. Owner masuk menggunakan username dan kata sandi. Stack yang disepakati adalah Laravel 13.x, PHP 8.5.x, dan MySQL 8.4 LTS dengan Laragon. Perubahan terhadap lingkup dan kriteria penerimaan awal dicatat pada bagian 9. [Catatan fondasi Slice 00](Catatan-Pengerjaan-Slice-00.md) · [Acuan tugas kuliah](../tugas-kuliah/README.md)
 
 ## 1. ERD usulan
 
@@ -15,21 +15,21 @@ erDiagram
 
 ### Tabel `users`
 
-**Isi dan fungsi.** Akun yang dapat diprovisikan untuk login Owner/Admin. Draf mengasumsikan Owner dan Admin adalah sebutan untuk akses yang sama. Tabel ini sudah dibuat oleh migrasi bawaan. Kolom usulan ditambahkan lewat migrasi baru pada Slice 01.
+**Isi dan fungsi.** Akun untuk login Owner dengan username dan kata sandi. Owner adalah sebutan lain untuk Admin. Kedua istilah merujuk pada akun dan izin yang sama. Slice 01 mengubah tabel bawaan melalui migrasi baru.
 
 | Kolom | Tipe MySQL | Kunci dan fungsi | Status |
 | --- | --- | --- | --- |
 | `id` | `BIGINT UNSIGNED AUTO_INCREMENT` | PK. Direferensikan oleh `expenses.recorded_by_user_id`. | Ada |
 | `name` | `VARCHAR(255)` | Nama tampilan akun. | Ada |
-| `email` | `VARCHAR(255)` | Unik dan wajib pada skema sekarang. Pertahankan untuk kompatibilitas alur email bawaan. Konfirmasi apakah email tetap dikumpulkan saat akun dibuat. | Ada |
-| `email_verified_at` | `TIMESTAMP NULL` | Waktu verifikasi email jika alur tersebut dipakai. | Ada |
+| `email` | `VARCHAR(255)` pada fondasi | Atribut dari migrasi awal. | Dihapus pada Slice 01 |
+| `email_verified_at` | `TIMESTAMP NULL` pada fondasi | Atribut dari migrasi awal. | Dihapus pada Slice 01 |
 | `password` | `VARCHAR(255)` | Hash kata sandi Laravel. | Ada |
 | `remember_token` | `VARCHAR(100) NULL` | Token bawaan jika fitur ingat saya dipakai. | Ada |
 | `created_at`, `updated_at` | `TIMESTAMP NULL` | Waktu pembuatan dan pembaruan akun. | Ada |
-| `username` | `VARCHAR(80) NULL` saat transisi | Unik. Normalisasi huruf kecil dan spasi tepi. Usulan karakter ASCII huruf, angka, titik, garis bawah, dan tanda hubung. Isi hanya untuk akun Owner/Admin yang telah diprovisikan. | Usulan |
-| `disabled_at` | `DATETIME(6) NULL` | Waktu UTC saat akses akun dinonaktifkan. | Usulan |
+| `username` | `VARCHAR(80) NULL`, ASCII | Unik dan tidak peka huruf besar/kecil. Normalisasi huruf kecil dan spasi tepi. Akun yang dibuat melalui perintah Owner wajib memiliki username. Baris lama tetap tersimpan dengan username kosong sehingga aksesnya belum aktif. | Ditambahkan pada Slice 01 |
+| `disabled_at` | `DATETIME(6) NULL` | Waktu UTC saat akses akun dinonaktifkan. | Ditambahkan pada Slice 01 |
 
-Satu Owner/Admin dapat mencatat nol hingga banyak pengeluaran. Satu record `sessions` bawaan dapat merujuk nol atau satu akun lewat `user_id`. Relasi ini bersifat logis karena migrasi bawaan memasang indeks pada `user_id`. Laravel menyimpan nama Kapster pada sesi tamu dan menyalinnya sebagai teks ke `income_entries.barber_name` saat menyimpan pemasukan. [Autentikasi Laravel](https://laravel.com/docs/13.x/authentication) · [Sesi Laravel](https://laravel.com/docs/13.x/session)
+Satu Owner dapat mencatat nol hingga banyak pengeluaran. Satu record `sessions` bawaan dapat merujuk nol atau satu akun lewat `user_id`. Relasi ini bersifat logis karena migrasi bawaan memasang indeks pada `user_id`. Laravel menyimpan nama Kapster pada sesi tamu dan menyalinnya sebagai teks ke `income_entries.barber_name` saat menyimpan pemasukan. [Autentikasi Laravel](https://laravel.com/docs/13.x/authentication) · [Sesi Laravel](https://laravel.com/docs/13.x/session)
 
 ## 2. Perubahan kebutuhan dan keputusan terbuka
 
@@ -37,10 +37,10 @@ Satu Owner/Admin dapat mencatat nol hingga banyak pengeluaran. Satu record `sess
 
 | Area | Draf awal | Revisi |
 | --- | --- | --- |
-| Akun dan akses | Kasir dan Owner memakai akun Laravel. | Owner/Admin memakai username dan kata sandi. Kapster memulai sesi dari beranda dengan nama. |
+| Akun dan akses | Kasir dan Owner memakai akun Laravel. | Owner memakai username dan kata sandi. Kapster memulai sesi dari beranda dengan nama. |
 | Pencatatan dan pemasukan | Checkout POS menghasilkan struk dan satu pemasukan per transaksi sah. | Form Kapster menyimpan satu pemasukan per pencatatan. Pembuatan struk dihapus dari Slice 05 dan 06. |
 | Data layanan, kapster, pelanggan | Tiga master terpusat, transaksi menunjuk pelanggan dan kapster. | Nama Kapster berupa teks. Memilih layanan langsung menampilkan harga katalog. Arti nama pada form Tambah dan kebutuhan master pelanggan masih perlu dipastikan. |
-| Pengeluaran | Kasir mencatat tanggal, deskripsi, dan nominal. | Owner/Admin memasukkan tanggal, deskripsi, dan jumlah. Sistem menerbitkan ID pengeluaran. Riwayat mendukung pencarian dan ekspor Excel. |
+| Pengeluaran | Kasir mencatat tanggal, deskripsi, dan nominal. | Owner memasukkan tanggal, deskripsi, dan jumlah. Sistem menerbitkan ID pengeluaran. Riwayat mendukung pencarian dan ekspor Excel. |
 | Laporan | Dashboard harian, mingguan, dan bulanan dengan rekap periode. | Home, Pemasukan, dan Pengeluaran menampilkan bulan berjalan. Rekap menyimpan cakupan seluruh periode dan mendukung filter serta ekspor. |
 | Peramalan | Satu Regresi Linier Python dengan proyeksi bulanan. | Fitur opsional. Empat bulan aktual dan dua bulan prediksi, diperbarui setiap bulan bila disetujui. |
 
@@ -50,11 +50,11 @@ Satu Owner/Admin dapat mencatat nol hingga banyak pengeluaran. Satu record `sess
 | --- | --- | --- |
 | K1 | **Terbuka.** Siapa yang dimaksud dengan nama pada form Tambah? | Usulan inti memakai nama Kapster dari sesi untuk label pencatatan. Jika form juga memerlukan nama pelanggan bebas, tambahkan `customer_name VARCHAR(120)`. Jika pelanggan dipilih dari master, tentukan `customers` dan FK `customer_id` sebelum Slice 04–05. |
 | K2 | **Dikonfirmasi.** Nama Kapster adalah teks, dengan nama sama diperbolehkan. **Usulan teknis.** Dashboard Kapster hanya menampilkan pencatatan yang dibuat pada sesi browser aktif. | Simpan `barber_name` pada setiap pemasukan. Gunakan sesi Laravel bawaan dan kunci permintaan per pencatatan untuk membatasi cakupan baca. Konfirmasi jika Kapster perlu melihat riwayat dari sesi sebelumnya. |
-| K3 | **Dikonfirmasi.** Harga muncul otomatis setelah layanan dipilih. **Terbuka.** Apa daftar layanan resmi, siapa yang mengelola katalog, dan apakah satu simpan memuat lebih dari satu layanan? | Harga tampil sebagai nilai baca-saja. Saat simpan, server mengambil harga katalog dan menyimpan snapshot. Baseline mengusulkan Owner/Admin mengelola katalog dan satu layanan per pencatatan. |
+| K3 | **Dikonfirmasi.** Harga muncul otomatis setelah layanan dipilih. **Terbuka.** Apa daftar layanan resmi, siapa yang mengelola katalog, dan apakah satu simpan memuat lebih dari satu layanan? | Harga tampil sebagai nilai baca-saja. Saat simpan, server mengambil harga katalog dan menyimpan snapshot. Baseline mengusulkan Owner mengelola katalog dan satu layanan per pencatatan. |
 | K4 | **Dikonfirmasi.** Sistem membuat ID pengeluaran. | Gunakan `expenses.id` yang dibuat oleh database. Usulan format tampilan dan ekspor adalah `EXP-{id}`. |
 | K5 | **Dikonfirmasi.** Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Rekap mencakup seluruh histori. | Pada pergantian bulan, halaman bulanan memakai rentang baru. Rekap tetap dapat membaca bulan sebelumnya dan menyediakan filter bulan atau jenis. |
-| K6 | **Dikonfirmasi.** Pencatatan memakai layanan dan nominal, dengan aksi Kapster sebatas menambah. **Tafsiran draf.** Koreksi dan pembatalan yang diaktifkan berada di area Owner/Admin. | Kolom metode pembayaran dikeluarkan dari skema. Sebelum Slice 08, pastikan apakah Owner membutuhkan pembatalan tanpa pengganti atau cukup koreksi, cakupan pemasukan/pengeluaran, perlakuan periode, dan histori audit. Master pelanggan dan pencatatan mundur pemasukan masih terbuka. |
-| K7 | Apakah Owner dan Admin mempunyai izin identik? Apakah email tetap tersedia? | Usulan satu kelas akun dengan login username. Tambahkan kolom `role` hanya bila izin berbeda atau ada kelas akun autentikasi lain yang telah disepakati. Migrasi inti Slice 01 mempertahankan email. |
+| K6 | **Dikonfirmasi.** Pencatatan memakai layanan dan nominal, dengan aksi Kapster sebatas menambah. **Tafsiran draf.** Koreksi dan pembatalan yang diaktifkan berada di area Owner. | Kolom metode pembayaran dikeluarkan dari skema. Sebelum Slice 08, pastikan apakah Owner membutuhkan pembatalan tanpa pengganti atau cukup koreksi, cakupan pemasukan/pengeluaran, perlakuan periode, dan histori audit. Master pelanggan dan pencatatan mundur pemasukan masih terbuka. |
+| K7 | **Dikonfirmasi.** Owner dan Admin adalah dua sebutan untuk akun yang sama. | Satu jenis akun Owner. Slice 01 menambahkan username dan menghapus atribut email akun. |
 | K8 | Apakah Forecasting disetujui, posisi prediksi di mana, dan apa yang diproyeksikan? Apakah data Juli–September 2026 masih diperlukan? | Usulan targetnya pemasukan bulanan, memakai empat bulan aktual terakhir yang sudah lengkap pada grafik dan dua bulan prediksi sesudahnya. Frasa “6 bulan kebelakang” juga dapat berarti dua prediksi atas bulan historis. Konfirmasi arti tersebut, sumber data, dan ketentuan baru sebelum Slice 11–12. |
 
 ## 3. Kamus tabel lainnya
@@ -91,7 +91,7 @@ Keputusan K1 menentukan apakah form perlu menyimpan nama pelanggan sebagai atrib
 
 ### Tabel `expenses` · usulan
 
-**Isi dan fungsi.** Setiap baris menyimpan satu pengeluaran manual yang dicatat oleh satu Owner/Admin. Nilai ini dipakai untuk riwayat pengeluaran, rekap, dan grafik.
+**Isi dan fungsi.** Setiap baris menyimpan satu pengeluaran manual yang dicatat oleh satu Owner. Nilai ini dipakai untuk riwayat pengeluaran, rekap, dan grafik.
 
 | Kolom | Tipe | Kunci dan kegunaan |
 | --- | --- | --- |
@@ -99,7 +99,7 @@ Keputusan K1 menentukan apakah form perlu menyimpan nama pelanggan sebagai atrib
 | `incurred_on` | `DATE` | Tanggal pengeluaran dari form dalam kalender operasional. |
 | `description` | `VARCHAR(255)` | Keterangan transaksi. |
 | `amount` | `Rp` | Jumlah pengeluaran, positif. |
-| `recorded_by_user_id` | `ID` | FK ke `users.id`. Diisi dari akun Owner/Admin yang aktif di server. |
+| `recorded_by_user_id` | `ID` | FK ke `users.id`. Diisi dari akun Owner yang aktif di server. |
 | `created_at` | `UTC` | Waktu penyimpanan untuk audit, termasuk jika tanggal kejadian berbeda. |
 | `request_key`, `request_hash` | `CHAR(36)` ASCII kolasi biner, `BINARY(32)` | UUID permintaan dan SHA-256 payload. UQ gabungan `(recorded_by_user_id, request_key)`. |
 
@@ -120,18 +120,18 @@ Tabel berikut digunakan oleh infrastruktur Laravel. `sessions.user_id` dan `pass
 
 ## 4. Integritas dan alur penyimpanan
 
-- **Akun Owner/Admin.** Gunakan username unik dan kata sandi yang di-hash Laravel. Login dan rute Owner memeriksa bahwa akun telah diprovisikan sebagai Owner/Admin sesuai K7 dan masih aktif. Regenerasi ID sesi saat login dan invalidasi saat logout. Saat menonaktifkan akun, cabut sesi aktifnya. Tambahkan rate limit login, validasi server, proteksi CSRF, dan HTTPS pada lingkungan target. [Autentikasi Laravel](https://laravel.com/docs/13.x/authentication)
+- **Akun Owner.** Gunakan username unik dan kata sandi yang di-hash Laravel. Login dan rute Owner memeriksa bahwa akun telah diprovisikan sebagai Owner sesuai K7 dan masih aktif. Regenerasi ID sesi saat login dan invalidasi saat logout. Saat menonaktifkan akun, cabut sesi aktifnya. Tambahkan rate limit login, validasi server, proteksi CSRF, dan HTTPS pada lingkungan target. [Autentikasi Laravel](https://laravel.com/docs/13.x/authentication)
 - **Sesi Kapster.** Validasi nama dari beranda dan simpan sebagai teks pada sesi tamu Laravel. Untuk cakupan baca yang diusulkan, dashboard mengambil pencatatan berdasarkan kunci permintaan yang sudah diterbitkan dan tercatat pada sesi browser aktif. Nama berfungsi sebagai label pada catatan. Dua browser yang memasukkan nama sama tetap mendapat daftar aktivitas masing-masing. Saat berpindah mode, akhiri konteks lama dan regenerasi sesi. Owner membaca semua catatan lewat rute yang memeriksa autentikasi dan izin. [Sesi Laravel](https://laravel.com/docs/13.x/session)
 - **Pemasukan.** Dropdown menampilkan teks `Pilih layanan` sebelum Kapster memilih. Setelah pilihan ditetapkan, form langsung menampilkan harga katalog dalam rupiah sebagai nilai baca-saja. Server menyalin nama Kapster dari sesi dan memvalidasi layanan aktif. Di dalam transaksi, baca harga katalog dari server dan simpan nama layanan serta nominal sebagai snapshot. Bandingkan harga yang terakhir ditampilkan dengan harga server sebelum menyimpan. Jika berbeda, tampilkan harga terbaru dan minta konfirmasi ulang. Satu simpan berhasil menghasilkan satu baris pemasukan. [Transaksi database Laravel](https://laravel.com/docs/13.x/database#database-transactions)
 - **Pengeluaran.** Owner mengisi tanggal, deskripsi, dan jumlah. Server memvalidasi tanggal lokal serta nominal dan mengambil pencatat dari sesi login. Setelah simpan, tampilkan ID yang dibuat oleh database sesuai format tampilan.
 - **Kirim ulang.** Server terlebih dahulu mendaftarkan `request_key` untuk satu form pencatatan pada sesi Kapster. Saat menyimpan atau mengulang, periksa bahwa kunci berasal dari sesi aktif. Kunci dan hash yang sama mengembalikan pencatatan yang sama, termasuk setelah simpan berhasil tetapi respons terputus. Tolak kunci yang sudah tersimpan jika hash berbeda. Gunakan kunci baru setelah Kapster mengonfirmasi perubahan pada form yang masih belum tersimpan. Pada konflik UQ, baca catatan yang menang dan cocokkan hash. Untuk pengeluaran, terapkan aturan serupa dalam cakupan akun Owner.
 - **Data lama.** Semua FK domain memakai `ON DELETE RESTRICT` dan `ON UPDATE RESTRICT`. Katalog yang sudah dipakai diarsipkan dan akun dinonaktifkan. Nama Kapster dan snapshot layanan tetap berada pada catatan setelah sesi HTTP berakhir. Catatan keuangan dipertahankan untuk Rekap lintas periode.
-- **Koreksi.** Tindakan koreksi dan pembatalan yang disetujui melewati pemeriksaan izin Owner/Admin. Usulan Slice 08 mencatat pelaku, waktu, alasan, serta tautan antara catatan asli dan pengganti. Saat koreksi, simpan audit dan pengganti secara atomik. Isi dan status histori mengikuti hasil keputusan K6.
+- **Koreksi.** Tindakan koreksi dan pembatalan yang disetujui melewati pemeriksaan izin Owner. Usulan Slice 08 mencatat pelaku, waktu, alasan, serta tautan antara catatan asli dan pengganti. Saat koreksi, simpan audit dan pengganti secara atomik. Isi dan status histori mengikuti hasil keputusan K6.
 - **Constraint.** Terapkan `CHECK` untuk harga dan jumlah positif. Validasi keterisian nama dan deskripsi, format tanggal, rentang nominal, serta status aktif di Laravel. [MySQL CHECK](https://dev.mysql.com/doc/refman/8.4/en/create-table-check-constraints.html)
 
 | Tabel | Indeks utama selain PK | Pemakaian |
 | --- | --- | --- |
-| `users` | UQ `email` yang sudah ada, UQ `username` usulan | Identitas akun dan login. |
+| `users` | UQ `username` | Identitas akun dan login. |
 | `services` | `(archived_at, name)` | Daftar layanan aktif. |
 | `income_entries` | `(recorded_at, id)`, indeks `service_id`, UQ `request_key` | Rekap periode, FK layanan, dan pencarian catatan berdasarkan kunci permintaan. |
 | `expenses` | `(incurred_on, id)`, UQ `(recorded_by_user_id, request_key)` | Rekap periode, FK pencatat, dan simpan ulang. Pencarian ID yang tepat memakai PK `id`. |
@@ -170,7 +170,7 @@ ORDER BY business_date DESC, entry_type, source_id DESC
 
 Di implementasi, Laravel menerapkan satu pembentuk rentang dan sumber kueri laporan. Daftar dan XLSX memakai kueri yang sama dengan cakupan per halaman. Home memakai sumber keuangan yang sama tanpa kata kunci pencarian halaman lain. Grafik mengelompokkan per `business_date` dan `entry_type`; total bulanan menjumlahkan seluruh baris untuk jenis yang sama. Bila layar menampilkan saldo, rumusnya pemasukan dikurangi pengeluaran. XLSX menyimpan nominal sebagai angka dan label masukan pengguna sebagai teks. Selisih antara layar, ekspor, dan pembanding dinilai pada data dan filter yang sama. Rekap, total bulanan, dan ekspor dihitung dari kueri tersebut.
 
-Contoh SQL memakai offset WIB `+07:00`. Gunakan aturan zona yang sama untuk pembentukan batas dan pengelompokan tanggal. Tampilkan ID pengeluaran berdasarkan `source_id` pada baris `OUT`. Jika tindakan Owner/Admin pada K6 diimplementasikan, terapkan aturan status yang sama pada daftar, agregat, dan ekspor.
+Contoh SQL memakai offset WIB `+07:00`. Gunakan aturan zona yang sama untuk pembentukan batas dan pengelompokan tanggal. Tampilkan ID pengeluaran berdasarkan `source_id` pada baris `OUT`. Jika tindakan Owner pada K6 diimplementasikan, terapkan aturan status yang sama pada daftar, agregat, dan ekspor.
 
 ## 6. Forecasting opsional
 
@@ -187,18 +187,18 @@ Jika impor CSV/Excel lama tetap diminta, periksa contoh file, unit per baris, id
 
 ## 7. Urutan migrasi Laravel yang diusulkan
 
-Pemeriksaan repo menemukan tiga migrasi bawaan `0001_01_01_000000_create_users_table.php`, `0001_01_01_000001_create_cache_table.php`, dan `0001_01_01_000002_create_jobs_table.php`. `migrate:status --env=testing` menunjukkan ketiganya `Ran`. Ketiga migrasi yang terdaftar meliputi fondasi Laravel. Seluruh migrasi operasional berada pada daftar usulan di bawah. Fondasi Slice 00 tercatat diuji dan diajukan untuk review. [Catatan Slice 00](Catatan-Pengerjaan-Slice-00.md)
+Pemeriksaan repo menemukan tiga migrasi bawaan `0001_01_01_000000_create_users_table.php`, `0001_01_01_000001_create_cache_table.php`, dan `0001_01_01_000002_create_jobs_table.php`. `migrate:status --env=testing` menunjukkan ketiganya `Ran`. Ketiga migrasi yang terdaftar meliputi fondasi Laravel. Seluruh migrasi operasional berada pada daftar usulan di bawah. Fondasi Slice 00 tercatat diuji dan sudah masuk ke `main`. [Catatan Slice 00](Catatan-Pengerjaan-Slice-00.md)
 
 | Urutan | Slice | Perubahan skema yang diusulkan | Dependensi dan keputusan |
 | --- | --- | --- | --- |
 | Dasar | 00 | Pertahankan migrasi bawaan `users`, `sessions`, cache, dan jobs serta riwayatnya. | Mulai migrasi fitur setelah PR fondasi disetujui dan di-merge. |
-| 1 | 01 | Migrasi aditif `users` untuk username unik dan atribut penonaktifan. | Inventarisasi akun sebelum mengisi username. Isi hanya untuk Owner/Admin yang disetujui, lalu wajibkan kolom pada level DB jika semua akun telah dipetakan dan kebijakannya disepakati. Keputusan perubahan email atau penambahan role mengikuti K7. |
+| 1 | 01 | `0001_01_01_000003_configure_owner_accounts.php` menambahkan username unik dan atribut penonaktifan, serta menghapus atribut email akun. | Akun aktif diprovisikan dengan `php artisan owner:create`. Rollback mengembalikan format skema awal dengan email placeholder unik bagi baris yang ada. |
 | 2 | 02 | Buat `services`. | K3 mencakup pengelola, jumlah pilihan per simpan, dan aturan arsip. Harga pada form mengikuti katalog. |
 | – | 03 | Sesi Kapster memakai `sessions` bawaan Laravel. | Simpan nama sebagai teks pada payload dan batasi daftar menurut cakupan sesi yang disepakati. |
 | 3, bersyarat | 04 | Buat `customers` jika dibutuhkan. | K1 menentukan kebutuhan nama pelanggan bebas atau referensi master. |
 | 4 | 05 | Buat `income_entries`. | Bergantung pada `services` dan keputusan tentang nama pada form, kardinalitas layanan, serta tanggal pencatatan. Harga dan nama Kapster disalin saat simpan. |
 | 5 | 07 | Buat `expenses`. | Bergantung pada `users`. Sistem mengisi PK dan memakainya sebagai dasar ID yang ditampilkan. |
-| Bersyarat | 08 | Tambahkan atribut audit dan relasi pengganti sesuai alur yang disetujui. | K6. Owner/Admin memegang izin. Tetapkan cakupan tindakan, periode, dan aturan status sebelum migrasi. |
+| Bersyarat | 08 | Tambahkan atribut audit dan relasi pengganti sesuai alur yang disetujui. | K6. Owner memegang izin. Tetapkan cakupan tindakan, periode, dan aturan status sebelum migrasi. |
 | Opsional | 11 | Buat `historical_imports`, lalu `historical_monthly_revenues`. | K8, termasuk kebutuhan impor dan pemetaan file aktual. |
 
 Slice 06, 09, dan 10 membaca sumber operasional yang sama. Slice 12 dapat memakai sumber bulanan yang disepakati tanpa migrasi tambahan pada usulan awal. Gunakan migrasi baru setiap kali mengubah fondasi yang sudah diterapkan. Uji penerapan dan rollback pada MySQL 8.4 di skema uji terpisah. Dalam rollback skema fitur, lepaskan tabel anak sebelum induknya. [Migrasi Laravel](https://laravel.com/docs/13.x/migrations)
@@ -239,7 +239,7 @@ Contoh mengikuti usulan satu layanan per simpan dan harga dari katalog. `Layanan
 | KP-01 · Master operasional | Uji katalog dan pengarsipan sesuai kewenangan. Selaraskan cakupan master Kapster dan pelanggan dari QMP dengan keputusan K1–K3. |
 | KP-02 · Pencatatan dan pembukuan | Peragakan simpan Kapster dan input pengeluaran Owner. Bandingkan Pemasukan, Pengeluaran, Rekap, serta XLSX dengan fixture. Target selisih Rp0. |
 | KP-03 · Dashboard | Cocokkan total bulanan dan grafik harian. Kriteria dashboard mingguan pada rancangan awal perlu diselaraskan dengan tampilan terbaru. |
-| KP-04 · Autentikasi dan akses | Uji login Owner/Admin, akses langsung ke rute terbatas, akun nonaktif, dan cakupan baca dua sesi Kapster bernama sama. Uji izin pembatalan dan koreksi jika tindakan tersebut diterapkan. |
+| KP-04 · Autentikasi dan akses | Uji login Owner, akses langsung ke rute terbatas, akun nonaktif, dan cakupan baca dua sesi Kapster bernama sama. Uji izin pembatalan dan koreksi jika tindakan tersebut diterapkan. |
 | KP-05 · Keamanan | Uji sesi Laravel, hash kata sandi, validasi, CSRF, dan HTTPS. Jika Forecasting dipakai, uji pemanggilan Python secara internal. |
 | KP-06 · Peramalan | Bila disetujui, uji empat aktual dan dua prediksi sesuai sumbu waktu yang disepakati. Catat pemutakhiran bulanan dan status evaluasi galat. Jika fitur tidak disetujui, selaraskan KP-06 dengan Sponsor/Owner karena Charter dan QMP awal memasukkannya dalam lingkup. |
 | KP-07 · Penyerahan | Catat versi migrasi, bukti uji aktual, hasil UAT Kapster dan Owner, serta keputusan penerimaan. |
@@ -249,14 +249,14 @@ Contoh mengikuti usulan satu layanan per simpan dan harga dari katalog. `Layanan
 | Slice | Pekerjaan dan dependensi | Kriteria selesai untuk revisi ini |
 | --- | --- | --- |
 | 00 · Fondasi dan tinjauan | Fondasi Laravel/MySQL telah diuji. Tinjau dampak deskripsi terbaru pada kontrak frontend dan daftar keputusan. | PR fondasi telah disetujui dan masuk `main`. Keputusan yang memengaruhi tiap slice dicatat sebelum migrasi terkait. |
-| 01 · Akun Owner/Admin | Gunakan `users` dan `sessions` bawaan. Terapkan username, akses Owner/Admin, dan logout setelah Slice 00. | Akun yang disetujui dapat login. Sesi Kapster dan pengguna tanpa login ditolak pada rute Owner. Akun nonaktif kehilangan akses. |
+| 01 · Akun Owner | Gunakan `users` dan `sessions` bawaan. Terapkan username, akses Owner, dan logout setelah Slice 00. | Akun yang disetujui dapat login. Sesi Kapster dan pengguna tanpa login ditolak pada rute Owner. Akun nonaktif kehilangan akses. |
 | 02 · Katalog layanan | Buat katalog, pilihan layanan aktif, dan perubahan harga/arsip menurut K3. | Layanan dan harga yang sah tersedia bagi form Kapster sesuai kewenangan pengelola yang disepakati. |
 | 03 · Sesi Kapster | Mulai sesi dari beranda menggunakan nama sebagai teks. Pertahankan cakupan baca sesuai K2. | Kapster melihat aktivitas sesi browser yang sedang berjalan dan dapat membuka form Tambah. |
 | 04 · Master pelanggan bersyarat | Putuskan K1 sebelum menetapkan atribut nama pelanggan atau relasi master. | Skema dan form mencerminkan jawaban tim. |
 | 05 · Pencatatan Kapster | Gunakan pilihan katalog dan tampilkan harga otomatis. Simpan nama Kapster, snapshot layanan dan harga, serta kunci permintaan. | Pencatatan tampil di dashboard sesi dan menghasilkan satu pemasukan walau form dikirim ulang. |
 | 06 · Pemasukan Owner | Baca Slice 05 untuk bulan berjalan dan sediakan pencarian serta XLSX. | Setiap catatan sah tampil sekali. Pada bulan baru, daftar dimulai dari rentang baru. Layar dan ekspor cocok untuk pencarian yang sama. |
 | 07 · Pengeluaran Owner | Setelah Slice 01, sediakan input tanggal, deskripsi, dan jumlah. Tampilkan ID yang dibuat sistem dan ekspor periode berjalan. | Owner bisa menyimpan dan mengekspor. Kirim ulang menghasilkan satu catatan dengan ID yang sama. |
-| 08 · Tindakan Owner/Admin bersyarat | Tetapkan apakah cakupan mencakup koreksi, pembatalan tanpa pengganti, atau keduanya sesuai K6. | Jika diterapkan, izin terbatas pada Owner/Admin. Histori dan perhitungan rekapan dapat direkonsiliasi. |
+| 08 · Tindakan Owner bersyarat | Tetapkan apakah cakupan mencakup koreksi, pembatalan tanpa pengganti, atau keduanya sesuai K6. | Jika diterapkan, izin terbatas pada Owner. Histori dan perhitungan rekapan dapat direkonsiliasi. |
 | 09 · Rekap lintas periode | Gabungkan hasil Slice 06–07 dan aturan Slice 08 bila berlaku. Sediakan pencarian, filter bulan/jenis, dan XLSX. | Rekap memuat histori lintas bulan dan hasil Excel cocok dengan filter. Selisih terhadap data pembanding Rp0. |
 | 10 · Home bulanan | Gunakan sumber Slice 09 untuk total dan dua seri harian bulan berjalan. | Pergantian bulan menghitung rentang baru. Bulan tanpa catatan bernilai Rp0 dan histori tetap tersedia di Rekap. |
 | 11 · Histori opsional | Jalankan setelah keputusan K8 dan pemetaan sumber. Verifikasi file privat, cakupan, dan impor ulang. | Setiap bulan direkonsiliasi dan tetap memiliki satu nilai sumber setelah impor ulang. |
