@@ -45,6 +45,8 @@ Pada 17 November 2026, pengguna melaporkan bahwa sesi Kapster dapat dimulai deng
 
 Konfirmasi kebutuhan pada tanggal yang sama menetapkan bahwa nama Kapster diambil dari sesi. Nama pelanggan adalah keterangan teks opsional per catatan. Kebutuhan profil dan riwayat kunjungan pelanggan berada di luar cakupan, sehingga Slice 04 dilewati. Usulan Slice 05 menyimpan nilai kosong sebagai `NULL` dan menampilkan `—`. [Keputusan K1 di desain database](Desain-Database-MySQL-Barbershop.md#2-perubahan-kebutuhan-dan-keputusan-terbuka)
 
+Keputusan K3 untuk Slice 05 menetapkan tepat satu layanan per pencatatan. Jika pelanggan mengambil dua layanan, Kapster mengisi dan menyimpan form dua kali. Kedua layanan menjadi dua catatan pemasukan yang sah. [Keputusan K3 di desain database](Desain-Database-MySQL-Barbershop.md#2-perubahan-kebutuhan-dan-keputusan-terbuka)
+
 ## Kelanjutan
 
-Setelah Slice 03 disetujui dan masuk ke `main`, lanjutkan ke Slice 05 untuk menyimpan pencatatan Kapster sebagai pemasukan. Sebelum menulis migrasi, konfirmasi apakah satu pencatatan berisi satu layanan atau bisa memuat beberapa layanan. [Urutan pengerjaan per slice](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
+Setelah Slice 03 disetujui dan masuk ke `main`, lanjutkan ke Slice 05 untuk menyimpan satu layanan per pencatatan. Uji bahwa dua simpan terpisah menghasilkan dua pemasukan dan kirim ulang salah satunya tidak menambah pemasukan. [Urutan pengerjaan per slice](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)

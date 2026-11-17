@@ -38,7 +38,7 @@ Satu Owner dapat mencatat nol hingga banyak pengeluaran. Satu record `sessions` 
 | Area | Draf awal | Revisi |
 | --- | --- | --- |
 | Akun dan akses | Kasir dan Owner memakai akun Laravel. | Owner memakai username dan kata sandi. Kapster memulai sesi dari beranda dengan nama. |
-| Pencatatan dan pemasukan | Checkout POS menghasilkan struk dan satu pemasukan per transaksi sah. | Form Kapster menyimpan satu pemasukan per pencatatan. Pembuatan struk dihapus dari Slice 05 dan 06. |
+| Pencatatan dan pemasukan | Checkout POS menghasilkan struk dan satu pemasukan per transaksi sah. | Satu simpan Kapster memuat tepat satu layanan dan menghasilkan satu pemasukan. Layanan tambahan dicatat lewat simpan terpisah. Pembuatan struk dihapus dari Slice 05 dan 06. |
 | Data layanan, kapster, pelanggan | Tiga master terpusat, transaksi menunjuk pelanggan dan kapster. | Nama Kapster berasal dari sesi. Nama pelanggan adalah keterangan teks opsional per pencatatan. Layanan berasal dari katalog dan harganya tampil otomatis. |
 | Pengeluaran | Kasir mencatat tanggal, deskripsi, dan nominal. | Owner memasukkan tanggal, deskripsi, dan jumlah. Sistem menerbitkan ID pengeluaran. Riwayat mendukung pencarian dan ekspor Excel. |
 | Laporan | Dashboard harian, mingguan, dan bulanan dengan rekap periode. | Home, Pemasukan, dan Pengeluaran menampilkan bulan berjalan. Rekap menyimpan cakupan seluruh periode dan mendukung filter serta ekspor. |
@@ -50,7 +50,7 @@ Satu Owner dapat mencatat nol hingga banyak pengeluaran. Satu record `sessions` 
 | --- | --- | --- |
 | K1 | **Dikonfirmasi 17 November 2026.** Nama Kapster diambil dari sesi. Nama pelanggan diisi sebagai teks opsional per pencatatan dan tidak memerlukan profil atau riwayat kunjungan. | Slice 04 dilewati. **Usulan teknis Slice 05.** Simpan nama pelanggan dalam `income_entries.customer_name VARCHAR(120) NULL`. Setelah spasi tepi dibuang, masukan kosong disimpan sebagai `NULL`. Tampilan memakai `—` saat nilai kosong. |
 | K2 | **Dikonfirmasi.** Nama Kapster adalah teks, dengan nama sama diperbolehkan. **Usulan teknis.** Dashboard Kapster hanya menampilkan pencatatan yang dibuat pada sesi browser aktif. | Slice 03 menyimpan nama pada `barber_name` di sesi Laravel bawaan. Pada Slice 05, salin nama ke pemasukan dan gunakan kunci permintaan per pencatatan untuk membatasi cakupan baca. Konfirmasi jika Kapster perlu melihat riwayat dari sesi sebelumnya. |
-| K3 | **Dikonfirmasi.** Harga muncul otomatis setelah layanan dipilih. **Terbuka.** Apa daftar layanan resmi dan apakah satu simpan memuat lebih dari satu layanan? | Slice 02 menerapkan usulan Owner mengelola katalog. Daftar aktif menyediakan ID, nama, dan harga. Pada pencatatan Kapster, harga tampil sebagai nilai baca-saja. Server menyimpan snapshot setelah memeriksa harga katalog. |
+| K3 | **Dikonfirmasi 17 November 2026.** Satu pencatatan berisi tepat satu layanan. Jika pelanggan mengambil dua layanan, Kapster menyimpan dua pencatatan terpisah. Harga muncul otomatis setelah layanan dipilih. **Terbuka.** Daftar layanan resmi masih diperlukan. | Slice 02 menyediakan katalog aktif yang dikelola Owner. Pada Slice 05, setiap pemasukan merujuk langsung ke satu layanan dan menyimpan snapshot harga setelah server memeriksa katalog. |
 | K4 | **Dikonfirmasi.** Sistem membuat ID pengeluaran. | Gunakan `expenses.id` yang dibuat oleh database. Usulan format tampilan dan ekspor adalah `EXP-{id}`. |
 | K5 | **Dikonfirmasi.** Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Rekap mencakup seluruh histori. | Pada pergantian bulan, halaman bulanan memakai rentang baru. Rekap tetap dapat membaca bulan sebelumnya dan menyediakan filter bulan atau jenis. |
 | K6 | **Dikonfirmasi.** Pencatatan memakai layanan dan nominal, dengan aksi Kapster sebatas menambah. **Tafsiran draf.** Koreksi dan pembatalan yang diaktifkan berada di area Owner. | Kolom metode pembayaran dikeluarkan dari skema. Sebelum Slice 08, pastikan apakah Owner membutuhkan pembatalan tanpa pengganti atau cukup koreksi, cakupan pemasukan/pengeluaran, perlakuan periode, dan histori audit. Pencatatan mundur pemasukan masih terbuka. |
@@ -73,16 +73,16 @@ Pada tabel usulan, `ID` berarti `BIGINT UNSIGNED`, dengan `AUTO_INCREMENT` untuk
 | `archived_at` | `UTC NULL` | Saat layanan dikeluarkan dari pilihan aktif. |
 | `created_at`, `updated_at` | `UTC` | Audit perubahan katalog. |
 
-### Tabel `income_entries` · usulan, bergantung pada kardinalitas layanan (K3) dan aturan tanggal pencatatan (K6)
+### Tabel `income_entries` · usulan, bergantung pada aturan tanggal pencatatan (K6)
 
-**Isi dan fungsi.** Satu baris per pencatatan Kapster yang berhasil disimpan. Menjadi sumber pemasukan Owner, rekap, dan grafik. Setiap baris menyimpan nama Kapster dari sesi serta keterangan nama pelanggan jika diisi. Usulan inti menunjuk satu layanan per baris.
+**Isi dan fungsi.** Satu baris per pencatatan Kapster yang berhasil disimpan. Setiap baris menunjuk tepat satu layanan, menyimpan nama Kapster dari sesi, dan memuat keterangan nama pelanggan jika diisi. Baris ini menjadi sumber pemasukan Owner, rekap, dan grafik.
 
 | Kolom | Tipe | Kunci dan kegunaan |
 | --- | --- | --- |
 | `id` | `ID` | PK internal. |
 | `barber_name` | `VARCHAR(120)` | Salinan nama Kapster dari sesi Laravel. Nama yang sama dapat muncul pada banyak catatan. |
 | `customer_name` | `VARCHAR(120) NULL` | Teks opsional untuk keterangan pelanggan pada catatan tersebut. Atribut ini tidak memiliki FK. |
-| `service_id` | `ID` | FK ke `services.id`. |
+| `service_id` | `ID` | FK wajib ke `services.id`. Setiap pencatatan merujuk tepat satu layanan. |
 | `service_name` | `VARCHAR(120)` | Salinan nama layanan saat simpan. |
 | `amount` | `Rp` | Harga yang dicatat saat simpan. Tetap bernilai sama saat harga katalog berubah. |
 | `recorded_at` | `UTC` | Waktu pencatatan dari server dan dasar periode pemasukan pada desain inti. |
@@ -121,7 +121,7 @@ Tabel berikut digunakan oleh infrastruktur Laravel. `sessions.user_id` dan `pass
 
 - **Akun Owner.** Gunakan username unik dan kata sandi yang di-hash Laravel. Login dan rute Owner memeriksa bahwa akun telah diprovisikan sebagai Owner sesuai K7 dan masih aktif. Regenerasi ID sesi saat login dan invalidasi saat logout. Saat menonaktifkan akun, cabut sesi aktifnya. Tambahkan rate limit login, validasi server, proteksi CSRF, dan HTTPS pada lingkungan target. [Autentikasi Laravel](https://laravel.com/docs/13.x/authentication)
 - **Sesi Kapster.** Slice 03 memvalidasi nama dari beranda dan menyimpannya sebagai teks pada sesi tamu Laravel. Dashboard dan pratinjau Tambah memerlukan sesi Kapster. Memulai sesi baru atau masuk sebagai Owner membersihkan konteks Kapster lama. Pada Slice 05, usulan cakupan baca memakai kunci permintaan yang tercatat pada sesi browser aktif. Nama berfungsi sebagai label pemasukan. [Sesi Laravel](https://laravel.com/docs/13.x/session)
-- **Pemasukan.** Dropdown menampilkan teks `Pilih layanan` sebelum Kapster memilih. Setelah pilihan ditetapkan, form menampilkan harga katalog dalam rupiah sebagai nilai baca-saja. Server mengambil nama Kapster dari sesi, menormalisasi nama pelanggan opsional, dan memvalidasi layanan aktif. Di dalam transaksi, baca harga katalog dari server dan simpan nama layanan serta nominal sebagai snapshot. Bandingkan harga yang terakhir ditampilkan dengan harga server sebelum menyimpan. Jika berbeda, tampilkan harga terbaru dan minta konfirmasi ulang. Satu simpan berhasil menghasilkan satu baris pemasukan. [Transaksi database Laravel](https://laravel.com/docs/13.x/database#database-transactions)
+- **Pemasukan.** Form memuat pilihan satu layanan, dengan teks `Pilih layanan` saat pilihan kosong. Harga layanan yang dipilih tampil sebagai nilai baca-saja. Server mengambil nama Kapster dari sesi, menormalisasi nama pelanggan opsional, dan memvalidasi bahwa layanan aktif. Di dalam transaksi, baca harga katalog dari server dan simpan nama layanan serta nominal sebagai snapshot. Bandingkan harga yang terakhir ditampilkan dengan harga server sebelum menyimpan. Jika berbeda, tampilkan harga terbaru dan minta konfirmasi ulang. Satu simpan berhasil menghasilkan satu baris pemasukan. Untuk layanan tambahan, buka form baru dan simpan dengan kunci permintaan baru. [Transaksi database Laravel](https://laravel.com/docs/13.x/database#database-transactions)
 - **Pengeluaran.** Owner mengisi tanggal, deskripsi, dan jumlah. Server memvalidasi tanggal lokal serta nominal dan mengambil pencatat dari sesi login. Setelah simpan, tampilkan ID yang dibuat oleh database sesuai format tampilan.
 - **Kirim ulang.** Server terlebih dahulu mendaftarkan `request_key` untuk satu form pencatatan pada sesi Kapster. Saat menyimpan atau mengulang, periksa bahwa kunci berasal dari sesi aktif. Hitung hash dari payload yang dinormalisasi, termasuk `customer_name` yang dapat bernilai `NULL`. Kunci dan hash yang sama mengembalikan pencatatan yang sama, termasuk setelah simpan berhasil tetapi respons terputus. Tolak kunci yang sudah tersimpan jika hash berbeda. Gunakan kunci baru setelah Kapster mengonfirmasi perubahan pada form yang masih belum tersimpan. Pada konflik UQ, baca catatan yang menang dan cocokkan hash. Untuk pengeluaran, terapkan aturan serupa dalam cakupan akun Owner.
 - **Data lama.** Semua FK domain memakai `ON DELETE RESTRICT` dan `ON UPDATE RESTRICT`. Katalog yang sudah dipakai diarsipkan dan akun dinonaktifkan. Nama Kapster dan snapshot layanan tetap berada pada catatan setelah sesi HTTP berakhir. Catatan keuangan dipertahankan untuk Rekap lintas periode.
@@ -192,10 +192,10 @@ Pemeriksaan repo menemukan tiga migrasi bawaan `0001_01_01_000000_create_users_t
 | --- | --- | --- | --- |
 | Dasar | 00 | Pertahankan migrasi bawaan `users`, `sessions`, cache, dan jobs serta riwayatnya. | Mulai migrasi fitur setelah PR fondasi disetujui dan di-merge. |
 | 1 | 01 | `0001_01_01_000003_configure_owner_accounts.php` menambahkan username unik dan atribut penonaktifan, serta menghapus atribut email akun. | Akun aktif diprovisikan dengan `php artisan owner:create`. Rollback mengembalikan format skema awal dengan email placeholder unik bagi baris yang ada. |
-| 2 | 02 | Migrasi `0001_01_01_000004_create_services_table.php` membuat `services` dengan harga positif dan indeks `(archived_at, name)`. | Owner mengelola katalog. Layanan diarsipkan lewat `archived_at`. Daftar resmi dan jumlah pilihan per pencatatan mengikuti K3. |
+| 2 | 02 | Migrasi `0001_01_01_000004_create_services_table.php` membuat `services` dengan harga positif dan indeks `(archived_at, name)`. | Owner mengelola katalog. Layanan diarsipkan lewat `archived_at`. Daftar resmi masih terbuka pada K3. |
 | – | 03 | Sesi Kapster memakai `sessions` bawaan Laravel. | Nama tersimpan sebagai teks pada payload. Dashboard memakai sesi tamu aktif dan pratinjau membaca katalog Slice 02. |
 | – | 04 | Master pelanggan dilewati. | K1 menetapkan bahwa nama pelanggan hanya keterangan opsional. |
-| 3 | 05 | Buat `income_entries` dengan `customer_name` opsional. | Bergantung pada `services` dan keputusan tentang kardinalitas layanan serta tanggal pencatatan. Harga dan nama Kapster disalin saat simpan. |
+| 3 | 05 | Buat `income_entries` dengan satu FK wajib `service_id` dan `customer_name` opsional. | Bergantung pada `services` dan keputusan tentang tanggal pencatatan. Harga dan nama Kapster disalin saat simpan. |
 | 4 | 07 | Buat `expenses`. | Bergantung pada `users`. Sistem mengisi PK dan memakainya sebagai dasar ID yang ditampilkan. |
 | Bersyarat | 08 | Tambahkan atribut audit dan relasi pengganti sesuai alur yang disetujui. | K6. Owner memegang izin. Tetapkan cakupan tindakan, periode, dan aturan status sebelum migrasi. |
 | Opsional | 11 | Buat `historical_imports`, lalu `historical_monthly_revenues`. | K8, termasuk kebutuhan impor dan pemetaan file aktual. |
@@ -204,7 +204,7 @@ Slice 06, 09, dan 10 membaca sumber operasional yang sama. Slice 12 dapat memaka
 
 ## 8. Data uji fiktif dan rekonsiliasi
 
-Contoh mengikuti usulan satu layanan per simpan dan harga dari katalog. `Layanan A` dan `Layanan B` adalah placeholder. Nominal keduanya hanya untuk rekonsiliasi data uji. Waktu pada tabel adalah WIB. Harga Layanan A naik dari Rp35.000 menjadi Rp40.000 pada awal 1 Oktober. Gunakan target selisih Rp0 untuk pencatatan Kapster, pembukuan, grafik, dan ekspor pada data serta filter yang sama.
+Contoh mengikuti keputusan satu layanan per simpan dan memakai harga katalog. `Layanan A` dan `Layanan B` adalah placeholder. Nominal keduanya hanya untuk rekonsiliasi data uji. Waktu pada tabel adalah WIB. Harga Layanan A naik dari Rp35.000 menjadi Rp40.000 pada awal 1 Oktober. Gunakan target selisih Rp0 untuk pencatatan Kapster, pembukuan, grafik, dan ekspor pada data serta filter yang sama.
 
 | ID uji | Jenis | Tanggal atau waktu lokal | Sesi atau pelaku | Layanan atau deskripsi | Nominal (Rp) |
 | --- | --- | --- | --- | --- | ---: |
@@ -227,6 +227,7 @@ Contoh mengikuti usulan satu layanan per simpan dan harga dari katalog. `Layanan
 - Dari sesi browser A, dashboard Kapster membaca I01 dan I02. Browser B membaca I03 berdasarkan kunci permintaan pada sesi B. Ketiganya menyimpan `barber_name = Bayu`. Owner melihat seluruh baris pada bulan yang sama.
 - Uji I01 dengan `customer_name = Andi`, dan I02 dengan nama pelanggan kosong. I01 menyimpan teks nama dan I02 menyimpan `NULL`. Keduanya tetap menghasilkan pemasukan sesuai tabel pembanding.
 - Kirim ulang I01 dengan UUID dan payload yang sama. Rekap September tetap memiliki tiga pemasukan. I01 dan I03 masing-masing dihitung Rp35.000 karena keduanya merupakan pencatatan sah yang berbeda.
+- Pada uji terpisah, catat Layanan A (Rp35.000) dan Layanan B (Rp15.000) untuk satu kunjungan dalam dua simpan dengan kunci berbeda. Hasil yang diharapkan adalah dua baris pemasukan dengan total Rp50.000. Kirim ulang salah satu simpan dan pastikan jumlah baris serta totalnya tetap sama.
 - Cek batas bulan. Tepat saat Oktober dimulai, I03 tetap berada di September dan I04 masuk Oktober. Uji bulan baru tanpa catatan dengan mengharapkan total Rp0 dan tabel kosong. Rekap September tetap menampilkan catatan terdahulu. Setelah harga Layanan A berubah, I01 dan I03 tetap bernilai Rp35.000.
 - Cek hasil ekspor. Gunakan ID internal numerik 1 untuk I01 dan E01 saat pengujian. Kedua baris tetap tampil dengan jenis dan ID gabungan yang berbeda. Rekap September dengan filter pemasukan memuat I01–I03 dengan total Rp85.000. Rekap seluruh periode tanpa filter memuat enam entri. Grafik 30 September memuat Rp50.000 pemasukan dan Rp20.000 pengeluaran.
 
@@ -253,7 +254,7 @@ Contoh mengikuti usulan satu layanan per simpan dan harga dari katalog. `Layanan
 | 02 · Katalog layanan | Buat katalog, pilihan layanan aktif, dan perubahan harga/arsip menurut K3. | Layanan dan harga yang sah tersedia bagi form Kapster sesuai kewenangan pengelola yang disepakati. |
 | 03 · Sesi Kapster | Mulai dan akhiri sesi tamu dengan nama teks. Lindungi dashboard, pisahkan konteks Owner, dan buka pratinjau Tambah. | Alur dan isolasi sesi lulus uji. Pratinjau menampilkan layanan aktif beserta harga. [Catatan Slice 03](Catatan-Pengerjaan-Slice-03.md) |
 | 04 · Master pelanggan | Dilewati sesuai keputusan K1. | Nama pelanggan ditangani sebagai keterangan opsional pada Slice 05. |
-| 05 · Pencatatan Kapster | Setelah Slice 03, konfirmasi jumlah layanan per pencatatan. Simpan nama Kapster dari sesi, nama pelanggan opsional, snapshot layanan dan harga, serta kunci permintaan. | Pencatatan dengan atau tanpa nama pelanggan tampil di dashboard sesi dan menghasilkan satu pemasukan walau form dikirim ulang. |
+| 05 · Pencatatan Kapster | Setelah Slice 03, simpan tepat satu layanan per pencatatan, nama Kapster dari sesi, nama pelanggan opsional, snapshot layanan dan harga, serta kunci permintaan. | Dua layanan dari satu kunjungan tersimpan sebagai dua pencatatan. Setiap pencatatan tampil di dashboard sesi dan menghasilkan satu pemasukan walau form dikirim ulang. |
 | 06 · Pemasukan Owner | Baca Slice 05 untuk bulan berjalan dan sediakan pencarian serta XLSX. | Setiap catatan sah tampil sekali. Pada bulan baru, daftar dimulai dari rentang baru. Layar dan ekspor cocok untuk pencarian yang sama. |
 | 07 · Pengeluaran Owner | Setelah Slice 01, sediakan input tanggal, deskripsi, dan jumlah. Tampilkan ID yang dibuat sistem dan ekspor periode berjalan. | Owner bisa menyimpan dan mengekspor. Kirim ulang menghasilkan satu catatan dengan ID yang sama. |
 | 08 · Tindakan Owner bersyarat | Tetapkan apakah cakupan mencakup koreksi, pembatalan tanpa pengganti, atau keduanya sesuai K6. | Jika diterapkan, izin terbatas pada Owner. Histori dan perhitungan rekapan dapat direkonsiliasi. |

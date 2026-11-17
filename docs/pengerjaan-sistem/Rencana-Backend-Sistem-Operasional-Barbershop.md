@@ -10,7 +10,7 @@ Sistem melayani satu lokasi. Stack yang disepakati adalah Laravel 13.x, PHP 8.5.
 
 | Area | Alur dan keluaran |
 | --- | --- |
-| Sesi Kapster | Kapster memasukkan nama berbentuk teks dari beranda. Form menampilkan harga otomatis saat layanan dipilih. Server mengambil nama Kapster dari sesi dan menyimpan layanan serta harga saat pencatatan. Nama pelanggan dapat diisi sebagai keterangan teks opsional. Satu simpan sah menghasilkan satu pemasukan. |
+| Sesi Kapster | Kapster memasukkan nama berbentuk teks dari beranda. Form menampilkan harga otomatis untuk satu layanan yang dipilih. Server mengambil nama Kapster dari sesi dan menyimpan layanan serta harga saat pencatatan. Nama pelanggan dapat diisi sebagai keterangan teks opsional. Setiap layanan tambahan dicatat lewat simpan terpisah. |
 | Owner | Owner, yang juga disebut Admin dalam deskripsi sistem, masuk dengan akun yang sama melalui username dan kata sandi. Area Owner memuat Home, Pemasukan, Pengeluaran, Rekap, dan Forecasting bila disetujui. |
 | Pemasukan dan pengeluaran | Pemasukan berasal dari pencatatan Kapster. Owner mengisi tanggal, deskripsi, dan jumlah pengeluaran, lalu sistem membuat ID. Metode pembayaran dan struk keluar dari cakupan. |
 | Periode dan ekspor | Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Home menampilkan dua total bulanan dan dua seri harian. Rekap memuat seluruh histori dengan filter bulan atau jenis. Pemasukan, Pengeluaran, dan Rekap mendukung pencarian dan ekspor Excel pada cakupan masing-masing. |
@@ -28,7 +28,7 @@ QMP mencantumkan Andik Ari Mulyono sebagai penerima hasil. Kolom penerimaan akhi
 | 02 | Katalog dan harga layanan aktif. | Sudah di-merge ke `main`. [Catatan Slice 02](Catatan-Pengerjaan-Slice-02.md) |
 | 03 | Sesi Kapster dengan nama teks dan pratinjau harga. | Implementasi diuji. Sesi menggunakan `sessions` bawaan. [Catatan Slice 03](Catatan-Pengerjaan-Slice-03.md) |
 | 04 | Master pelanggan dilewati berdasarkan K1. | Nama pelanggan cukup menjadi keterangan opsional per catatan pada Slice 05. |
-| 05 | Simpan pencatatan Kapster sebagai pemasukan. | Setelah Slice 03, konfirmasi jumlah layanan per pencatatan. Uji simpan dengan nama pelanggan terisi dan kosong, nama Kapster dari sesi, snapshot harga, serta pencegahan catatan ganda. |
+| 05 | Simpan satu layanan per pencatatan Kapster dan hasilkan satu pemasukan. | Setelah Slice 03, uji dua layanan dari satu kunjungan melalui dua simpan terpisah. Uji nama pelanggan terisi dan kosong, nama Kapster dari sesi, snapshot harga, dan pencegahan catatan ganda. |
 | 06–07 | Tampilkan Pemasukan Owner dan siapkan pengeluaran dengan ID buatan sistem. | Daftar dan XLSX Pemasukan/Pengeluaran cocok untuk pencarian serta bulan yang sama. |
 | 08 | Koreksi Owner sesuai keputusan K6. | Tetapkan izin, aksi yang tersedia, perlakuan periode, dan histori audit sebelum migrasi. |
 | 09–10 | Rekap lintas periode dan Home bulanan. | Gunakan sumber data yang sama untuk daftar, grafik, total, dan ekspor. Uji batas awal bulan, bulan tanpa transaksi, dan histori yang tetap tersedia di Rekap. |

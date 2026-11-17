@@ -10,7 +10,7 @@ Aplikasi menyatukan pencatatan pemasukan, pengeluaran, dan laporan bulanan untuk
 
 | Sesi | Alur utama |
 | --- | --- |
-| Kapster | Mulai dari beranda dengan nama berbentuk teks. Saat mencatat, sistem mengambil nama Kapster dari sesi. Kapster memilih layanan untuk melihat harga katalog dan dapat mengisi nama pelanggan sebagai keterangan opsional. Satu pencatatan sah menghasilkan satu pemasukan. |
+| Kapster | Mulai dari beranda dengan nama berbentuk teks. Saat mencatat, sistem mengambil nama Kapster dari sesi. Kapster memilih satu layanan untuk melihat harganya dan dapat mengisi nama pelanggan sebagai keterangan opsional. Setiap layanan tambahan dicatat lewat simpan terpisah. Satu pencatatan sah menghasilkan satu pemasukan. |
 | Owner | Istilah Admin pada deskripsi sistem merujuk ke akun Owner yang sama. Masuk dengan username dan kata sandi. Kelola katalog layanan, catat pengeluaran, buka Home, Pemasukan, Pengeluaran, dan Rekap, serta ekspor laporan ke Excel. |
 
 Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Pada pergantian bulan, tampilan beralih ke periode baru. Rekap tetap menyediakan histori seluruh periode dan filter bulan atau jenis. Metode pembayaran dan pembuatan struk keluar dari cakupan. Forecasting bersifat opsional. [Rincian kebutuhan dan keputusan](docs/pengerjaan-sistem/Desain-Database-MySQL-Barbershop.md#2-perubahan-kebutuhan-dan-keputusan-terbuka)
@@ -120,7 +120,7 @@ Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [P
 | 02 | Owner mengelola katalog layanan. Daftar baca-saja menyajikan layanan aktif beserta harga. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-02.md) |
 | 03 | Kapster memulai dan mengakhiri sesi dengan nama teks. Dashboard dilindungi sesi dan menyediakan pratinjau layanan dan harga. | Dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-03.md) |
 | 04 | Master pelanggan. Nama pelanggan cukup sebagai keterangan opsional pada pencatatan Slice 05. | Dilewati |
-| 05 | Simpan nama Kapster dari sesi, nama pelanggan opsional, dan snapshot harga. Satu penyimpanan sah menghasilkan satu pemasukan. | Direncanakan |
+| 05 | Simpan satu layanan, nama Kapster dari sesi, nama pelanggan opsional, dan snapshot harga. Setiap layanan tambahan disimpan sebagai pencatatan terpisah. | Direncanakan |
 | 06 | Pemasukan Owner menampilkan bulan berjalan. Hasil pencarian dan XLSX dapat direkonsiliasi. | Direncanakan |
 | 07 | Owner mencatat pengeluaran dengan ID buatan sistem. Riwayat dan XLSX mengikuti bulan berjalan. | Direncanakan |
 | 08 | Jika disetujui, Owner menjalankan tindakan koreksi yang dicatat untuk audit. | Bersyarat |
