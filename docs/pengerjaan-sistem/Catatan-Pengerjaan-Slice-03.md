@@ -2,7 +2,7 @@
 
 - **Pemeriksaan** 17 November 2026
 - **Branch** `feat/slice-03-sesi-kapster`
-- **Status** Implementasi dan pengujian selesai untuk review. [Pull request Slice 03](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pulls?q=is%3Apr+head%3Afeat%2Fslice-03-sesi-kapster)
+- **Status** Implementasi dan pengujian selesai. PR dalam review. [Pull request Slice 03](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/4)
 
 ## Dasar pengerjaan
 
@@ -39,6 +39,12 @@ Uji ini mencakup pembatasan akses dalam KP-04 serta perlindungan sesi dan CSRF d
 3. Pilih layanan aktif dan periksa harga yang tampil. Buka rute Owner dari sesi Kapster dan periksa pengalihan ke login.
 4. Akhiri sesi dan coba buka `/kapster` secara langsung. Ulangi dengan dua browser atau jendela privat terpisah yang memakai nama sama. Selanjutnya jalankan `php artisan migrate --env=testing` dan `php artisan test --env=testing`.
 
+## Catatan uji manual dan keputusan untuk Slice 05
+
+Pada 17 November 2026, pengguna melaporkan bahwa sesi Kapster dapat dimulai dengan nama, dilanjutkan setelah kembali ke beranda, dan diakhiri. Pengguna juga membuka dashboard Owner, katalog beserta tabel layanan, dan form tambah layanan.
+
+Konfirmasi kebutuhan pada tanggal yang sama menetapkan bahwa nama Kapster diambil dari sesi. Nama pelanggan adalah keterangan teks opsional per catatan. Kebutuhan profil dan riwayat kunjungan pelanggan berada di luar cakupan, sehingga Slice 04 dilewati. Usulan Slice 05 menyimpan nilai kosong sebagai `NULL` dan menampilkan `—`. [Keputusan K1 di desain database](Desain-Database-MySQL-Barbershop.md#2-perubahan-kebutuhan-dan-keputusan-terbuka)
+
 ## Kelanjutan
 
-Setelah Slice 03 disetujui dan masuk ke `main`, konfirmasi arti kolom nama pada form Tambah dan apakah satu pencatatan dapat berisi lebih dari satu layanan. Buat Slice 04 jika diperlukan master pelanggan. Lanjutkan ke Slice 05 untuk menyimpan pencatatan Kapster sebagai pemasukan. [Urutan pengerjaan per slice](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
+Setelah Slice 03 disetujui dan masuk ke `main`, lanjutkan ke Slice 05 untuk menyimpan pencatatan Kapster sebagai pemasukan. Sebelum menulis migrasi, konfirmasi apakah satu pencatatan berisi satu layanan atau bisa memuat beberapa layanan. [Urutan pengerjaan per slice](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
