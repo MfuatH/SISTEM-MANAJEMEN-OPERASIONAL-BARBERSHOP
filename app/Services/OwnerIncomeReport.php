@@ -5,17 +5,8 @@ namespace App\Services;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Query\Builder;
 
-class OwnerIncomeReport
+class OwnerIncomeReport extends MonthlyOwnerReport
 {
-    public const TIMEZONE = 'Asia/Jakarta';
-
-    public readonly CarbonImmutable $month;
-
-    public function __construct(public readonly string $search)
-    {
-        $this->month = CarbonImmutable::now(self::TIMEZONE)->startOfMonth();
-    }
-
     public function query(): Builder
     {
         $query = IncomeItems::query()
@@ -27,7 +18,7 @@ class OwnerIncomeReport
             ->orderBy('items.item_id');
 
         if ($this->search !== '') {
-            $pattern = '%'.strtr($this->search, ['!' => '!!', '%' => '!%', '_' => '!_']).'%';
+            $pattern = $this->searchPattern();
             $query->where(function (Builder $matches) use ($pattern): void {
                 $matches->whereRaw("items.item_name LIKE ? ESCAPE '!'", [$pattern])
                     ->orWhereRaw("tx.barber_name LIKE ? ESCAPE '!'", [$pattern])
@@ -50,10 +41,5 @@ class OwnerIncomeReport
     public static function itemType(string $type): string
     {
         return $type === 'service' ? 'Layanan' : 'Penjualan produk';
-    }
-
-    public static function rupiah(string|int $amount): string
-    {
-        return 'Rp'.preg_replace('/\B(?=(\d{3})+(?!\d))/', '.', (string) $amount);
     }
 }

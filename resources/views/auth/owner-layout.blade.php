@@ -8,9 +8,9 @@
         body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f5f6f2; color: #1b2522; font: 1rem/1.5 Inter, system-ui, sans-serif; }
         main { box-sizing: border-box; width: min(28rem, calc(100% - 2rem)); padding: 2rem; background: white; border: 1px solid #d8dfd9; border-radius: .8rem; }
         h1 { margin: 0 0 1.25rem; font-size: 1.65rem; }
-        label, input, select { display: block; }
+        label, input, select, textarea { display: block; }
         label { font-weight: 600; }
-        input, select { box-sizing: border-box; width: 100%; margin: .3rem 0 .25rem; padding: .55rem .7rem; border: 1px solid #89968e; border-radius: .3rem; font: inherit; }
+        input, select, textarea { box-sizing: border-box; width: 100%; margin: .3rem 0 .25rem; padding: .55rem .7rem; border: 1px solid #89968e; border-radius: .3rem; font: inherit; }
         button { padding: .55rem .9rem; border: 0; border-radius: .3rem; background: #164b39; color: white; font: inherit; cursor: pointer; }
         button:disabled { opacity: .55; cursor: default; }
         a { color: #164b39; }
@@ -18,8 +18,8 @@
         .button { display: inline-block; padding: .55rem .9rem; border-radius: .3rem; background: #164b39; color: white; text-decoration: none; }
         .secondary { background: #edf2ed; color: #164b39; }
         .table-scroll { overflow-x: auto; }
-        .income-report { width: min(76rem, calc(100% - 2rem)); }
-        .income-report input[type="search"] { max-width: 28rem; }
+        .report-page { width: min(76rem, calc(100% - 2rem)); }
+        .report-page input[type="search"] { max-width: 28rem; }
         .number { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
         .report-time { white-space: nowrap; }
         caption { text-align: left; font-weight: 600; }

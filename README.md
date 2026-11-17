@@ -116,6 +116,10 @@ Jalankan `php artisan migrate` pada `barbershop_dev`, lalu mulai sesi Kapster da
 
 Jalankan `composer install` memakai PHP 8.5. Masuk sebagai Owner dan buka **Pemasukan**. Layanan dan penjualan produk tampil per item untuk bulan berjalan WIB. Masukkan nama item, Kapster, pelanggan, atau ID transaksi untuk mencari. Tombol **Ekspor Excel** mengunduh seluruh hasil untuk pencarian tersebut. [Cara meninjau Slice 06](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-06.md#cara-meninjau)
 
+### Mencoba Pengeluaran Owner
+
+Pada branch Slice 07, jalankan `php artisan migrate` pada `barbershop_dev`, lalu masuk sebagai Owner dan buka **Pengeluaran**. Isi tanggal, deskripsi, dan jumlah melalui **Tambah pengeluaran**. Daftar menampilkan ID buatan sistem dan total bulan berjalan WIB. Cari berdasarkan ID atau deskripsi, lalu unduh Excel dengan pencarian yang sama. [Cara meninjau Slice 07](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-07.md#cara-meninjau)
+
 ## Status pengerjaan per slice
 
 Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [PR #1](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/1). Desain berikut menjadi acuan peninjauan fitur.
@@ -129,7 +133,7 @@ Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [P
 | 04 | Master pelanggan. Nama pelanggan cukup sebagai keterangan opsional pada pencatatan Slice 05. | Dilewati |
 | 05 | Pencatatan satu layanan dikembangkan menjadi transaksi multi-layanan dengan penjualan produk opsional dan form Produk tersendiri. Owner dapat mengelola katalog produk, mengaktifkan kembali arsip layanan, serta menghapus layanan yang belum tercatat. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-05.md#revisi-kebutuhan-setelah-merge) |
 | 06 | Pemasukan Owner menampilkan satu baris per layanan atau penjualan produk pada bulan berjalan WIB. Daftar, total, pencarian, dan ekspor XLSX memakai sumber yang sama. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-06.md) |
-| 07 | Owner mencatat pengeluaran dengan ID buatan sistem. Riwayat dan XLSX mengikuti bulan berjalan. | Direncanakan |
+| 07 | Owner mencatat pengeluaran dengan ID buatan sistem. Riwayat, pencarian, total, dan XLSX mengikuti bulan berjalan WIB. | Dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-07.md) |
 | 08 | Jika disetujui, Owner menjalankan tindakan koreksi yang dicatat untuk audit. | Bersyarat |
 | 09 | Rekap menggabungkan pemasukan dan pengeluaran lintas periode serta menyediakan filter dan XLSX. Target selisih Rp0. | Direncanakan |
 | 10 | Home menampilkan dua total bulanan dan grafik harian. Pergantian bulan memakai rentang baru dan histori tersedia di Rekap. | Direncanakan |
@@ -144,7 +148,7 @@ Contoh kueri Rekap telah diperiksa pada MySQL 8.4.3 menggunakan data fiktif. Gun
 
 Per **17 November 2026**, backend sampai Slice 06 sudah masuk `main`. Landing Page, halaman Kapster, Login Owner, dan Pemasukan siap diintegrasikan. Home dan sidebar Owner bisa memakai menu aktif. Total bulanan dan grafik Home dijadwalkan pada Slice 10.
 
-Acuan wireframe tersedia. Pengeluaran dan Rekap dapat memakai data contoh selama backend terkait disiapkan. Forecasting bersifat opsional. [Detail kesiapan sembilan tahap frontend](docs/pengerjaan-sistem/Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
+Pengeluaran siap diintegrasikan pada branch Slice 07 yang sedang direview. Acuan wireframe tersedia, Rekap masih direncanakan, dan Forecasting bersifat opsional. [Kesiapan frontend Slice 07](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-07.md#kesiapan-frontend) [Detail kesiapan sembilan tahap frontend](docs/pengerjaan-sistem/Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
 
 ## Alur kerja Git dan GitHub
 
