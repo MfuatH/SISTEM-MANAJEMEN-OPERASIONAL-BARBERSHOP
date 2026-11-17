@@ -55,6 +55,10 @@
 
 Laravel juga membuat tabel `migrations`. Setelah migrasi, setiap skema berisi sembilan tabel. Slice 01 menambahkan kolom `username` dan `disabled_at` untuk Owner melalui migrasi baru. Skema akun pada Slice 01 memakai username dan kata sandi. Tabel `sessions` bawaan menjadi dasar sesi Laravel untuk Owner dan sesi nama Kapster.
 
+## Kesiapan frontend
+
+**Perancangan Wireframe.** Lingkungan Laravel dan MySQL sudah tersedia untuk menguji halaman dan alur pengguna. Tim frontend dapat memakai desain database untuk memetakan alur beranda, sesi Kapster, autentikasi Owner, serta halaman laporan yang direncanakan. Gunakan data fiktif pada rancangan awal halaman yang masih menunggu backend. [Peta kesiapan per tahap](Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
+
 ## Bukti pemeriksaan
 
 | Pemeriksaan | Hasil aktual |

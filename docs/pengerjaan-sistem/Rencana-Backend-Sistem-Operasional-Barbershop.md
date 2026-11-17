@@ -38,7 +38,23 @@ QMP mencantumkan Andik Ari Mulyono sebagai penerima hasil. Kolom penerimaan akhi
 
 ERD, kamus data, integritas, indeks, dan urutan migrasi dijabarkan di [Desain Database MySQL](Desain-Database-MySQL-Barbershop.md). Gunakan `DECIMAL` untuk rupiah dan aritmetika presisi eksak di backend. [MySQL DECIMAL](https://dev.mysql.com/doc/refman/8.4/en/fixed-point-types.html)
 
-Gunakan peta kesiapan untuk menjadwalkan wireframe, integrasi halaman yang sudah memiliki rute, dan mockup fitur yang masih direncanakan. [Status backend dan kesiapan frontend](../../README.md#status-backend-dan-kesiapan-frontend)
+## Kesiapan frontend per tahap
+
+Status mengikuti backend yang sudah masuk `main` per 17 November 2026. Halaman yang berstatus **Siap integrasi** dapat disambungkan ke rute web Laravel yang tersedia. Saat mengganti tampilan Blade, pertahankan token CSRF pada form yang mengubah data, autentikasi berbasis sesi, redirect, dan pesan validasi.
+
+| Tahap frontend | Status backend | Bagian yang siap dibuat frontend |
+| --- | --- | --- |
+| 1. Perancangan Wireframe | Acuan desain tersedia. | Rancang alur publik, Kapster, dan Owner berdasarkan desain database. Untuk halaman yang backend-nya masih direncanakan, gunakan contoh data pada wireframe dan tandai fitur opsional. [Catatan Slice 00](Catatan-Pengerjaan-Slice-00.md#kesiapan-frontend) |
+| 2. Pengembangan Landing Page Utama | **Siap integrasi.** `GET /` menampilkan beranda. `POST /kapster/sesi` memulai sesi dengan field `name`. | Buat beranda, form mulai sesi Kapster, tautan untuk melanjutkan sesi aktif, dan tombol masuk Owner ke `/owner/login`. [Catatan Slice 03](Catatan-Pengerjaan-Slice-03.md#kesiapan-frontend) |
+| 3. Pengembangan Halaman Utama Kapster | **Siap integrasi.** `GET /kapster` menampilkan riwayat sesi. `GET /kapster/tambah` dan `POST /kapster/pencatatan` menangani layanan. `GET /kapster/produk` dan `POST /kapster/produk` menangani penjualan produk. | Buat tabel pencatatan sesi, tombol **Layanan** dan **Produk**, form nama pelanggan opsional, pilihan item dan jumlah produk, harga serta total otomatis, dan tombol akhiri sesi lewat `POST /kapster/keluar`. [Catatan Slice 05](Catatan-Pengerjaan-Slice-05.md#kesiapan-frontend) |
+| 4. Pengembangan Halaman Login Owner | **Siap integrasi.** `GET /owner/login` membuka form. `POST /owner/login` menerima `username` dan `password`. | Buat form login, tampilkan pesan validasi, dan ikuti redirect setelah login. Gunakan `POST /owner/logout` untuk aksi keluar. [Catatan Slice 01](Catatan-Pengerjaan-Slice-01.md#kesiapan-frontend) |
+| 5. Pengembangan Home Dashboard Owner dan Sidebar | **Siap sebagian.** Area Owner `GET /owner` dan rute menu Pemasukan, katalog layanan, serta katalog produk tersedia. Total bulanan dan grafik dashboard dijadwalkan pada Slice 10. | Buat tata letak Home, sidebar, dan tautan ke `/owner/pemasukan`, `/owner/services`, dan `/owner/products`. Rancang kartu total pemasukan/pengeluaran, grafik harian, dan posisi menu berikutnya sebagai mockup. [Catatan Slice 06](Catatan-Pengerjaan-Slice-06.md#kesiapan-frontend) |
+| 6. Pengembangan Halaman Pemasukan | **Siap integrasi.** Slice 06 menyediakan `GET /owner/pemasukan` dan `GET /owner/pemasukan/ekspor` dengan parameter pencarian `q`. | Buat tabel satu baris per layanan atau penjualan produk, tampilan periode bulan berjalan WIB, pencarian, total hasil, paginasi, dan tombol ekspor Excel yang memakai pencarian yang sama. [Catatan Slice 06](Catatan-Pengerjaan-Slice-06.md#kesiapan-frontend) |
+| 7. Pengembangan Halaman Pengeluaran | **Direncanakan pada Slice 07.** Backend input, daftar, dan ekspor belum tersedia. | Rancang form tanggal, deskripsi, dan jumlah, serta tabel bulan berjalan dengan ID yang akan dibuat sistem. Buat mockup pencarian dan ekspor. |
+| 8. Pengembangan Halaman Rekap | **Direncanakan pada Slice 09.** Sumber pemasukan per item tersedia. Rekap gabungan bergantung pada pencatatan pengeluaran. | Rancang tabel lintas periode yang memuat pemasukan dan pengeluaran, pencarian, filter bulan dan jenis, total, serta tombol ekspor Excel. Gunakan data contoh sampai backend Rekap tersedia. |
+| 9. Pengembangan Halaman Forecasting | **Opsional pada Slice 11–12.** Impor histori, hasil prediksi, dan kontrak halaman bergantung pada keputusan K8. | Jika fitur disetujui, rancang grafik dengan empat bulan aktual dan dua bulan prediksi sebagai acuan awal. Label dan posisi periode mengikuti keputusan K8. |
+
+[Rangkuman di README](../../README.md#status-backend-dan-kesiapan-frontend) · [Desain database](Desain-Database-MySQL-Barbershop.md)
 
 ## 3. Catatan historis jadwal awal
 

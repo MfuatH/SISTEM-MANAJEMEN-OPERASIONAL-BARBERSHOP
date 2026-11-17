@@ -142,21 +142,9 @@ Contoh kueri Rekap telah diperiksa pada MySQL 8.4.3 menggunakan data fiktif. Gun
 
 ## Status backend dan kesiapan frontend
 
-Per **17 November 2026**, fondasi dan fitur operasional sampai Slice 06 sudah masuk `main`. Slice 04 dilewati karena nama pelanggan cukup dicatat sebagai teks opsional. Rute di tabel ini adalah rute web Laravel yang memakai sesi. Jika frontend mengganti tampilan Blade, pertahankan token CSRF pada form POST serta alur redirect dan pesan validasi.
+Per **17 November 2026**, backend sampai Slice 06 sudah masuk `main`. Landing Page, halaman Kapster, Login Owner, dan Pemasukan siap diintegrasikan. Home dan sidebar Owner bisa memakai menu aktif. Total bulanan dan grafik Home dijadwalkan pada Slice 10.
 
-| Tahap frontend | Status backend | Bagian yang siap dibuat frontend |
-| --- | --- | --- |
-| 1. Perancangan Wireframe | Acuan desain tersedia. | Rancang alur publik, Kapster, dan Owner berdasarkan desain database. Untuk halaman yang backend-nya masih direncanakan, gunakan contoh data pada wireframe dan tandai fitur opsional. |
-| 2. Pengembangan Landing Page Utama | **Siap integrasi.** `GET /` menampilkan beranda. `POST /kapster/sesi` memulai sesi dengan field `name`. | Buat beranda, form mulai sesi Kapster, tautan untuk melanjutkan sesi aktif, dan tombol masuk Owner ke `/owner/login`. |
-| 3. Pengembangan Halaman Utama Kapster | **Siap integrasi.** `GET /kapster` menampilkan riwayat sesi. `GET /kapster/tambah` dan `POST /kapster/pencatatan` menangani layanan. `GET /kapster/produk` dan `POST /kapster/produk` menangani penjualan produk. | Buat tabel pencatatan sesi, tombol **Layanan** dan **Produk**, form nama pelanggan opsional, pilihan item dan jumlah produk, harga serta total otomatis, dan tombol akhiri sesi lewat `POST /kapster/keluar`. |
-| 4. Pengembangan Halaman Login Owner | **Siap integrasi.** `GET /owner/login` membuka form. `POST /owner/login` menerima `username` dan `password`. | Buat form login, tampilkan pesan validasi, dan ikuti redirect setelah login. Gunakan `POST /owner/logout` untuk aksi keluar. |
-| 5. Pengembangan Home Dashboard Owner dan Sidebar | **Siap sebagian.** Area Owner `GET /owner` dan rute menu Pemasukan, katalog layanan, serta katalog produk tersedia. Total bulanan dan grafik dashboard dijadwalkan pada Slice 10. | Buat tata letak Home, sidebar, dan tautan ke `/owner/pemasukan`, `/owner/services`, dan `/owner/products`. Rancang kartu total pemasukan/pengeluaran, grafik harian, dan posisi menu berikutnya sebagai mockup. |
-| 6. Pengembangan Halaman Pemasukan | **Siap integrasi.** Slice 06 menyediakan `GET /owner/pemasukan` dan `GET /owner/pemasukan/ekspor` dengan parameter pencarian `q`. | Buat tabel satu baris per layanan atau penjualan produk, tampilan periode bulan berjalan WIB, pencarian, total hasil, paginasi, dan tombol ekspor Excel yang memakai pencarian yang sama. |
-| 7. Pengembangan Halaman Pengeluaran | **Direncanakan pada Slice 07.** Backend input, daftar, dan ekspor belum tersedia. | Rancang form tanggal, deskripsi, dan jumlah, serta tabel bulan berjalan dengan ID yang akan dibuat sistem. Buat mockup pencarian dan ekspor. |
-| 8. Pengembangan Halaman Rekap | **Direncanakan pada Slice 09.** Sumber pemasukan per item tersedia. Rekap gabungan bergantung pada pencatatan pengeluaran. | Rancang tabel lintas periode yang memuat pemasukan dan pengeluaran, pencarian, filter bulan dan jenis, total, serta tombol ekspor Excel. Gunakan data contoh sampai backend Rekap tersedia. |
-| 9. Pengembangan Halaman Forecasting | **Opsional pada Slice 11–12.** Impor histori, hasil prediksi, dan kontrak halaman bergantung pada keputusan K8. | Jika fitur disetujui, rancang grafik dengan empat bulan aktual dan dua bulan prediksi sebagai acuan awal. Label dan posisi periode mengikuti keputusan K8. |
-
-Acuan untuk wireframe dan halaman yang masih direncanakan tersedia pada desain database. Panduan pengujian Pemasukan tersedia pada catatan Slice 06. [Desain database](docs/pengerjaan-sistem/Desain-Database-MySQL-Barbershop.md) · [Catatan Slice 06](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-06.md)
+Acuan wireframe tersedia. Pengeluaran dan Rekap dapat memakai data contoh selama backend terkait disiapkan. Forecasting bersifat opsional. [Detail kesiapan sembilan tahap frontend](docs/pengerjaan-sistem/Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
 
 ## Alur kerja Git dan GitHub
 
