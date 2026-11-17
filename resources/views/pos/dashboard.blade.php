@@ -1,6 +1,7 @@
 @extends('auth.owner-layout')
 
 @section('title', 'Dashboard Kapster')
+@section('main-class', 'wide')
 
 @section('content')
     <p><a href="{{ route('home') }}">Kembali ke beranda</a></p>
@@ -10,36 +11,50 @@
         <p role="status">{{ session('status') }}</p>
     @endif
 
-    <p><a class="button" href="{{ route('barber.entry-form') }}">Tambah</a></p>
+    <div class="actions">
+        <a class="button" href="{{ route('barber.entry-form') }}">Layanan</a>
+        <a class="button" href="{{ route('barber.product-form') }}">Produk</a>
+    </div>
 
     <div class="table-scroll">
         <table>
             <caption>Pencatatan sesi ini</caption>
             <thead>
                 <tr>
+                    <th scope="col">Transaksi</th>
                     <th scope="col">Waktu (WIB)</th>
                     <th scope="col">Nama pelanggan</th>
-                    <th scope="col">Layanan</th>
-                    <th scope="col">Harga</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">Jumlah</th>
+                    <th scope="col">Nilai</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($entries as $entry)
                     <tr>
-                        <td>{{ $entry->recorded_at->setTimezone('Asia/Jakarta')->format('d/m/Y H:i') }}</td>
+                        <td>{{ $entry->transaction_id }}</td>
+                        <td>{{ Illuminate\Support\Carbon::parse($entry->recorded_at, 'UTC')->setTimezone('Asia/Jakarta')->format('d/m/Y H:i') }}</td>
                         <td>{{ $entry->customer_name ?? '—' }}</td>
-                        <td>{{ $entry->service_name }}</td>
-                        <td>Rp{{ number_format((int) $entry->amount, 0, ',', '.') }}</td>
+                        <td>
+                            {{ $entry->item_name }}
+                            @if ($entry->item_type === 'product')
+                                <br><small>Produk dijual</small>
+                            @elseif ($entry->used_product_name !== null)
+                                <br><small>Produk dipakai {{ $entry->used_product_name }}</small>
+                            @endif
+                        </td>
+                        <td>{{ $entry->quantity }}</td>
+                        <td>Rp{{ preg_replace('/\B(?=(\d{3})+(?!\d))/', '.', (string) $entry->amount) }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="4">Belum ada pencatatan.</td></tr>
+                    <tr><td colspan="6">Belum ada pencatatan.</td></tr>
                 @endforelse
             </tbody>
         </table>
     </div>
 
     @if ($entries->hasPages())
-        <nav aria-label="Halaman pencatatan">
+        <nav class="actions" aria-label="Halaman pencatatan">
             @if ($entries->previousPageUrl())
                 <a href="{{ $entries->previousPageUrl() }}">Sebelumnya</a>
             @endif

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SaveServiceRequest;
 use App\Models\Service;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -22,7 +23,7 @@ class ServiceController extends Controller
 
     public function index(): View
     {
-        $services = Service::query()
+        $services = Service::query()->withExists('incomeEntries')
             ->orderBy('archived_at')
             ->orderBy('name')
             ->orderBy('id')
@@ -60,5 +61,28 @@ class ServiceController extends Controller
         Service::query()->active()->whereKey($service->id)->update(['archived_at' => now()]);
 
         return redirect()->route('owner.services.index')->with('status', 'Layanan diarsipkan.');
+    }
+
+    public function restore(Service $service): RedirectResponse
+    {
+        Service::query()->whereKey($service->id)->whereNotNull('archived_at')->update(['archived_at' => null]);
+
+        return to_route('owner.services.index')->with('status', 'Layanan diaktifkan kembali.');
+    }
+
+    public function destroy(Service $service): RedirectResponse
+    {
+        try {
+            $service->delete();
+        } catch (QueryException $exception) {
+            if ((int) ($exception->errorInfo[1] ?? 0) !== 1451) {
+                throw $exception;
+            }
+
+            return to_route('owner.services.index')
+                ->with('error', 'Layanan sudah tercatat pada transaksi. Arsipkan layanan untuk mengeluarkannya dari pilihan Kapster.');
+        }
+
+        return to_route('owner.services.index')->with('status', 'Layanan berhasil dihapus.');
     }
 }

@@ -24,6 +24,13 @@
         .actions { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem; }
         nav.actions { margin-top: 1rem; }
         .field { margin-bottom: 1rem; }
+        fieldset { border: 1px solid #d8dfd9; border-radius: .5rem; margin: 1rem 0; padding: 1rem; min-width: 0; }
+        legend { font-weight: 600; }
+        .entry-row { display: grid; align-items: start; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .8rem; border-bottom: 1px solid #d8dfd9; padding-bottom: .75rem; margin-bottom: .75rem; }
+        .entry-row p { margin: 0; }
+        .entry-row [data-remove] { justify-self: start; }
+        .entry-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; align-items: start; }
+        @media (max-width: 48rem) { .entry-columns { grid-template-columns: minmax(0, 1fr); gap: 0; } }
         .error { color: #972e29; }
         :focus-visible { outline: 2px solid #164b39; outline-offset: 3px; }
     </style>

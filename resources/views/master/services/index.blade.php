@@ -11,6 +11,10 @@
         <p role="status">{{ session('status') }}</p>
     @endif
 
+    @if (session('error'))
+        <p class="error" role="alert">{{ session('error') }}</p>
+    @endif
+
     <p><a class="button" href="{{ route('owner.services.create') }}">Tambah layanan</a></p>
 
     <div class="table-scroll">
@@ -37,6 +41,21 @@
                                         @csrf
                                         @method('PATCH')
                                         <button class="secondary" type="submit">Arsipkan</button>
+                                    </form>
+                                @else
+                                    <form method="post" action="{{ route('owner.services.restore', $service) }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button class="secondary" type="submit">Aktifkan kembali</button>
+                                    </form>
+                                @endif
+                                @if ($service->income_entries_exists)
+                                    <button class="secondary" type="button" disabled title="Sudah tercatat pada transaksi">Hapus</button>
+                                @else
+                                    <form method="post" action="{{ route('owner.services.destroy', $service) }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="secondary" type="submit" aria-label="Hapus {{ $service->name }}">Hapus</button>
                                     </form>
                                 @endif
                             </div>

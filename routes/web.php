@@ -3,6 +3,7 @@
 use App\Http\Controllers\BarberIncomeController;
 use App\Http\Controllers\BarberSessionController;
 use App\Http\Controllers\OwnerAuthController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Middleware\EnsureBarberSession;
 use App\Http\Middleware\EnsureOwnerIsActive;
@@ -18,6 +19,8 @@ Route::prefix('kapster')->name('barber.')->middleware('guest')->group(function (
         Route::get('/', [BarberIncomeController::class, 'index'])->name('dashboard');
         Route::get('tambah', [BarberIncomeController::class, 'create'])->name('entry-form');
         Route::post('pencatatan', [BarberIncomeController::class, 'store'])->name('entries.store');
+        Route::get('produk', [BarberIncomeController::class, 'createProductSale'])->name('product-form');
+        Route::post('produk', [BarberIncomeController::class, 'store'])->name('products.store');
         Route::post('keluar', [BarberSessionController::class, 'destroy'])->name('session.destroy');
     });
 });
@@ -35,8 +38,11 @@ Route::prefix('owner')->group(function (): void {
         Route::post('logout', [OwnerAuthController::class, 'destroy'])->name('owner.logout');
 
         Route::name('owner.')->group(function (): void {
-            Route::resource('services', ServiceController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+            Route::resource('services', ServiceController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
             Route::patch('services/{service}/archive', [ServiceController::class, 'archive'])->name('services.archive');
+            Route::patch('services/{service}/restore', [ServiceController::class, 'restore'])->name('services.restore');
+            Route::resource('products', ProductController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+            Route::patch('products/{product}/archive', [ProductController::class, 'archive'])->name('products.archive');
         });
     });
 });
