@@ -34,6 +34,7 @@ class OwnerAuthController extends Controller
             ]);
         }
 
+        $request->session()->forget('barber_name');
         $request->session()->regenerate();
 
         return redirect()->route('owner.home');
