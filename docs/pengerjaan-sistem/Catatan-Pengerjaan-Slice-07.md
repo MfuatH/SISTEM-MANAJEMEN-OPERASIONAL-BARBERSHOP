@@ -1,8 +1,8 @@
 # Catatan Pengerjaan Slice 07 — Pengeluaran Owner
 
-**17 November 2026 · Dalam review · Branch `feat/slice-07-pengeluaran-owner`**
+**17 November 2026 · Selesai dan di-merge ke `main` · Branch `feat/slice-07-pengeluaran-owner`**
 
-[PR #11 ke `main`](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/11)
+[PR #11](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/11)
 
 ## Status pengerjaan
 
@@ -17,7 +17,7 @@ Slice 07 menyediakan pencatatan pengeluaran manual untuk Owner, riwayat bulan be
 
 ## Kesiapan frontend
 
-Halaman Pengeluaran siap diintegrasikan pada branch Slice 07. Gunakan sesi login Owner yang sama dengan halaman Pemasukan.
+Halaman Pengeluaran siap diintegrasikan dari `main`. Gunakan sesi login Owner yang sama dengan halaman Pemasukan.
 
 | Rute | Penggunaan frontend |
 | --- | --- |
@@ -46,7 +46,7 @@ Untuk tahap **Home Dashboard Owner dan Sidebar**, menu **Pengeluaran** dapat dia
 
 ## Cara meninjau
 
-1. Buka branch Slice 07 dengan PHP 8.5 dan MySQL 8.4 aktif. Periksa konfigurasi lokal mengarah ke `barbershop_dev`, lalu jalankan `php artisan migrate` sebelum membuka menu Pengeluaran.
+1. Ambil `main` terbaru dengan PHP 8.5 dan MySQL 8.4 aktif. Periksa konfigurasi lokal mengarah ke `barbershop_dev`, lalu jalankan `php artisan migrate` sebelum membuka menu Pengeluaran.
 2. Masuk sebagai Owner dan buka **Pengeluaran**, lalu klik **Tambah pengeluaran**. Catat dua pengeluaran fiktif Rp75.000 dan Rp100.000 pada bulan berjalan, misalnya dengan deskripsi `Uji perlengkapan` pada keduanya. Cocokkan referensi yang tampil dan total setelah mencari deskripsi tersebut. Jika deskripsi sudah dipakai, pilih istilah uji baru agar hasilnya tepat dua baris.
 3. Ekspor dengan pencarian yang sama. Cocokkan dua baris dan total Rp175.000 pada Excel.
 4. Untuk mengulang uji otomatis gunakan `php artisan migrate --env=testing` lalu `php artisan test --env=testing`.
