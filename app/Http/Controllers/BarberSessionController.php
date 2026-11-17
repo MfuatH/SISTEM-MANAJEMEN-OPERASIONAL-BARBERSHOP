@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Service;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 class BarberSessionController extends Controller
 {
@@ -25,16 +23,6 @@ class BarberSessionController extends Controller
         $request->session()->put('barber_name', $validated['name']);
 
         return redirect()->route('barber.dashboard');
-    }
-
-    public function entryForm(): View
-    {
-        $services = Service::query()->active()
-            ->orderBy('name')
-            ->orderBy('id')
-            ->get(['id', 'name', 'current_price']);
-
-        return view('pos.entry-form', ['services' => $services]);
     }
 
     public function destroy(Request $request): RedirectResponse

@@ -12,6 +12,7 @@
         label { font-weight: 600; }
         input, select { box-sizing: border-box; width: 100%; margin: .3rem 0 .25rem; padding: .55rem .7rem; border: 1px solid #89968e; border-radius: .3rem; font: inherit; }
         button { padding: .55rem .9rem; border: 0; border-radius: .3rem; background: #164b39; color: white; font: inherit; cursor: pointer; }
+        button:disabled { opacity: .55; cursor: default; }
         a { color: #164b39; }
         .wide { width: min(62rem, calc(100% - 2rem)); }
         .button { display: inline-block; padding: .55rem .9rem; border-radius: .3rem; background: #164b39; color: white; text-decoration: none; }

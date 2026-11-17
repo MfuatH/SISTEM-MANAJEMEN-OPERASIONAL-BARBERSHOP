@@ -26,10 +26,10 @@ QMP mencantumkan Andik Ari Mulyono sebagai penerima hasil. Kolom penerimaan akhi
 | 00 | Fondasi Laravel dan MySQL, desain database, dan kontrak data awal. | Fondasi telah diuji. Ambil `main` terbaru untuk pekerjaan fitur setelah PR fondasi disetujui dan di-merge. |
 | 01 | Login username dan akses Owner dengan `users` serta `sessions` bawaan. | Migrasi menambahkan username unik dan meniadakan atribut email akun. Provisioning melalui `php artisan owner:create`. Uji login, logout, dan akses langsung ke rute Owner dari sesi tamu. |
 | 02 | Katalog dan harga layanan aktif. | Sudah di-merge ke `main`. [Catatan Slice 02](Catatan-Pengerjaan-Slice-02.md) |
-| 03 | Sesi Kapster dengan nama teks dan pratinjau harga. | Implementasi diuji. Sesi menggunakan `sessions` bawaan. [Catatan Slice 03](Catatan-Pengerjaan-Slice-03.md) |
+| 03 | Sesi Kapster dengan nama teks dan pratinjau harga. | Di-merge ke `main` pada commit `ae14cd6`. Sesi menggunakan `sessions` bawaan. [Catatan Slice 03](Catatan-Pengerjaan-Slice-03.md) |
 | 04 | Master pelanggan dilewati berdasarkan K1. | Nama pelanggan cukup menjadi keterangan opsional per catatan pada Slice 05. |
-| 05 | Simpan satu layanan per pencatatan Kapster dan hasilkan satu pemasukan. | Setelah Slice 03, uji dua layanan dari satu kunjungan melalui dua simpan terpisah. Uji nama pelanggan terisi dan kosong, nama Kapster dari sesi, snapshot harga, dan pencegahan catatan ganda. |
-| 06–07 | Tampilkan Pemasukan Owner dan siapkan pengeluaran dengan ID buatan sistem. | Daftar dan XLSX Pemasukan/Pengeluaran cocok untuk pencarian serta bulan yang sama. |
+| 05 | Simpan satu layanan per pencatatan Kapster dan hasilkan satu pemasukan. | Dalam review. Dua layanan dari satu kunjungan disimpan terpisah. Pengujian memeriksa nama pelanggan opsional, snapshot harga, kirim ulang, serta total Rp50.000 dengan selisih Rp0. [Catatan Slice 05](Catatan-Pengerjaan-Slice-05.md) |
+| 06–07 | Tampilkan Pemasukan Owner dan siapkan pengeluaran dengan ID buatan sistem. | Slice 06 membaca `income_entries` setelah Slice 05 di-merge. Daftar dan XLSX Pemasukan/Pengeluaran cocok untuk pencarian serta bulan yang sama. |
 | 08 | Koreksi Owner sesuai keputusan K6. | Tetapkan izin, aksi yang tersedia, perlakuan periode, dan histori audit sebelum migrasi. |
 | 09–10 | Rekap lintas periode dan Home bulanan. | Gunakan sumber data yang sama untuk daftar, grafik, total, dan ekspor. Uji batas awal bulan, bulan tanpa transaksi, dan histori yang tetap tersedia di Rekap. |
 | 11–12 | Impor histori dan Forecasting bila disetujui. | Konfirmasi bentuk file aktual, sumber per bulan, posisi prediksi, dan evaluasi galat. Simpan file impor di direktori privat. |

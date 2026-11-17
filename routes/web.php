@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BarberIncomeController;
 use App\Http\Controllers\BarberSessionController;
 use App\Http\Controllers\OwnerAuthController;
 use App\Http\Controllers\ServiceController;
@@ -14,8 +15,9 @@ Route::prefix('kapster')->name('barber.')->middleware('guest')->group(function (
     Route::post('sesi', [BarberSessionController::class, 'store'])->name('session.store');
 
     Route::middleware(EnsureBarberSession::class)->group(function (): void {
-        Route::view('/', 'pos.dashboard')->name('dashboard');
-        Route::get('tambah', [BarberSessionController::class, 'entryForm'])->name('entry-form');
+        Route::get('/', [BarberIncomeController::class, 'index'])->name('dashboard');
+        Route::get('tambah', [BarberIncomeController::class, 'create'])->name('entry-form');
+        Route::post('pencatatan', [BarberIncomeController::class, 'store'])->name('entries.store');
         Route::post('keluar', [BarberSessionController::class, 'destroy'])->name('session.destroy');
     });
 });
