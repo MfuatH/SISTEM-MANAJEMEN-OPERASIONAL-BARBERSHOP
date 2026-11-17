@@ -50,24 +50,25 @@ Saat menindaklanjuti uji manual, migrasi tersebut diterapkan pada `barbershop_de
 
 ## Revisi kebutuhan setelah merge
 
-**Status revisi** Implementasi dan pengujian selesai untuk review pada `feat/slice-05-multi-layanan`. [PR #7](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/7). Form **Layanan** memuat satu atau beberapa layanan dengan produk opsional. Form **Produk** mencatat penjualan produk saja. Katalog Owner memasok kedua form. [Desain revisi](Desain-Database-MySQL-Barbershop.md#11-usulan-revisi-slice-05--transaksi-multi-layanan-dan-pilihan-produk)
+**Status revisi** Dalam review pada `feat/slice-05-multi-layanan`. Form **Layanan** memiliki bagian layanan dan penjualan produk opsional. Form **Produk** mencatat penjualan saja. Katalog layanan Owner menyediakan **Aktifkan kembali** dan **Hapus** sesuai riwayat layanan. [PR #7](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/7) · [Desain revisi](Desain-Database-MySQL-Barbershop.md#11-usulan-revisi-slice-05--transaksi-multi-layanan-dan-pilihan-produk)
 
 **Acuan lapangan** Dua foto rekap manual menunjukkan perhitungan harian Rp344.000 dan rekap komisi bulanan yang memisahkan komisi jasa dari komisi produk. Pengguna menetapkan rekap komisi bulanan di luar lingkup aplikasi. [Pembacaan dan hitungan rekap manual](Desain-Database-MySQL-Barbershop.md#acuan-rekap-manual)
 
 ### Implementasi revisi
 
 - Tiga migrasi menambah katalog produk, transaksi induk, dan rincian penjualan. Setiap catatan lama dipasangkan ke satu transaksi induk dengan ID item, waktu, nama, nominal, dan kunci kirim ulang yang sama.
-- Owner dapat menambah, memperbarui, dan mengarsipkan produk. Produk aktif tanpa harga jual dapat dipilih sebagai produk dipakai.
+- Owner dapat menambah, memperbarui, dan mengarsipkan produk. Produk aktif dengan harga jual tersedia di form penjualan.
+- Owner dapat mengaktifkan kembali layanan yang diarsipkan dan menghapus layanan yang belum tercatat. FK melindungi riwayat untuk layanan yang dipakai pada transaksi.
 - Server memeriksa item dan harga katalog pada saat simpan. Transaksi dan semua item disimpan sekaligus. Kunci unik pada induk melindungi pengiriman ulang.
-- Dashboard Kapster mengambil catatan per item dari `IncomeItems::query()`. Nilai produk terjual adalah jumlah dikali harga satuan saat pencatatan. Pemakaian produk tampil pada item layanan.
+- Dashboard Kapster mengambil catatan per item dari `IncomeItems::query()`. Nilai produk terjual adalah jumlah kali harga satuan saat pencatatan. Riwayat pemakaian produk dari versi sebelumnya tetap dapat dibaca.
 
 ### Bukti uji revisi
 
 | Pemeriksaan | Hasil |
 | --- | --- |
-| Laravel dan MySQL 8.4.3 | **39 tes dan 343 asersi lulus**. Kasus mencakup transaksi gabungan, penjualan saja, validasi tiap form, produk khusus pemakaian, snapshot harga, dan kirim ulang. |
+| Laravel dan MySQL 8.4.3 | **42 tes dan 388 asersi lulus**. Kasus mencakup transaksi gabungan, penjualan saja, snapshot harga, kirim ulang, pembacaan pemakaian lama, pengaktifan kembali arsip, dan perlindungan layanan pada transaksi. |
 | Rekonsiliasi | Dua layanan Rp35.000 dan Rp15.000 ditambah dua unit produk Rp15.000 menghasilkan tiga item dengan total **Rp80.000**. Penjualan dua unit tanpa layanan menghasilkan satu item senilai **Rp30.000**. Selisih terhadap pembanding **Rp0**. |
-| Uji browser Edge | Tombol, tambah baris, harga otomatis, dan dua form diuji melalui HTTP. Dua pengiriman paralel untuk transaksi gabungan tetap menghasilkan satu transaksi Rp80.000. Form Produk menambah satu transaksi Rp30.000 tanpa layanan. |
+| Uji browser Edge | Form Layanan menampilkan dua kolom di desktop dan satu kolom di layar sempit. Layanan Rp35.000 dan penjualan Rp15.000 tersimpan sebagai dua baris senilai Rp50.000. Uji revisi awal juga memeriksa kirim ulang paralel pada transaksi Rp80.000 dan penjualan produk saja Rp30.000. |
 | Migrasi catatan lama | Catatan fiktif Rp35.000 mempertahankan ID item, waktu hingga mikrodetik, nama, nominal, dan kunci kirim ulang saat migrasi, rollback, serta penerapan ulang di `barbershop_test`. Skema lama hanya dapat memuat transaksi satu layanan tanpa produk. |
 | Pemeriksaan format | Laravel Pint lulus pada berkas PHP yang berubah. |
 
@@ -75,9 +76,11 @@ Saat menindaklanjuti uji manual, migrasi tersebut diterapkan pada `barbershop_de
 
 1. Gunakan PHP 8.5 dan MySQL Laragon. Jalankan `php artisan migrate` pada `barbershop_dev` sebelum membuka dashboard pada branch revisi.
 2. Sebagai Owner, siapkan Layanan A Rp35.000, Layanan B Rp15.000, dan satu produk dengan harga jual Rp15.000.
-3. Mulai sesi Kapster. Klik **Layanan**, pilih kedua layanan, isi produk dipakai pada salah satu layanan, lalu tambahkan penjualan dua unit. Periksa total Rp80.000 sebelum klik **Simpan**. Dashboard seharusnya menampilkan tiga baris dengan satu ID transaksi.
+3. Mulai sesi Kapster. Klik **Layanan**, pilih dua layanan di bagian **Layanan**, lalu tambahkan dua unit di bagian **Produk dijual (opsional)**. Periksa total Rp80.000 sebelum menyimpan. Dashboard menampilkan tiga baris dengan satu ID transaksi.
 4. Klik **Produk**, pilih dua unit produk dengan harga satuan yang sama, dan simpan. Dashboard seharusnya menampilkan satu baris penjualan baru senilai Rp30.000 dengan ID transaksi baru.
 5. Untuk mengulang suite, jalankan `php artisan migrate --env=testing` lalu `php artisan test --env=testing`.
+
+Untuk uji katalog, arsipkan layanan uji, periksa bahwa pilihan Kapster hilang, lalu klik **Aktifkan kembali**. Uji **Hapus** dengan layanan yang belum tercatat.
 
 ### Jika tabel transaksi induk belum ditemukan
 

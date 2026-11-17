@@ -16,8 +16,7 @@
         </ul>
     @endif
 
-    @php($sellableProducts = $products->whereNotNull('sale_price'))
-    @if ($productSale && $sellableProducts->isEmpty())
+    @if ($productSale && $products->isEmpty())
         <p>Belum ada produk aktif dengan harga jual.</p>
     @elseif (! $productSale && $services->isEmpty())
         <p>Belum ada layanan aktif.</p>
@@ -30,63 +29,58 @@
                     value="{{ is_string(old('customer_name')) ? old('customer_name') : '' }}">
             </div>
 
-            @unless ($productSale)
-                <fieldset>
-                    <legend>Layanan</legend>
-                    <div id="services-items"></div>
-                    <button type="button" class="secondary" id="services-add">Tambah layanan</button>
-                </fieldset>
-                <template id="services-row">
-                    <div class="entry-row">
-                        <label>Layanan
-                            <select data-field="service_id" data-item required>
-                                <option value="">Pilih layanan</option>
-                                @foreach ($services as $service)
-                                    <option value="{{ $service->id }}" data-price="Rp{{ number_format((int) $service->current_price, 0, ',', '.') }}"
-                                        data-amount="{{ $service->current_price }}">{{ $service->name }}</option>
-                                @endforeach
-                            </select>
-                        </label>
-                        <label>Produk dipakai (opsional)
-                            <select data-field="used_product_id">
-                                <option value="">Tanpa produk</option>
-                                @foreach ($products as $product)
-                                    <option value="{{ $product->id }}">{{ $product->name }}</option>
-                                @endforeach
-                            </select>
-                        </label>
-                        <input type="hidden" data-field="quoted_price">
-                        <p>Harga <output data-price-output aria-live="polite">—</output></p>
-                        <button type="button" class="secondary" data-remove>Hapus layanan</button>
-                    </div>
-                </template>
-            @endunless
+            <div @class(['entry-columns' => ! $productSale && $products->isNotEmpty()])>
+                @unless ($productSale)
+                    <fieldset>
+                        <legend>Layanan</legend>
+                        <div id="services-items"></div>
+                        <button type="button" class="secondary" id="services-add">Tambah layanan</button>
+                    </fieldset>
+                    <template id="services-row">
+                        <div class="entry-row">
+                            <label>Layanan
+                                <select data-field="service_id" data-item required>
+                                    <option value="">Pilih layanan</option>
+                                    @foreach ($services as $service)
+                                        <option value="{{ $service->id }}" data-price="Rp{{ number_format((int) $service->current_price, 0, ',', '.') }}"
+                                            data-amount="{{ $service->current_price }}">{{ $service->name }}</option>
+                                    @endforeach
+                                </select>
+                            </label>
+                            <input type="hidden" data-field="quoted_price">
+                            <p>Harga <output data-price-output aria-live="polite">—</output></p>
+                            <button type="button" class="secondary" data-remove>Hapus layanan</button>
+                        </div>
+                    </template>
 
-            @if ($sellableProducts->isNotEmpty())
-                <fieldset>
-                    <legend>{{ $productSale ? 'Produk dijual' : 'Produk dijual (opsional)' }}</legend>
-                    <div id="products-items"></div>
-                    <button type="button" class="secondary" id="products-add">Tambah produk</button>
-                </fieldset>
-                <template id="products-row">
-                    <div class="entry-row">
-                        <label>Produk dijual
-                            <select data-field="product_id" data-item required>
-                                <option value="">Pilih produk</option>
-                                @foreach ($sellableProducts as $product)
-                                    <option value="{{ $product->id }}" data-amount="{{ $product->sale_price }}">{{ $product->name }}</option>
-                                @endforeach
-                            </select>
-                        </label>
-                        <label>Jumlah
-                            <input type="number" min="1" max="4294967295" step="1" value="1" data-field="quantity" required>
-                        </label>
-                        <input type="hidden" data-field="quoted_price">
-                        <p>Harga satuan <output data-price-output aria-live="polite">—</output></p>
-                        <button type="button" class="secondary" data-remove>Hapus produk</button>
-                    </div>
-                </template>
-            @endif
+                @endunless
+
+                @if ($products->isNotEmpty())
+                    <fieldset>
+                        <legend>{{ $productSale ? 'Produk dijual' : 'Produk dijual (opsional)' }}</legend>
+                        <div id="products-items"></div>
+                        <button type="button" class="secondary" id="products-add">Tambah produk</button>
+                    </fieldset>
+                    <template id="products-row">
+                        <div class="entry-row">
+                            <label>Produk dijual
+                                <select data-field="product_id" data-item required>
+                                    <option value="">Pilih produk</option>
+                                    @foreach ($products as $product)
+                                        <option value="{{ $product->id }}" data-amount="{{ $product->sale_price }}">{{ $product->name }}</option>
+                                    @endforeach
+                                </select>
+                            </label>
+                            <label>Jumlah
+                                <input type="number" min="1" max="4294967295" step="1" value="1" data-field="quantity" required>
+                            </label>
+                            <input type="hidden" data-field="quoted_price">
+                            <p>Harga satuan <output data-price-output aria-live="polite">—</output></p>
+                            <button type="button" class="secondary" data-remove>Hapus produk</button>
+                        </div>
+                    </template>
+                @endif
+            </div>
 
             <p>Total <output id="income-total" aria-live="polite">—</output></p>
             <noscript><p>Aktifkan JavaScript untuk memilih item dan melihat harga.</p></noscript>

@@ -14,7 +14,7 @@ class BarberMultiIncomeTest extends TestCase
 {
     use DatabaseTransactions;
 
-    public function test_services_usage_and_sales_are_saved_together_and_reconciled_once(): void
+    public function test_services_and_sales_are_saved_together_and_reconciled_once(): void
     {
         $first = Service::factory()->create(['name' => 'Layanan A', 'current_price' => '35000']);
         $second = Service::factory()->create(['name' => 'Layanan B', 'current_price' => '15000']);
@@ -23,7 +23,7 @@ class BarberMultiIncomeTest extends TestCase
 
         $payload = $this->formKey('barber.entry-form') + [
             'services' => [
-                ['service_id' => $first->id, 'quoted_price' => '35000', 'used_product_id' => $product->id],
+                ['service_id' => $first->id, 'quoted_price' => '35000'],
                 ['service_id' => $second->id, 'quoted_price' => '15000'],
             ],
             'products' => [['product_id' => $product->id, 'quantity' => 2, 'quoted_price' => '15000']],
@@ -37,23 +37,25 @@ class BarberMultiIncomeTest extends TestCase
         $items = IncomeItems::query()->where('tx.id', $transaction->id)->get();
         $this->assertCount(3, $items);
         $this->assertSame(0, 35_000 + 15_000 + 2 * 15_000 - (int) IncomeItems::query()->where('tx.id', $transaction->id)->sum('items.amount'));
-        $this->assertSame('Hair Tonic', $transaction->entries()->where('service_id', $first->id)->sole()->used_product_name);
+        $this->assertNull($transaction->entries()->where('service_id', $first->id)->sole()->used_product_name);
         $this->assertNull($transaction->entries()->where('service_id', $second->id)->sole()->used_product_name);
         $sale = $transaction->productSales()->sole();
         $this->assertSame('Hair Tonic', $sale->product_name);
         $this->assertSame('15000', $sale->unit_price);
         $this->assertSame(2, $sale->quantity);
-        $this->get(route('barber.dashboard'))->assertOk()->assertSee('Produk dipakai Hair Tonic')->assertSee('Rp30.000');
+        $this->get(route('barber.dashboard'))->assertOk()->assertSee('Produk dijual')->assertSee('Rp30.000');
+        $this->get(route('barber.entry-form'))->assertOk()
+            ->assertSee('Produk dijual (opsional)')->assertDontSee('Produk dipakai')->assertDontSee('used_product_id');
     }
 
     public function test_product_form_can_sell_products_without_services(): void
     {
         $product = Product::create(['name' => 'Pomade', 'sale_price' => '15000']);
-        Product::create(['name' => 'Bahan Khusus Pemakaian']);
+        Product::create(['name' => 'Produk Belum Diberi Harga']);
         $this->startBarber();
 
         $form = $this->get(route('barber.product-form'))->assertOk()
-            ->assertSee('Pomade')->assertDontSee('Bahan Khusus Pemakaian')->assertDontSee('Pilih layanan');
+            ->assertSee('Pomade')->assertDontSee('Produk Belum Diberi Harga')->assertDontSee('Pilih layanan');
         $payload = [
             'request_key' => $form->viewData('requestKey'),
             'request_signature' => $form->viewData('requestSignature'),
@@ -93,6 +95,46 @@ class BarberMultiIncomeTest extends TestCase
         $this->post(route('barber.products.store'), $productForm + ['products' => $saleItems])
             ->assertSessionHasErrors('products.0.quoted_price');
         $this->assertDatabaseMissing('income_transactions', ['request_key' => $productForm['request_key']]);
+    }
+
+    public function test_previously_used_products_remain_on_old_entries_and_new_usage_is_rejected(): void
+    {
+        $service = Service::factory()->create(['current_price' => '35000']);
+        $product = Product::create(['name' => 'Produk Lama']);
+        $this->startBarber();
+        $form = $this->formKey('barber.entry-form');
+        $services = [['service_id' => $service->id, 'quoted_price' => '35000', 'used_product_id' => $product->id]];
+        $hash = hash('sha256', json_encode([
+            'barber_name' => 'Bayu',
+            'customer_name' => null,
+            'services' => $services,
+            'products' => [],
+        ], JSON_THROW_ON_ERROR), true);
+
+        $previous = IncomeTransaction::create([
+            'barber_name' => 'Bayu',
+            'recorded_at' => now('UTC'),
+            'session_scope' => hash('sha256', session()->getId(), true),
+            'request_key' => $form['request_key'],
+            'request_hash' => $hash,
+        ]);
+        $previous->entries()->create([
+            'service_id' => $service->id,
+            'service_name' => $service->name,
+            'amount' => '35000',
+            'used_product_id' => $product->id,
+            'used_product_name' => $product->name,
+        ]);
+
+        $this->post(route('barber.entries.store'), $form + ['services' => $services])
+            ->assertRedirect(route('barber.dashboard'));
+        $this->assertSame('Produk Lama', $previous->entries()->sole()->used_product_name);
+        $this->get(route('barber.dashboard'))->assertOk()->assertSee('Produk dipakai Produk Lama');
+
+        $newForm = $this->formKey('barber.entry-form');
+        $this->post(route('barber.entries.store'), $newForm + ['services' => $services])
+            ->assertSessionHasErrors('services.0.used_product_id');
+        $this->assertDatabaseMissing('income_transactions', ['request_key' => $newForm['request_key']]);
     }
 
     public function test_owner_can_manage_products_and_guest_access_is_redirected(): void

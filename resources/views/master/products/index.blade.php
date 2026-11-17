@@ -19,7 +19,7 @@
                 @forelse ($products as $product)
                     <tr>
                         <td>{{ $product->name }}</td>
-                        <td>{{ $product->sale_price === null ? 'Khusus pemakaian' : 'Rp'.number_format((int) $product->sale_price, 0, ',', '.') }}</td>
+                        <td>{{ $product->sale_price === null ? 'Belum ada harga jual' : 'Rp'.number_format((int) $product->sale_price, 0, ',', '.') }}</td>
                         <td>{{ $product->archived_at ? 'Diarsipkan' : 'Aktif' }}</td>
                         <td>
                             <div class="actions">

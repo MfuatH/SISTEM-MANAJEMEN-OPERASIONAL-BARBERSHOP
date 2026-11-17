@@ -43,7 +43,7 @@ class StoreIncomeEntryRequest extends FormRequest
             'services.required' => 'Tambahkan minimal satu layanan.',
             'services.prohibited' => 'Gunakan form Layanan untuk menambahkan layanan.',
             'services.*.service_id.*' => 'Pilih layanan yang tersedia.',
-            'services.*.used_product_id.*' => 'Pilih produk pemakaian yang tersedia.',
+            'services.*.used_product_id.*' => 'Buka form Layanan terbaru untuk mencatat transaksi.',
             'services.*.quoted_price.*' => 'Pilih layanan untuk melihat harga sebelum menyimpan.',
             'products.required' => 'Tambahkan minimal satu produk yang dijual.',
             'products.*.product_id.*' => 'Pilih produk yang dijual.',

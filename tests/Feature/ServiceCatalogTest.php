@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\IncomeTransaction;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
@@ -55,6 +57,48 @@ class ServiceCatalogTest extends TestCase
             ->assertJsonMissingPath('data.0.archived_at');
     }
 
+    public function test_owner_can_restore_and_delete_unused_services(): void
+    {
+        $service = Service::factory()->create(['name' => 'Layanan Uji', 'archived_at' => now()]);
+        $this->actingAs(User::factory()->create());
+        $this->get(route('owner.services.index'))->assertOk()->assertSee('Aktifkan kembali')->assertSee('Hapus');
+
+        $this->patch(route('owner.services.restore', $service))->assertRedirect(route('owner.services.index'));
+        $this->assertNull($service->fresh()->archived_at);
+        $this->getJson(route('services.active'))->assertOk()->assertJsonFragment(['id' => $service->id]);
+
+        $this->delete(route('owner.services.destroy', $service))->assertRedirect(route('owner.services.index'));
+        $this->assertModelMissing($service);
+        $this->getJson(route('services.active'))->assertOk()->assertJsonMissing(['name' => 'Layanan Uji']);
+    }
+
+    public function test_owner_cannot_delete_a_service_referenced_by_an_income_entry(): void
+    {
+        $service = Service::factory()->create();
+        $transaction = IncomeTransaction::create([
+            'barber_name' => 'Bayu',
+            'recorded_at' => now('UTC'),
+            'request_key' => (string) Str::uuid(),
+            'session_scope' => hash('sha256', 'session', true),
+            'request_hash' => hash('sha256', 'submission', true),
+        ]);
+        $entry = $transaction->entries()->create([
+            'service_id' => $service->id,
+            'service_name' => $service->name,
+            'amount' => $service->current_price,
+        ]);
+
+        $this->actingAs(User::factory()->create())
+            ->get(route('owner.services.index'))->assertOk()->assertSee('Sudah tercatat pada transaksi');
+        $this->delete(route('owner.services.destroy', $service))
+            ->assertRedirect(route('owner.services.index'))->assertSessionHas('error');
+        $this->assertModelExists($service);
+        $this->assertModelExists($entry);
+        $this->patch(route('owner.services.archive', $service))->assertRedirect(route('owner.services.index'));
+        $this->patch(route('owner.services.restore', $service))->assertRedirect(route('owner.services.index'));
+        $this->assertSame($service->current_price, $entry->fresh()->amount);
+    }
+
     public function test_guest_cannot_manage_services(): void
     {
         $service = Service::factory()->create(['name' => 'Layanan A', 'current_price' => 35000]);
@@ -67,6 +111,8 @@ class ServiceCatalogTest extends TestCase
         $this->get(route('owner.services.edit', $service))->assertRedirect(route('login'));
         $this->put(route('owner.services.update', $service), $input)->assertRedirect(route('login'));
         $this->patch(route('owner.services.archive', $service))->assertRedirect(route('login'));
+        $this->patch(route('owner.services.restore', $service))->assertRedirect(route('login'));
+        $this->delete(route('owner.services.destroy', $service))->assertRedirect(route('login'));
 
         $this->assertDatabaseHas('services', ['id' => $service->id, 'name' => 'Layanan A', 'archived_at' => null]);
         $this->assertDatabaseMissing('services', ['name' => 'Layanan B']);

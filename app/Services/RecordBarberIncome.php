@@ -39,10 +39,8 @@ class RecordBarberIncome
             $transaction = DB::transaction(function () use ($services, $products, $customer, $key, $sessionScope, $hash): IncomeTransaction {
                 $serviceCatalog = Service::query()->whereKey(array_column($services, 'service_id'))
                     ->orderBy('id')->sharedLock()->get()->keyBy('id');
-                $productCatalog = Product::query()->whereKey([
-                    ...array_filter(array_column($services, 'used_product_id')),
-                    ...array_column($products, 'product_id'),
-                ])->orderBy('id')->sharedLock()->get()->keyBy('id');
+                $productCatalog = Product::query()->whereKey(array_column($products, 'product_id'))
+                    ->orderBy('id')->sharedLock()->get()->keyBy('id');
 
                 $existing = IncomeTransaction::query()->where('request_key', $key)->first();
                 if ($existing) {
@@ -63,10 +61,9 @@ class RecordBarberIncome
                         ]);
                     }
 
-                    $usedProduct = $productCatalog->get($item['used_product_id']);
-                    if ($item['used_product_id'] !== null && (! $usedProduct || $usedProduct->archived_at !== null)) {
+                    if ($item['used_product_id'] !== null) {
                         throw ValidationException::withMessages([
-                            "services.$index.used_product_id" => 'Produk pemakaian ini sudah tidak aktif.',
+                            "services.$index.used_product_id" => 'Buka form Layanan terbaru untuk mencatat transaksi.',
                         ]);
                     }
 
@@ -74,8 +71,6 @@ class RecordBarberIncome
                         'service_id' => $service->id,
                         'service_name' => $service->name,
                         'amount' => $service->current_price,
-                        'used_product_id' => $usedProduct?->id,
-                        'used_product_name' => $usedProduct?->name,
                     ];
                 }
 

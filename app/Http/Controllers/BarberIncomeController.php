@@ -64,7 +64,8 @@ class BarberIncomeController extends Controller
         $requestKey = (string) Str::uuid();
         $services = $productSale ? collect() : Service::query()->active()
             ->orderBy('name')->orderBy('id')->get(['id', 'name', 'current_price']);
-        $products = Product::query()->active()->orderBy('name')->orderBy('id')->get(['id', 'name', 'sale_price']);
+        $products = Product::query()->active()->whereNotNull('sale_price')
+            ->orderBy('name')->orderBy('id')->get(['id', 'name', 'sale_price']);
 
         return view('pos.entry-form', [
             'services' => $services,

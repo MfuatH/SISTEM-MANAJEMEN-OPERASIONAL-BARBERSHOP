@@ -10,7 +10,7 @@ Aplikasi menyatukan pencatatan pemasukan, pengeluaran, dan laporan bulanan untuk
 
 | Sesi | Alur utama |
 | --- | --- |
-| Kapster | Mulai dari beranda dengan nama berbentuk teks. Gunakan **Layanan** untuk mencatat beberapa layanan dan produk opsional, atau **Produk** untuk mencatat penjualan produk saja. Nama pelanggan bersifat opsional dan harga diambil dari katalog. |
+| Kapster | Mulai dari beranda dengan nama berbentuk teks. Gunakan **Layanan** untuk mencatat beberapa layanan dan penjualan produk opsional, atau **Produk** untuk penjualan produk saja. Nama pelanggan opsional dan harga diambil dari katalog. |
 | Owner | Istilah Admin pada deskripsi sistem merujuk ke akun Owner yang sama. Masuk dengan username dan kata sandi. Kelola katalog layanan, catat pengeluaran, buka Home, Pemasukan, Pengeluaran, dan Rekap, serta ekspor laporan ke Excel. |
 
 Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Pada pergantian bulan, tampilan beralih ke periode baru. Rekap tetap menyediakan histori seluruh periode dan filter bulan atau jenis. Metode pembayaran dan pembuatan struk keluar dari cakupan. Forecasting bersifat opsional. [Rincian kebutuhan dan keputusan](docs/pengerjaan-sistem/Desain-Database-MySQL-Barbershop.md#2-perubahan-kebutuhan-dan-keputusan-terbuka)
@@ -103,13 +103,13 @@ Untuk menguji alur di MySQL, jalankan `php artisan migrate --env=testing`, lalu 
 
 ### Mencoba katalog layanan
 
-Setelah migrasi, masuk sebagai Owner dan buka **Katalog layanan** di `/owner/services`. Anda dapat menambah layanan, mengubah nama atau harga, serta mengarsipkannya. **Layanan A** dan **Layanan B** dapat dibuat sebagai data uji sementara. Daftar layanan aktif untuk form Kapster dapat dibaca dari `GET /services/active`.
+Setelah migrasi, buka **Katalog layanan** di `/owner/services` sebagai Owner. **Arsipkan** menyembunyikan layanan dari pilihan Kapster dan **Aktifkan kembali** memunculkannya. Gunakan **Hapus** untuk layanan yang belum tercatat pada transaksi. **Layanan A** dan **Layanan B** dapat dibuat sebagai data uji. Daftar aktif tersedia di `GET /services/active`.
 
-Owner juga dapat membuka **Katalog produk** di `/owner/products` untuk menambahkan nama dan harga jual. Kosongkan harga jual untuk produk khusus pemakaian.
+Owner membuka **Katalog produk** di `/owner/products` untuk mengelola nama dan harga jual. Produk aktif dengan harga jual muncul pada form penjualan Kapster.
 
 ### Mencoba sesi Kapster
 
-Jalankan `php artisan migrate` pada `barbershop_dev`, lalu buka beranda sebagai tamu. Masukkan nama dan klik **Mulai sesi Kapster**. Gunakan **Layanan** untuk menambah layanan dan produk opsional atau **Produk** untuk penjualan saja. Harga muncul dari katalog. Setelah **Simpan**, dashboard menampilkan satu baris per item dengan ID transaksi yang sama. [Cara meninjau revisi Slice 05](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-05.md#cara-meninjau-revisi)
+Jalankan `php artisan migrate` pada `barbershop_dev`, lalu mulai sesi Kapster dari beranda. Tombol **Layanan** membuka bagian **Layanan** dan **Produk dijual (opsional)**. Tombol **Produk** membuka form penjualan saja. Setelah **Simpan**, dashboard menampilkan satu baris per item dengan ID transaksi yang sama. [Cara meninjau revisi Slice 05](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-05.md#cara-meninjau-revisi)
 
 ## Status pengerjaan per slice
 
@@ -123,7 +123,7 @@ Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [P
 | 03 | Kapster memulai dan mengakhiri sesi dengan nama teks. Dashboard dilindungi sesi dan menyediakan pratinjau layanan dan harga. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-03.md) |
 | 04 | Master pelanggan. Nama pelanggan cukup sebagai keterangan opsional pada pencatatan Slice 05. | Dilewati |
 | 05 (awal) | Simpan satu layanan, nama Kapster dari sesi, nama pelanggan opsional, dan snapshot harga. | Sudah masuk `main`. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-05.md) |
-| 05 (revisi) | Tombol **Layanan** mencatat layanan dan produk opsional. Tombol **Produk** mencatat penjualan produk saja. Keduanya memakai katalog yang diisi Owner. | Dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-05.md#revisi-kebutuhan-setelah-merge) |
+| 05 (revisi) | Form **Layanan** memisahkan layanan dan penjualan produk opsional. Form **Produk** mencatat penjualan saja. Owner dapat menghapus layanan yang belum tercatat dan mengaktifkan kembali arsip. | Dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-05.md#revisi-kebutuhan-setelah-merge) |
 | 06 | Pemasukan Owner menampilkan bulan berjalan per item layanan dan penjualan produk. Hasil pencarian dan XLSX dapat direkonsiliasi. | Direncanakan setelah revisi Slice 05 |
 | 07 | Owner mencatat pengeluaran dengan ID buatan sistem. Riwayat dan XLSX mengikuti bulan berjalan. | Direncanakan |
 | 08 | Jika disetujui, Owner menjalankan tindakan koreksi yang dicatat untuk audit. | Bersyarat |

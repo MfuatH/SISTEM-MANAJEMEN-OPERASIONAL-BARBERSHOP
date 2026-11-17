@@ -24,7 +24,7 @@
             <label for="sale_price">Harga jual (Rp)</label>
             <input id="sale_price" name="sale_price" type="number" min="1" max="999999999999999" step="1"
                 aria-describedby="sale-price-help" value="{{ is_scalar(old('sale_price', $product->sale_price)) ? old('sale_price', $product->sale_price) : '' }}">
-            <small id="sale-price-help">Kosongkan untuk produk yang hanya dipakai saat layanan.</small>
+            <small id="sale-price-help">Isi harga jual agar produk tersedia di form Kapster.</small>
             @error('sale_price')
                 <p class="error" role="alert">{{ $message }}</p>
             @enderror
