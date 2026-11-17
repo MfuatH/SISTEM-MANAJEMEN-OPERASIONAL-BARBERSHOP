@@ -48,6 +48,10 @@ Pesan `barbershop_dev.income_entries doesn't exist` saat membuka dashboard berar
 
 Saat menindaklanjuti uji manual, migrasi tersebut diterapkan pada `barbershop_dev`. Dashboard Kapster dan form Tambah kemudian berhasil dibuka dengan status HTTP 200 melalui server lokal yang sedang berjalan.
 
+## Revisi kebutuhan setelah merge
+
+**Status revisi** Dalam desain pada `feat/slice-05-multi-layanan`. Kapster dapat menyimpan beberapa layanan dalam satu transaksi. Owner melihat pemasukan per item. Form Kapster juga memuat dropdown produk opsional, dan Owner menambahkan pilihan produk. Lokasi pilihan produk dan dampaknya terhadap harga atau stok masih terbuka. [Usulan revisi desain](Desain-Database-MySQL-Barbershop.md#11-usulan-revisi-slice-05--transaksi-multi-layanan-dan-pilihan-produk)
+
 ## Kelanjutan
 
-Setelah review dan merge Slice 05, Slice 06 menampilkan pemasukan dari `income_entries` pada area Owner. Daftar bulan berjalan, pencarian, dan ekspor Excel mengikuti sumber yang sama. [Urutan pengerjaan per slice](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
+Setelah revisi Slice 05 disepakati serta diuji, Slice 06 membaca rincian layanan untuk halaman Pemasukan Owner. Daftar bulan berjalan, pencarian, dan ekspor Excel memakai sumber per item yang sama. [Urutan pengerjaan per slice](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)

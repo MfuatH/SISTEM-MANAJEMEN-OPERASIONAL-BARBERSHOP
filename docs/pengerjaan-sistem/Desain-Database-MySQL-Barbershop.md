@@ -50,12 +50,13 @@ Satu Owner dapat mencatat nol hingga banyak pengeluaran. Satu record `sessions` 
 | --- | --- | --- |
 | K1 | **Dikonfirmasi 17 November 2026.** Nama Kapster diambil dari sesi. Nama pelanggan diisi sebagai teks opsional per pencatatan dan tidak memerlukan profil atau riwayat kunjungan. | Slice 04 dilewati. Slice 05 memakai kolom `income_entries.customer_name VARCHAR(120) NULL`. Setelah spasi tepi dibuang, masukan kosong disimpan sebagai `NULL`. Tampilan memakai `—` saat nilai kosong. |
 | K2 | **Dikonfirmasi.** Nama Kapster adalah teks, dengan nama sama diperbolehkan. **Keputusan teknis Slice 05.** Dashboard menampilkan pencatatan dari sesi browser aktif. | Slice 03 menyimpan `barber_name` pada sesi Laravel. Slice 05 menyalin nama itu ke pemasukan. Sidik SHA-256 dari ID sesi Laravel membatasi pembacaan, dan tanda tangan UUID mengikat satu form ke sesi yang sama. Kebutuhan melihat catatan lintas sesi oleh Kapster masih terbuka. |
-| K3 | **Dikonfirmasi 17 November 2026.** Satu pencatatan berisi tepat satu layanan. Jika pelanggan mengambil dua layanan, Kapster menyimpan dua pencatatan terpisah. Harga muncul otomatis setelah layanan dipilih. **Terbuka.** Daftar layanan resmi masih diperlukan. | Slice 02 menyediakan katalog aktif yang dikelola Owner. Pada Slice 05, setiap pemasukan merujuk langsung ke satu layanan dan menyimpan snapshot harga setelah server memeriksa katalog. |
+| K3 | **Implementasi awal.** Slice 05 yang sudah di-merge menyimpan satu layanan per pencatatan. **Kebutuhan revisi.** Satu transaksi Kapster dapat memuat beberapa layanan dan Owner melihat satu baris per item. Harga muncul otomatis saat layanan dipilih. | Slice 02 menyediakan katalog layanan aktif yang dikelola Owner. Usulan revisi menambahkan transaksi induk dan mempertahankan snapshot layanan serta harga per item. Daftar layanan resmi masih terbuka. |
 | K4 | **Dikonfirmasi.** Sistem membuat ID pengeluaran. | Gunakan `expenses.id` yang dibuat oleh database. Usulan format tampilan dan ekspor adalah `EXP-{id}`. |
 | K5 | **Dikonfirmasi.** Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Rekap mencakup seluruh histori. | Pada pergantian bulan, halaman bulanan memakai rentang baru. Rekap tetap dapat membaca bulan sebelumnya dan menyediakan filter bulan atau jenis. |
 | K6 | **Dikonfirmasi.** Pencatatan memakai layanan dan nominal, dengan aksi Kapster sebatas menambah. **Tafsiran draf.** Koreksi dan pembatalan yang diaktifkan berada di area Owner. | Slice 05 memakai waktu server dalam UTC. Kebutuhan mencatat pemasukan mundur masih terbuka. Sebelum Slice 08, pastikan cakupan koreksi atau pembatalan Owner, perlakuan periode, dan histori audit. Metode pembayaran dikeluarkan dari skema. |
 | K7 | **Dikonfirmasi.** Owner dan Admin adalah dua sebutan untuk akun yang sama. | Satu jenis akun Owner. Slice 01 menambahkan username dan menghapus atribut email akun. |
 | K8 | Apakah Forecasting disetujui, posisi prediksi di mana, dan apa yang diproyeksikan? Apakah data Juli–September 2026 masih diperlukan? | Usulan targetnya pemasukan bulanan, memakai empat bulan aktual terakhir yang sudah lengkap pada grafik dan dua bulan prediksi sesudahnya. Frasa “6 bulan kebelakang” juga dapat berarti dua prediksi atas bulan historis. Konfirmasi arti tersebut, sumber data, dan ketentuan baru sebelum Slice 11–12. |
+| K9 | **Dikonfirmasi.** Pilihan produk di form Kapster bersifat opsional. Owner menambahkan pilihan produk. **Terbuka.** Apakah produk dipilih per layanan atau per transaksi? Apakah pemakaian produk memengaruhi harga atau stok? | Usulan awal memakai satu dropdown opsional per item layanan dan katalog `products` yang dikelola Owner. Lokasi FK dan aturan harga atau stok mengikuti keputusan ini. |
 
 ## 3. Kamus tabel lainnya
 
@@ -256,7 +257,8 @@ Contoh mengikuti keputusan satu layanan per simpan dan memakai harga katalog. `L
 | 03 · Sesi Kapster | Mulai dan akhiri sesi tamu dengan nama teks. Lindungi dashboard, pisahkan konteks Owner, dan buka pratinjau Tambah. | Alur dan isolasi sesi lulus uji. Pratinjau menampilkan layanan aktif beserta harga. [Catatan Slice 03](Catatan-Pengerjaan-Slice-03.md) |
 | 04 · Master pelanggan | Dilewati sesuai keputusan K1. | Nama pelanggan ditangani sebagai keterangan opsional pada Slice 05. |
 | 05 · Pencatatan Kapster | Simpan tepat satu layanan per pencatatan, nama Kapster dari sesi, nama pelanggan opsional, snapshot layanan dan harga, serta kunci permintaan. | Dua layanan dari satu kunjungan tersimpan sebagai dua pencatatan. Setiap pencatatan tampil di dashboard sesi dan menghasilkan satu pemasukan walau form dikirim ulang. [Catatan Slice 05](Catatan-Pengerjaan-Slice-05.md) |
-| 06 · Pemasukan Owner | Baca Slice 05 untuk bulan berjalan dan sediakan pencarian serta XLSX. | Setiap catatan sah tampil sekali. Pada bulan baru, daftar dimulai dari rentang baru. Layar dan ekspor cocok untuk pencarian yang sama. |
+| 05 · Revisi multi-layanan dan produk | Rancang transaksi induk dan rincian layanan serta pilihan produk opsional. Konfirmasi K9 sebelum menulis migrasi produk. | Simpan beberapa layanan dalam satu transaksi. Uji data lama, kirim ulang, dan hasil rekonsiliasi per item. |
+| 06 · Pemasukan Owner | Baca rincian layanan hasil revisi Slice 05 untuk bulan berjalan dan sediakan pencarian serta XLSX. | Tiap item tampil sekali dengan ID transaksi induknya. Layar dan ekspor cocok untuk pencarian yang sama. Pada bulan baru, daftar memakai rentang baru. |
 | 07 · Pengeluaran Owner | Setelah Slice 01, sediakan input tanggal, deskripsi, dan jumlah. Tampilkan ID yang dibuat sistem dan ekspor periode berjalan. | Owner bisa menyimpan dan mengekspor. Kirim ulang menghasilkan satu catatan dengan ID yang sama. |
 | 08 · Tindakan Owner bersyarat | Tetapkan apakah cakupan mencakup koreksi, pembatalan tanpa pengganti, atau keduanya sesuai K6. | Jika diterapkan, izin terbatas pada Owner. Histori dan perhitungan rekapan dapat direkonsiliasi. |
 | 09 · Rekap lintas periode | Gabungkan hasil Slice 06–07 dan aturan Slice 08 bila berlaku. Sediakan pencarian, filter bulan/jenis, dan XLSX. | Rekap memuat histori lintas bulan dan hasil Excel cocok dengan filter. Selisih terhadap data pembanding Rp0. |
@@ -265,3 +267,37 @@ Contoh mengikuti keputusan satu layanan per simpan dan memakai harga katalog. `L
 | 12 · Forecasting opsional | Setelah K8, gunakan deret bulanan tervalidasi dan jalankan satu model internal Python. | Empat bulan aktual dan dua prediksi berlabel jelas, diperbarui bulanan sesuai sumbu waktu yang disepakati. |
 | 13 · Uji integrasi dan UAT | Uji migrasi MySQL, alur Kapster, akses Owner, ekspor dan rekonsiliasi. Sertakan peramalan jika disetujui. | Hasil aktual, status KP, temuan, dan uji ulang terdokumentasi. |
 | 14 · Penerapan dan penyerahan | Setelah pemeriksaan fungsi inti, uji lingkungan target dan catat keputusan penerimaan. | Dokumentasi skema, hasil uji, serta keputusan penerimaan tersedia. |
+
+## 11. Usulan revisi Slice 05 — transaksi multi-layanan dan pilihan produk
+
+### Alur yang diminta
+
+- Kapster dapat memilih satu atau beberapa layanan dalam satu form dan menyimpannya sekali. Nama Kapster diambil dari sesi, sedangkan nama pelanggan tetap opsional.
+- Form Kapster memiliki dropdown **Produk (opsional)**. Owner menambahkan pilihan produk melalui area Owner.
+- Pemasukan Owner pada Slice 06 menampilkan satu baris per item layanan. Item dari transaksi yang sama memiliki ID transaksi yang sama. Total pemasukan menjumlahkan nilai setiap item dalam cakupan daftar atau ekspor.
+
+### Skema yang diusulkan
+
+Diagram berikut menempatkan pilihan produk pada item layanan. Posisi hubungan produk mengikuti keputusan K9.
+
+```mermaid
+erDiagram
+    INCOME_TRANSACTIONS ||--|{ INCOME_ENTRIES : memuat
+    SERVICES ||..o{ INCOME_ENTRIES : dipilih
+    PRODUCTS |o..o{ INCOME_ENTRIES : digunakan
+```
+
+| Tabel | Perubahan yang diusulkan |
+| --- | --- |
+| `income_transactions` | Tabel induk dengan PK `id`. Menyimpan nama Kapster dari sesi, nama pelanggan opsional, waktu pencatatan, cakupan sesi, kunci permintaan unik, dan hash payload seluruh transaksi. |
+| `income_entries` | Pakai tabel yang sudah ada sebagai rincian. Tambahkan FK `income_transaction_id` ke transaksi induk. Setiap item tetap punya `service_id`, snapshot nama layanan, dan harga rupiah. Jika produk dipilih per layanan, item juga memuat FK `product_id` yang boleh `NULL` dan snapshot nama produk untuk catatan lama. |
+| `products` | Katalog dengan PK `id` dan nama produk. Usulan status aktif atau arsip mengatur pilihan pada form. Owner menambah produk dan dropdown hanya memuat pilihan aktif. |
+
+Usulan awal adalah satu pilihan produk opsional untuk setiap item layanan. Kapster dapat menyimpan layanan dengan dropdown kosong. Jika produk dipilih sekali untuk seluruh transaksi, FK opsional dan snapshot nama produk ditempatkan pada `income_transactions`. Aturan harga serta stok mengikuti konfirmasi K9.
+
+### Penyimpanan, migrasi, dan pengujian
+
+1. Tambahkan tabel induk. Untuk setiap `income_entries` lama, buat satu transaksi induk dan kaitkan ke item lama. Pertahankan ID item, waktu, dan nominal. Nilai produk data lama dimulai dari `NULL`.
+2. Pasang FK wajib transaksi setelah backfill diverifikasi. Tambahkan katalog produk dan FK opsional pada tingkat yang disetujui. Penempatan kunci kirim ulang diperbarui setelah kode baru memakai transaksi induk.
+3. Validasi layanan dan produk yang dipilih, lalu simpan induk dan seluruh rincian dalam satu transaksi database. Pengiriman ulang dengan kunci dan payload sama mengembalikan transaksi yang sudah disimpan.
+4. Uji satu transaksi dengan Layanan A Rp35.000 dan Layanan B Rp15.000. Berdasarkan usulan produk per item, isi produk pada satu item dan kosongkan pada item lainnya. Hasil yang diharapkan adalah dua baris layanan dengan ID transaksi sama dan total harga layanan Rp50.000. Uji pula kirim ulang, penolakan satu item yang tidak valid, dan kesamaan jumlah item serta total pemasukan sebelum dan setelah backfill.
