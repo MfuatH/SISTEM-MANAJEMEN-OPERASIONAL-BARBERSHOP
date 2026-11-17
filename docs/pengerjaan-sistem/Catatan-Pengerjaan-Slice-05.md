@@ -1,8 +1,8 @@
 # Catatan Pengerjaan Slice 05 — Pencatatan Kapster
 
 - **Pemeriksaan** 17 November 2026
-- **Branch** `codex/slice-05-pencatatan-kapster`
-- **Status** Implementasi dan pengujian selesai untuk review. [PR Slice 05](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/5)
+- **Branch** `feat/slice-05-pencatatan-kapster`
+- **Status** Selesai dan disetujui setelah pengecekan manual pada 17 November 2026. [PR Slice 05](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/6)
 
 ## Dasar pengerjaan
 
