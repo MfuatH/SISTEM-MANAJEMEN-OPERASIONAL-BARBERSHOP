@@ -107,7 +107,7 @@ Setelah migrasi, masuk sebagai Owner dan buka **Katalog layanan** di `/owner/ser
 
 ### Mencoba sesi Kapster
 
-Buka beranda sebagai tamu, masukkan nama, lalu pilih **Mulai sesi Kapster**. Dashboard `/kapster` menyediakan tombol **Tambah** untuk melihat layanan aktif dan harganya. Gunakan **Akhiri sesi** untuk kembali ke beranda. Penyimpanan pencatatan dijadwalkan pada Slice 05.
+Jalankan `php artisan migrate` pada `barbershop_dev`, lalu buka beranda sebagai tamu. Masukkan nama dan klik **Mulai sesi Kapster**. Dari dashboard `/kapster`, pilih **Tambah**, isi nama pelanggan jika ada, dan pilih satu layanan. Setelah harga tampil, klik **Simpan** dan periksa baris baru di dashboard. Pilih **Tambah** lagi untuk layanan berikutnya. Gunakan **Akhiri sesi** untuk kembali ke beranda. [Cara meninjau Slice 05](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-05.md#cara-meninjau)
 
 ## Status pengerjaan per slice
 
@@ -118,9 +118,9 @@ Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [P
 | 00 | Verifikasi fondasi Laravel dan MySQL, lalu tinjau kontrak data dan keputusan desain terbaru. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-00.md) |
 | 01 | Owner dapat login dengan username, logout, dan mengakses rute sesuai izin. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-01.md) |
 | 02 | Owner mengelola katalog layanan. Daftar baca-saja menyajikan layanan aktif beserta harga. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-02.md) |
-| 03 | Kapster memulai dan mengakhiri sesi dengan nama teks. Dashboard dilindungi sesi dan menyediakan pratinjau layanan dan harga. | Dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-03.md) |
+| 03 | Kapster memulai dan mengakhiri sesi dengan nama teks. Dashboard dilindungi sesi dan menyediakan pratinjau layanan dan harga. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-03.md) |
 | 04 | Master pelanggan. Nama pelanggan cukup sebagai keterangan opsional pada pencatatan Slice 05. | Dilewati |
-| 05 | Simpan satu layanan, nama Kapster dari sesi, nama pelanggan opsional, dan snapshot harga. Setiap layanan tambahan disimpan sebagai pencatatan terpisah. | Direncanakan |
+| 05 | Simpan satu layanan, nama Kapster dari sesi, nama pelanggan opsional, dan snapshot harga. Setiap layanan tambahan disimpan sebagai pencatatan terpisah. | Selesai dan disetujui. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-05.md) |
 | 06 | Pemasukan Owner menampilkan bulan berjalan. Hasil pencarian dan XLSX dapat direkonsiliasi. | Direncanakan |
 | 07 | Owner mencatat pengeluaran dengan ID buatan sistem. Riwayat dan XLSX mengikuti bulan berjalan. | Direncanakan |
 | 08 | Jika disetujui, Owner menjalankan tindakan koreksi yang dicatat untuk audit. | Bersyarat |
@@ -138,13 +138,13 @@ Contoh kueri Rekap telah diperiksa pada MySQL 8.4.3 menggunakan data fiktif. Gun
 Setiap anggota mengerjakan satu tugas atau slice pada branch tersendiri. Gunakan `main` sebagai tujuan pull request.
 
 1. **Ambil tugas.** Cantumkan nomor slice, penanggung jawab, dependensi, dan kriteria selesai di catatan tugas atau issue. Untuk pekerjaan frontend dan backend yang saling terkait, sepakati format data serta respons validasi sebelum implementasi.
-2. **Buat branch dari `main` terbaru.** Gunakan nama yang menunjukkan pekerjaan, misalnya `feat/slice-01-auth-akses`. Nama seperti `fix/slice-05-cegah-pencatatan-ganda` dan `docs/slice-00-kontrak-data` bisa dipakai untuk perbaikan dan dokumentasi.
+2. **Buat branch dari `main` terbaru.** Gunakan `feat/` untuk pengerjaan fitur utama, misalnya `feat/slice-06-pemasukan-owner`. Gunakan `chore/` untuk pekerjaan lain seperti fondasi, dokumentasi, dan pemeliharaan, misalnya `chore/slice-00-laravel-foundation`.
 
    ```bash
    git fetch origin
    git switch main
    git pull --ff-only origin main
-   git switch -c feat/slice-01-auth-akses
+   git switch -c feat/slice-06-pemasukan-owner
    ```
 
 3. **Kerjakan dan uji di branch tugas.** Uji alur normal dan kasus gagal yang relevan. Gunakan data fiktif untuk pengujian. Simpan `.env`, kredensial, dan file transaksi asli di luar commit. Periksa `git status`, lalu stage hanya berkas yang terkait dengan tugas.

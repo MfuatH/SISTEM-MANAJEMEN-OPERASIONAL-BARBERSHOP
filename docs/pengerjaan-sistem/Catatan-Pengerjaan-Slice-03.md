@@ -2,7 +2,7 @@
 
 - **Pemeriksaan** 17 November 2026
 - **Branch** `feat/slice-03-sesi-kapster`
-- **Status** Implementasi dan pengujian selesai. PR dalam review. [Pull request Slice 03](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/4)
+- **Status** Disetujui dan di-merge ke `main` pada commit `ae14cd6`. [Pull request Slice 03](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/4)
 
 ## Dasar pengerjaan
 
@@ -49,4 +49,4 @@ Keputusan K3 untuk Slice 05 menetapkan tepat satu layanan per pencatatan. Jika p
 
 ## Kelanjutan
 
-Setelah Slice 03 disetujui dan masuk ke `main`, lanjutkan ke Slice 05 untuk menyimpan satu layanan per pencatatan. Uji bahwa dua simpan terpisah menghasilkan dua pemasukan dan kirim ulang salah satunya tidak menambah pemasukan. [Urutan pengerjaan per slice](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
+Slice 05 dimulai dari merge Slice 03. Pekerjaan berikutnya menambahkan penyimpanan satu layanan per pencatatan, snapshot harga, dan perlindungan terhadap kirim ulang. [Catatan Pengerjaan Slice 05](Catatan-Pengerjaan-Slice-05.md)
