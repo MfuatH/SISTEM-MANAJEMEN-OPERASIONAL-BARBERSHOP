@@ -2,7 +2,7 @@
 
 - **Pemeriksaan** 17 November 2026
 - **Branch** `feat/slice-06-pemasukan-owner`
-- **Status** Implementasi dan pengujian selesai untuk review.
+- **Status** Disetujui setelah uji manual dan di-merge ke `main` pada commit `685dbc1`. [PR #8](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/8)
 
 ## Dasar pengerjaan
 
@@ -35,11 +35,11 @@ Ekspor memakai OpenSpout **5.14.0** dan aritmetika rupiah memakai Brick Math **1
 
 ## Cara meninjau
 
-1. Di branch Slice 06 dengan PHP 8.5, jalankan `composer install` untuk memasang dependensi sesuai lockfile.
+1. Di `main` dengan PHP 8.5, jalankan `composer install` untuk memasang dependensi sesuai lockfile.
 2. Mulai MySQL dan Laravel. Masuk sebagai Owner, lalu buka **Pemasukan**. Gunakan data pengembangan atau contoh layanan Rp35.000 dan penjualan dua produk seharga Rp15.000 per unit.
 3. Cocokkan daftar, nilai setiap item, dan total. Gunakan kolom pencarian untuk memilih satu nama produk, lalu klik **Ekspor Excel** dan bandingkan jumlah baris serta total.
 4. Untuk mengulang suite, jalankan `php artisan migrate --env=testing` lalu `php artisan test --env=testing`.
 
 ## Kelanjutan
 
-Sesudah review Slice 06, lanjutkan ke Slice 07 untuk pencatatan dan ekspor pengeluaran Owner. Rekap lintas periode dijadwalkan pada Slice 09. [Urutan pengerjaan](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
+Frontend dapat menyambungkan halaman Pemasukan menggunakan `GET /owner/pemasukan` dan `GET /owner/pemasukan/ekspor` dengan parameter `q` yang sama. Berikutnya, Slice 07 menangani pencatatan dan ekspor pengeluaran Owner. [Status backend dan kesiapan frontend](../../README.md#status-backend-dan-kesiapan-frontend) · [Urutan pengerjaan](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)

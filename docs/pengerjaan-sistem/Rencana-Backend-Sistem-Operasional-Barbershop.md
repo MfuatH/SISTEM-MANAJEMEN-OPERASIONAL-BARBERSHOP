@@ -28,9 +28,8 @@ QMP mencantumkan Andik Ari Mulyono sebagai penerima hasil. Kolom penerimaan akhi
 | 02 | Katalog dan harga layanan aktif. | Sudah di-merge ke `main`. [Catatan Slice 02](Catatan-Pengerjaan-Slice-02.md) |
 | 03 | Sesi Kapster dengan nama teks dan pratinjau harga. | Di-merge ke `main` pada commit `ae14cd6`. Sesi menggunakan `sessions` bawaan. [Catatan Slice 03](Catatan-Pengerjaan-Slice-03.md) |
 | 04 | Master pelanggan dilewati berdasarkan K1. | Nama pelanggan cukup menjadi keterangan opsional per catatan pada Slice 05. |
-| 05 | Simpan satu layanan per pencatatan Kapster dan hasilkan satu pemasukan. | Selesai dan disetujui setelah pengecekan manual. Pengujian memeriksa nama pelanggan opsional, snapshot harga, kirim ulang, serta total Rp50.000 dengan selisih Rp0. [Catatan Slice 05](Catatan-Pengerjaan-Slice-05.md) |
-| 05 (revisi) | Pisahkan layanan dan penjualan produk pada form Kapster. Tambahkan pengaktifan kembali dan penghapusan layanan yang belum tercatat pada katalog Owner. | Selesai dan di-merge pada commit `3762ae0`. Kedua form, perlindungan layanan pada riwayat, backfill, dan rekonsiliasi diuji di MySQL. [Catatan Slice 05](Catatan-Pengerjaan-Slice-05.md#revisi-kebutuhan-setelah-merge) |
-| 06 | Pemasukan Owner per item, pencarian, total, dan ekspor XLSX bulan berjalan WIB. | Dalam review. Daftar dan XLSX memakai kueri yang sama. Pengujian memeriksa batas bulan, pencarian, dan selisih Rp0. [Catatan Slice 06](Catatan-Pengerjaan-Slice-06.md) |
+| 05 | Pencatatan satu layanan berkembang menjadi transaksi multi-layanan dan penjualan produk. Katalog Owner juga mendukung pengaktifan kembali arsip dan penghapusan layanan yang belum tercatat. | Selesai dan di-merge pada commit `3762ae0`. Uji mencakup kedua form, backfill, perlindungan riwayat, dan rekonsiliasi. [Catatan Slice 05](Catatan-Pengerjaan-Slice-05.md#revisi-kebutuhan-setelah-merge) |
+| 06 | Pemasukan Owner per item, pencarian, total, dan ekspor XLSX bulan berjalan WIB. | Selesai dan di-merge pada commit `685dbc1`. Daftar dan XLSX memakai kueri yang sama. Pengujian memeriksa batas bulan, pencarian, dan selisih Rp0. [Catatan Slice 06](Catatan-Pengerjaan-Slice-06.md) |
 | 07 | Pencatatan dan ekspor pengeluaran Owner dengan ID buatan sistem. | Direncanakan. |
 | 08 | Koreksi Owner sesuai keputusan K6. | Tetapkan izin, aksi yang tersedia, perlakuan periode, dan histori audit sebelum migrasi. |
 | 09–10 | Rekap lintas periode dan Home bulanan. | Gunakan sumber data yang sama untuk daftar, grafik, total, dan ekspor. Uji batas awal bulan, bulan tanpa transaksi, dan histori yang tetap tersedia di Rekap. |
@@ -38,6 +37,8 @@ QMP mencantumkan Andik Ari Mulyono sebagai penerima hasil. Kolom penerimaan akhi
 | 13–14 | Integrasi MySQL, UAT, penerapan, dan penyerahan. | Simpan hasil uji, temuan, perbaikan, pemeriksaan lingkungan target, dan keputusan penerimaan. |
 
 ERD, kamus data, integritas, indeks, dan urutan migrasi dijabarkan di [Desain Database MySQL](Desain-Database-MySQL-Barbershop.md). Gunakan `DECIMAL` untuk rupiah dan aritmetika presisi eksak di backend. [MySQL DECIMAL](https://dev.mysql.com/doc/refman/8.4/en/fixed-point-types.html)
+
+Gunakan peta kesiapan untuk menjadwalkan wireframe, integrasi halaman yang sudah memiliki rute, dan mockup fitur yang masih direncanakan. [Status backend dan kesiapan frontend](../../README.md#status-backend-dan-kesiapan-frontend)
 
 ## 3. Catatan historis jadwal awal
 
