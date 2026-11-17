@@ -21,6 +21,12 @@ Katalog layanan Slice 02 masuk ke `main` melalui PR #3 pada commit `808e9a6`. Ka
 
 Slice 03 memakai skema yang telah tersedia dari Slice 00–02. Berkas utama meliputi [rute](../../routes/web.php), [kontroler sesi Kapster](../../app/Http/Controllers/BarberSessionController.php), [penjaga sesi](../../app/Http/Middleware/EnsureBarberSession.php), dan [tes fitur](../../tests/Feature/BarberSessionTest.php).
 
+## Kesiapan frontend
+
+**Landing Page Utama siap diintegrasikan.** Gunakan `GET /` untuk beranda dan `POST /kapster/sesi` dengan field `name` serta token CSRF untuk memulai sesi. Tampilkan opsi melanjutkan sesi aktif dan tautan masuk Owner ke `/owner/login`.
+
+**Halaman Utama Kapster siap diintegrasikan.** Halaman `GET /kapster` memerlukan sesi Kapster yang aktif. Tombol **Akhiri sesi** memakai `POST /kapster/keluar`. Form penyimpanan layanan dan penjualan produk tersedia melalui revisi Slice 05. [Catatan Slice 05](Catatan-Pengerjaan-Slice-05.md#kesiapan-frontend)
+
 ## Bukti pengujian
 
 | Pemeriksaan | Hasil |

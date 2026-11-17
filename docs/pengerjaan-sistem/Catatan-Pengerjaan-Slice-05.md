@@ -62,6 +62,14 @@ Saat menindaklanjuti uji manual, migrasi tersebut diterapkan pada `barbershop_de
 - Server memeriksa item dan harga katalog pada saat simpan. Transaksi dan semua item disimpan sekaligus. Kunci unik pada induk melindungi pengiriman ulang.
 - Dashboard Kapster mengambil catatan per item dari `IncomeItems::query()`. Nilai produk terjual adalah jumlah kali harga satuan saat pencatatan. Riwayat pemakaian produk dari versi sebelumnya tetap dapat dibaca.
 
+### Kesiapan frontend
+
+**Halaman Utama Kapster siap diintegrasikan.** Dashboard `GET /kapster` menampilkan item dari sesi aktif. Tombol **Layanan** membuka `GET /kapster/tambah` dan mengirim ke `POST /kapster/pencatatan`. Tampilkan bagian layanan dan penjualan produk opsional. Form meminta minimal satu layanan. Tombol **Produk** memakai `GET /kapster/produk` dan `POST /kapster/produk` untuk penjualan produk saja.
+
+Untuk form Blade, kirim `customer_name` jika diisi, daftar `services` dan `products` sesuai form, serta token CSRF, `request_key`, dan `request_signature` dari halaman. Item layanan memakai `service_id` dan `quoted_price`. Item penjualan memakai `product_id`, `quantity`, dan `quoted_price`. Tampilkan harga katalog dan tangani validasi ketika harga berubah sebelum simpan.
+
+**Katalog Owner siap diintegrasikan.** Menu `/owner/products` mengelola produk dan harga jual. Di katalog layanan, **Aktifkan kembali** memakai `PATCH /owner/services/{service}/restore` dan **Hapus** memakai `DELETE /owner/services/{service}`. Layanan yang sudah memiliki transaksi dapat diarsipkan dan diaktifkan kembali.
+
 ### Bukti uji revisi
 
 | Pemeriksaan | Hasil |

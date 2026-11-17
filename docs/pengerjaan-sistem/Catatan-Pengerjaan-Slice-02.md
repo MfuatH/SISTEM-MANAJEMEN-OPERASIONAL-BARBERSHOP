@@ -20,6 +20,12 @@ Slice 02 dimulai dari `main` pada commit `34d6ace`, setelah login Owner dari Sli
 
 Berkas utama dapat ditinjau melalui [migrasi katalog](../../database/migrations/0001_01_01_000004_create_services_table.php), [model layanan](../../app/Models/Service.php), [kontroler katalog](../../app/Http/Controllers/ServiceController.php), dan [tes fitur](../../tests/Feature/ServiceCatalogTest.php).
 
+## Kesiapan frontend
+
+**Katalog layanan siap diintegrasikan.** Owner dapat membuka `GET /owner/services` untuk daftar layanan, harga, status arsip, dan tindakan katalog. Form tambah mengirim `name` dan `current_price` ke `POST /owner/services`. Pembaruan memakai `PUT /owner/services/{service}` dan pengarsipan memakai `PATCH /owner/services/{service}/archive`.
+
+**Pilihan layanan Kapster siap digunakan.** `GET /services/active` mengembalikan layanan aktif dalam `data`, dengan `id`, `name`, dan `current_price`. Tindakan **Aktifkan kembali** serta **Hapus** ditambahkan pada revisi Slice 05. [Catatan Slice 05](Catatan-Pengerjaan-Slice-05.md#kesiapan-frontend)
+
 ## Bukti pengujian
 
 | Pemeriksaan | Hasil |

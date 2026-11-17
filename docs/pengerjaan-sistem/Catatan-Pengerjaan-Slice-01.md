@@ -20,6 +20,10 @@ Slice 00 telah masuk ke `main` pada commit `505f053` dan menyediakan Laravel, My
 
 Berkas utama dapat ditinjau melalui [migrasi akun](../../database/migrations/0001_01_01_000003_configure_owner_accounts.php), [rute web](../../routes/web.php), [kontroler autentikasi](../../app/Http/Controllers/OwnerAuthController.php), [pembuatan akun](../../app/Console/Commands/CreateOwner.php), dan [pengujian autentikasi](../../tests/Feature/OwnerAuthenticationTest.php).
 
+## Kesiapan frontend
+
+**Login Owner siap diintegrasikan.** Halaman `GET /owner/login` membuka form. Kirim `username` dan `password` dengan token CSRF ke `POST /owner/login`. Tampilkan pesan validasi dari Laravel. Login berhasil menuju area Owner `/owner`, dan tombol keluar menggunakan `POST /owner/logout`. Pemeriksaan akun aktif dan akses area Owner dilakukan di server.
+
 ## Bukti pengujian
 
 | Pemeriksaan | Hasil |

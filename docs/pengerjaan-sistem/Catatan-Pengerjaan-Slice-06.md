@@ -23,6 +23,12 @@ Ekspor memakai OpenSpout **5.14.0** dan aritmetika rupiah memakai Brick Math **1
 
 [Lihat kueri laporan](../../app/Services/OwnerIncomeReport.php) · [Lihat penulis XLSX](../../app/Services/OwnerIncomeWorkbook.php) · [Lihat tes fitur](../../tests/Feature/OwnerIncomeTest.php)
 
+## Kesiapan frontend
+
+**Halaman Pemasukan siap diintegrasikan.** Gunakan `GET /owner/pemasukan` untuk daftar serta total bulan berjalan WIB. Tampilkan satu baris per item dengan ID transaksi, waktu, Kapster, pelanggan, jenis, nama item, jumlah, harga satuan, dan nilai. Teruskan pencarian `q` pada paginasi dan `GET /owner/pemasukan/ekspor` agar XLSX memakai hasil yang sama.
+
+**Home Dashboard Owner dan sidebar siap sebagian.** Halaman `GET /owner` tersedia untuk tata letak Home dan sidebar. Sambungkan menu yang sudah aktif ke Pemasukan, Katalog Layanan, dan Katalog Produk. Total bulanan dan grafik harian ada pada cakupan Slice 10. [Peta kesiapan per tahap](Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
+
 ## Bukti pengujian
 
 | Pemeriksaan | Hasil |
@@ -42,4 +48,4 @@ Ekspor memakai OpenSpout **5.14.0** dan aritmetika rupiah memakai Brick Math **1
 
 ## Kelanjutan
 
-Frontend dapat menyambungkan halaman Pemasukan menggunakan `GET /owner/pemasukan` dan `GET /owner/pemasukan/ekspor` dengan parameter `q` yang sama. Berikutnya, Slice 07 menangani pencatatan dan ekspor pengeluaran Owner. [Status backend dan kesiapan frontend](../../README.md#status-backend-dan-kesiapan-frontend) · [Urutan pengerjaan](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
+Frontend dapat menyambungkan halaman Pemasukan menggunakan `GET /owner/pemasukan` dan `GET /owner/pemasukan/ekspor` dengan parameter `q` yang sama. Berikutnya, Slice 07 menangani pencatatan dan ekspor pengeluaran Owner. [Peta kesiapan per tahap](Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap) · [Urutan pengerjaan](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)

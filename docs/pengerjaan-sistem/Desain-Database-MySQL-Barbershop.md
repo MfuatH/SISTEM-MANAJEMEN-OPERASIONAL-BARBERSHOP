@@ -270,7 +270,7 @@ Contoh mengikuti keputusan satu layanan per simpan dan memakai harga katalog. `L
 | 13 · Uji integrasi dan UAT | Uji migrasi MySQL, alur Kapster, akses Owner, ekspor dan rekonsiliasi. Sertakan peramalan jika disetujui. | Hasil aktual, status KP, temuan, dan uji ulang terdokumentasi. |
 | 14 · Penerapan dan penyerahan | Setelah pemeriksaan fungsi inti, uji lingkungan target dan catat keputusan penerimaan. | Dokumentasi skema, hasil uji, serta keputusan penerimaan tersedia. |
 
-Lihat peta kesiapan untuk menentukan halaman yang sudah dapat memakai alur backend dari `main`. [Status backend dan kesiapan frontend](../../README.md#status-backend-dan-kesiapan-frontend)
+Lihat peta kesiapan untuk menentukan halaman yang sudah dapat memakai alur backend dari `main`. [Peta kesiapan per tahap](Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
 
 ## 11. Usulan revisi Slice 05 — transaksi multi-layanan dan pilihan produk
 
