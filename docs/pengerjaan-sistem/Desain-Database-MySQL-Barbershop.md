@@ -50,13 +50,13 @@ Satu Owner dapat mencatat nol hingga banyak pengeluaran. Satu record `sessions` 
 | --- | --- | --- |
 | K1 | **Dikonfirmasi 17 November 2026.** Nama Kapster diambil dari sesi. Nama pelanggan diisi sebagai teks opsional per pencatatan dan tidak memerlukan profil atau riwayat kunjungan. | Slice 04 dilewati. Slice 05 memakai kolom `income_entries.customer_name VARCHAR(120) NULL`. Setelah spasi tepi dibuang, masukan kosong disimpan sebagai `NULL`. Tampilan memakai `—` saat nilai kosong. |
 | K2 | **Dikonfirmasi.** Nama Kapster adalah teks, dengan nama sama diperbolehkan. **Keputusan teknis Slice 05.** Dashboard menampilkan pencatatan dari sesi browser aktif. | Slice 03 menyimpan `barber_name` pada sesi Laravel. Slice 05 menyalin nama itu ke pemasukan. Sidik SHA-256 dari ID sesi Laravel membatasi pembacaan, dan tanda tangan UUID mengikat satu form ke sesi yang sama. Kebutuhan melihat catatan lintas sesi oleh Kapster masih terbuka. |
-| K3 | **Implementasi awal.** Slice 05 yang sudah di-merge menyimpan satu layanan per pencatatan. **Kebutuhan revisi.** Satu transaksi Kapster dapat memuat beberapa layanan dan Owner melihat satu baris per item. Harga muncul otomatis saat layanan dipilih. | Slice 02 menyediakan katalog layanan aktif yang dikelola Owner. Usulan revisi menambahkan transaksi induk dan mempertahankan snapshot layanan serta harga per item. Daftar layanan resmi masih terbuka. |
+| K3 | **Implementasi awal.** Slice 05 yang sudah di-merge menyimpan satu layanan per pencatatan. **Kebutuhan revisi.** Form Layanan dapat mencatat beberapa layanan dalam satu transaksi. Owner melihat satu baris per item. Harga muncul otomatis saat layanan dipilih. | Slice 02 menyediakan katalog layanan aktif yang dikelola Owner. Usulan revisi menambahkan transaksi induk dan mempertahankan snapshot layanan serta harga per item. Daftar layanan resmi masih terbuka. |
 | K4 | **Dikonfirmasi.** Sistem membuat ID pengeluaran. | Gunakan `expenses.id` yang dibuat oleh database. Usulan format tampilan dan ekspor adalah `EXP-{id}`. |
 | K5 | **Dikonfirmasi.** Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Rekap mencakup seluruh histori. | Pada pergantian bulan, halaman bulanan memakai rentang baru. Rekap tetap dapat membaca bulan sebelumnya dan menyediakan filter bulan atau jenis. |
 | K6 | **Dikonfirmasi.** Pencatatan memakai layanan dan nominal, dengan aksi Kapster sebatas menambah. **Tafsiran draf.** Koreksi dan pembatalan yang diaktifkan berada di area Owner. | Slice 05 memakai waktu server dalam UTC. Kebutuhan mencatat pemasukan mundur masih terbuka. Sebelum Slice 08, pastikan cakupan koreksi atau pembatalan Owner, perlakuan periode, dan histori audit. Metode pembayaran dikeluarkan dari skema. |
 | K7 | **Dikonfirmasi.** Owner dan Admin adalah dua sebutan untuk akun yang sama. | Satu jenis akun Owner. Slice 01 menambahkan username dan menghapus atribut email akun. |
 | K8 | Apakah Forecasting disetujui, posisi prediksi di mana, dan apa yang diproyeksikan? Apakah data Juli–September 2026 masih diperlukan? | Usulan targetnya pemasukan bulanan, memakai empat bulan aktual terakhir yang sudah lengkap pada grafik dan dua bulan prediksi sesudahnya. Frasa “6 bulan kebelakang” juga dapat berarti dua prediksi atas bulan historis. Konfirmasi arti tersebut, sumber data, dan ketentuan baru sebelum Slice 11–12. |
-| K9 | **Dikonfirmasi.** Form Kapster mencatat pemakaian dan penjualan produk. Keduanya opsional. Owner menambahkan pilihan produk. Setiap transaksi wajib memuat minimal satu layanan. | Usulan UI memakai dropdown produk dipakai pada item layanan dan daftar penjualan produk per transaksi. Pemasukan menjumlahkan layanan dan produk terjual. Kebutuhan pencatatan stok masih terbuka. |
+| K9 | **Dikonfirmasi.** Dashboard Kapster menyediakan tombol **Layanan** dan **Produk**. Form Layanan wajib memuat minimal satu layanan. Pemakaian dan penjualan produk pada form ini opsional. Form Produk mencatat penjualan produk saja. Owner menambahkan pilihan produk. | Validasi kedua form berbeda dan keduanya menyimpan ke transaksi induk. Pemasukan menjumlahkan layanan dan produk terjual. Kebutuhan pencatatan stok masih terbuka. |
 | K10 | **Dikonfirmasi.** Rekap komisi bulanan Kapster berada di luar lingkup aplikasi. | Foto rekap komisi menjadi acuan proses manual. Rancangan pemasukan hanya memakai nilai layanan dan penjualan produk. |
 
 ## 3. Kamus tabel lainnya
@@ -258,7 +258,7 @@ Contoh mengikuti keputusan satu layanan per simpan dan memakai harga katalog. `L
 | 03 · Sesi Kapster | Mulai dan akhiri sesi tamu dengan nama teks. Lindungi dashboard, pisahkan konteks Owner, dan buka pratinjau Tambah. | Alur dan isolasi sesi lulus uji. Pratinjau menampilkan layanan aktif beserta harga. [Catatan Slice 03](Catatan-Pengerjaan-Slice-03.md) |
 | 04 · Master pelanggan | Dilewati sesuai keputusan K1. | Nama pelanggan ditangani sebagai keterangan opsional pada Slice 05. |
 | 05 · Pencatatan Kapster | Simpan tepat satu layanan per pencatatan, nama Kapster dari sesi, nama pelanggan opsional, snapshot layanan dan harga, serta kunci permintaan. | Dua layanan dari satu kunjungan tersimpan sebagai dua pencatatan. Setiap pencatatan tampil di dashboard sesi dan menghasilkan satu pemasukan walau form dikirim ulang. [Catatan Slice 05](Catatan-Pengerjaan-Slice-05.md) |
-| 05 · Revisi multi-layanan dan produk | Rancang transaksi induk dengan minimal satu item layanan serta pemakaian dan penjualan produk opsional. | Simpan seluruh item sekaligus. Tolak transaksi yang hanya memuat penjualan produk. Uji data lama, kirim ulang, dan total layanan serta penjualan. |
+| 05 · Revisi multi-layanan dan produk | Rancang form Layanan dengan produk opsional dan form Produk khusus penjualan. Gunakan transaksi induk dan rincian item. | Simpan seluruh item sekaligus. Uji penjualan produk saja, transaksi layanan dengan atau tanpa produk, data lama, kirim ulang, dan rekonsiliasi. |
 | 06 · Pemasukan Owner | Baca rincian layanan dan penjualan produk hasil revisi Slice 05 untuk bulan berjalan. Sediakan pencarian serta XLSX. | Tiap item tampil sekali dengan ID transaksi induknya. Layar dan ekspor memakai filter yang sama. Pada bulan baru, daftar memakai rentang baru. |
 | 07 · Pengeluaran Owner | Setelah Slice 01, sediakan input tanggal, deskripsi, dan jumlah. Tampilkan ID yang dibuat sistem dan ekspor periode berjalan. | Owner bisa menyimpan dan mengekspor. Kirim ulang menghasilkan satu catatan dengan ID yang sama. |
 | 08 · Tindakan Owner bersyarat | Tetapkan apakah cakupan mencakup koreksi, pembatalan tanpa pengganti, atau keduanya sesuai K6. | Jika diterapkan, izin terbatas pada Owner. Histori dan perhitungan rekapan dapat direkonsiliasi. |
@@ -273,9 +273,15 @@ Contoh mengikuti keputusan satu layanan per simpan dan memakai harga katalog. `L
 
 ### Alur yang diminta
 
-- Kapster wajib memilih minimal satu layanan dalam satu form. Beberapa layanan dapat disimpan sekaligus. Nama Kapster diambil dari sesi dan nama pelanggan tetap opsional.
-- Owner menambahkan pilihan produk ke katalog. Form Kapster memakai katalog yang sama untuk mencatat produk yang dipakai dan produk yang dijual. Kedua pilihan bisa dikosongkan.
-- Usulan tampilan menempatkan dropdown **Produk dipakai** pada tiap layanan dan daftar **Produk dijual** pada transaksi. Kapster memilih produk dan mengisi jumlah pada tiap baris penjualan. Harga satuan diambil dari katalog.
+Dashboard Kapster menyediakan dua tombol. Nama Kapster diambil dari sesi dan nama pelanggan tetap opsional di kedua form.
+
+| Tombol | Isi form | Aturan simpan |
+| --- | --- | --- |
+| **Layanan** | Satu atau beberapa layanan. Usulan tampilan menyediakan dropdown **Produk dipakai** per layanan dan daftar **Produk dijual** opsional. | Wajib minimal satu item layanan. |
+| **Produk** | Daftar produk yang dibeli pelanggan. Kapster memilih produk dan memasukkan jumlah. | Wajib minimal satu item penjualan produk. |
+
+
+- Owner menambahkan pilihan produk ke katalog. Kapster memakai katalog yang sama di kedua form. Harga satuan produk terjual diambil dari katalog.
 - Pemasukan Owner pada Slice 06 menampilkan satu baris untuk setiap layanan dan penjualan produk, dengan ID transaksi yang sama untuk baris dari satu transaksi. Produk yang dipakai ditampilkan sebagai keterangan pada baris layanan.
 
 ### Acuan rekap manual
@@ -292,7 +298,7 @@ Dua foto yang diberikan pengguna memperlihatkan laporan pemasukan barbershop dan
 
 ```mermaid
 erDiagram
-    INCOME_TRANSACTIONS ||--|{ INCOME_ENTRIES : memuat_layanan
+    INCOME_TRANSACTIONS ||--o{ INCOME_ENTRIES : memuat_layanan
     INCOME_TRANSACTIONS ||--o{ INCOME_PRODUCT_SALES : memuat_penjualan
     SERVICES ||..o{ INCOME_ENTRIES : dipilih
     PRODUCTS |o..o{ INCOME_ENTRIES : dipakai
@@ -306,7 +312,7 @@ erDiagram
 | `products` | PK `id`, `name VARCHAR(120)`, `sale_price DECIMAL(15,0) NULL`, dan `archived_at DATETIME(6) NULL`. Owner menambah produk. Produk aktif bisa dipilih untuk pemakaian. Pilihan penjualan juga memerlukan harga jual positif. |
 | `income_product_sales` | PK `id`. FK wajib `income_transaction_id` ke induk dan `product_id` ke katalog. Simpan `product_name VARCHAR(120)`, `quantity INT UNSIGNED` positif, dan snapshot `unit_price DECIMAL(15,0)` positif. Nilai penjualan per item dihitung dari `quantity × unit_price`. |
 
-Setiap transaksi wajib memuat minimal satu layanan. Laravel memvalidasi aturan ini sebelum menyimpan induk dan item. Produk yang sudah direferensikan dapat diarsipkan. FK memakai `RESTRICT` agar catatan lama tetap bisa dibaca.
+Setiap transaksi memiliki minimal satu item yang menghasilkan pemasukan. Form **Layanan** mensyaratkan layanan, sementara form **Produk** mensyaratkan penjualan produk dan menolak item layanan. Laravel menerapkan validasi sesuai rute sebelum menyimpan induk dan item. Produk yang sudah direferensikan dapat diarsipkan. FK memakai `RESTRICT` agar catatan lama tetap bisa dibaca.
 
 ### Sumber pemasukan Owner
 
@@ -316,6 +322,7 @@ Normalisasi rincian layanan dan penjualan produk dari transaksi induk dengan `UN
 
 1. Tambahkan tabel induk. Untuk setiap `income_entries` lama, buat satu transaksi induk dan kaitkan ke item lama. Pertahankan ID item, waktu, dan nominal. Nilai produk data lama dimulai dari `NULL`.
 2. Pasang FK wajib transaksi setelah backfill diverifikasi. Tambahkan katalog produk, FK pemakaian opsional, dan tabel penjualan produk. Tempatkan kunci kirim ulang pada induk setelah kode baru memakai transaksi induk.
-3. Validasi minimal satu layanan, pilihan produk, jumlah, dan harga katalog. Simpan induk beserta seluruh rincian dalam satu transaksi database. Kirim ulang dengan kunci dan payload yang sama mengembalikan transaksi yang telah tersimpan.
-4. Uji Layanan A Rp35.000, Layanan B Rp15.000, produk dipakai pada Layanan A, dan penjualan dua unit produk seharga Rp15.000 per unit. Pemasukan Owner memuat tiga baris dengan ID transaksi sama dan total Rp80.000. Uji transaksi layanan tanpa produk, kirim ulang, penolakan item yang tidak valid, dan selisih Rp0 sebelum serta sesudah backfill data lama.
-5. Kirim form dengan penjualan produk dan daftar layanan kosong. Sistem harus menolak permintaan. Jumlah transaksi, jumlah item, dan total pemasukan harus tetap sama seperti sebelum pengiriman.
+3. Terapkan validasi per form, termasuk pilihan produk, jumlah, dan harga katalog. Kedua form memakai alur simpan yang sama untuk menyimpan induk beserta seluruh rincian dalam satu transaksi database. Kirim ulang dengan kunci dan payload yang sama mengembalikan transaksi yang telah tersimpan.
+4. Uji form **Layanan** dengan Layanan A Rp35.000, Layanan B Rp15.000, produk dipakai pada Layanan A, dan penjualan dua unit produk seharga Rp15.000 per unit. Pemasukan Owner memuat tiga baris dengan ID transaksi sama dan total Rp80.000. Uji juga form Layanan dengan produk kosong dan dengan layanan kosong.
+5. Uji form **Produk** dengan penjualan dua unit produk seharga Rp15.000 per unit. Pemasukan Owner memuat satu baris penjualan senilai Rp30.000. Uji penolakan daftar produk kosong dan permintaan yang menyisipkan item layanan.
+6. Uji kirim ulang pada kedua form, penolakan item tidak valid, dan selisih Rp0 sebelum serta sesudah backfill data lama. Pada kasus gagal, jumlah transaksi, jumlah item, dan total pemasukan harus sama dengan keadaan sebelum pengiriman.
