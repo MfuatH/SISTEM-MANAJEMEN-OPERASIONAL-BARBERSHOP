@@ -18,6 +18,10 @@
         .button { display: inline-block; padding: .55rem .9rem; border-radius: .3rem; background: #164b39; color: white; text-decoration: none; }
         .secondary { background: #edf2ed; color: #164b39; }
         .table-scroll { overflow-x: auto; }
+        .income-report { width: min(76rem, calc(100% - 2rem)); }
+        .income-report input[type="search"] { max-width: 28rem; }
+        .number { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        .report-time { white-space: nowrap; }
         caption { text-align: left; font-weight: 600; }
         table { width: 100%; border-collapse: collapse; text-align: left; }
         th, td { border-bottom: 1px solid #d8dfd9; padding: .65rem .7rem; }

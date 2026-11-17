@@ -145,7 +145,7 @@ Tabel berikut digunakan oleh infrastruktur Laravel. `sessions.user_id` dan `pass
 | Halaman Owner | Sumber dan cakupan | Pencarian, filter, dan ekspor |
 | --- | --- | --- |
 | Home | Dua total dan dua seri harian dari awal bulan berjalan. | Hari yang sudah berjalan tanpa transaksi ditampilkan Rp0. |
-| Pemasukan | `income_entries` bulan berjalan, dengan nama Kapster dan snapshot layanan. | Cari nama Kapster atau layanan. Ekspor Excel mengikuti pencarian dalam bulan berjalan. |
+| Pemasukan | `IncomeItems::query()` dari `income_entries` dan `income_product_sales`, dengan waktu dari induk `income_transactions`. Cakupan bulan berjalan WIB. | Cari nama item, Kapster, pelanggan, atau ID transaksi. Total dan XLSX mengikuti seluruh hasil pencarian. [Catatan Slice 06](Catatan-Pengerjaan-Slice-06.md) |
 | Pengeluaran | `expenses` bulan berjalan, dengan tanggal, ID buatan sistem, deskripsi, dan jumlah. | Cari ID pengeluaran atau deskripsi. Ekspor Excel mengikuti pencarian dalam bulan berjalan. |
 | Rekap | Seluruh periode dari dua sumber. Baris dinormalisasi ke jenis, ID sumber, tanggal, nama Kapster bila ada, label, dan nominal. | Cari teks pada baris yang secara konsisten diproyeksikan ke rekap. Filter opsional dengan bulan dan jenis `IN` atau `OUT`. Ekspor seluruh hasil untuk pencarian dan filter yang sama, termasuk baris di luar halaman saat ini. |
 
@@ -172,7 +172,7 @@ FROM entries
 ORDER BY business_date DESC, entry_type, source_id DESC
 ```
 
-Di implementasi, Laravel menerapkan satu pembentuk rentang dan sumber kueri laporan. Daftar dan XLSX memakai kueri yang sama dengan cakupan per halaman. Home memakai sumber keuangan yang sama tanpa kata kunci pencarian halaman lain. Grafik mengelompokkan per `business_date` dan `entry_type`; total bulanan menjumlahkan seluruh baris untuk jenis yang sama. Bila layar menampilkan saldo, rumusnya pemasukan dikurangi pengeluaran. XLSX menyimpan nominal sebagai angka dan label masukan pengguna sebagai teks. Selisih antara layar, ekspor, dan pembanding dinilai pada data dan filter yang sama. Rekap, total bulanan, dan ekspor dihitung dari kueri tersebut.
+Di implementasi, Laravel menerapkan satu pembentuk rentang dan sumber kueri laporan. Daftar dan XLSX memakai kueri yang sama dengan cakupan per halaman. Home memakai sumber keuangan yang sama tanpa kata kunci pencarian halaman lain. Grafik mengelompokkan per `business_date` dan `entry_type`; total bulanan menjumlahkan seluruh baris untuk jenis yang sama. Bila layar menampilkan saldo, rumusnya pemasukan dikurangi pengeluaran. XLSX menyimpan nominal sebagai angka selama muat dalam 15 digit presisi Excel. Nilai yang lebih panjang dan label masukan pengguna ditulis sebagai teks. Selisih antara layar, ekspor, dan pembanding dinilai pada data dan filter yang sama. Rekap, total bulanan, dan ekspor dihitung dari kueri tersebut.
 
 Contoh SQL memakai offset WIB `+07:00`. Gunakan aturan zona yang sama untuk pembentukan batas dan pengelompokan tanggal. Tampilkan ID pengeluaran berdasarkan `source_id` pada baris `OUT`. Jika tindakan Owner pada K6 diimplementasikan, terapkan aturan status yang sama pada daftar, agregat, dan ekspor.
 
@@ -261,7 +261,7 @@ Contoh mengikuti keputusan satu layanan per simpan dan memakai harga katalog. `L
 | 04 · Master pelanggan | Dilewati sesuai keputusan K1. | Nama pelanggan ditangani sebagai keterangan opsional pada Slice 05. |
 | 05 · Pencatatan Kapster | Simpan tepat satu layanan per pencatatan, nama Kapster dari sesi, nama pelanggan opsional, snapshot layanan dan harga, serta kunci permintaan. | Dua layanan dari satu kunjungan tersimpan sebagai dua pencatatan. Setiap pencatatan tampil di dashboard sesi dan menghasilkan satu pemasukan walau form dikirim ulang. [Catatan Slice 05](Catatan-Pengerjaan-Slice-05.md) |
 | 05 · Revisi multi-layanan dan produk | Form Layanan memiliki bagian layanan dan penjualan produk opsional. Form Produk memuat penjualan saja. Owner dapat mengaktifkan kembali arsip layanan dan menghapus layanan yang belum tercatat. | Uji kedua form, pemulihan arsip, perlindungan layanan pada riwayat, kirim ulang, dan rekonsiliasi. |
-| 06 · Pemasukan Owner | Baca rincian layanan dan penjualan produk hasil revisi Slice 05 untuk bulan berjalan. Sediakan pencarian serta XLSX. | Tiap item tampil sekali dengan ID transaksi induknya. Layar dan ekspor memakai filter yang sama. Pada bulan baru, daftar memakai rentang baru. |
+| 06 · Pemasukan Owner | Baca rincian layanan dan penjualan produk hasil revisi Slice 05 untuk bulan berjalan WIB. Sediakan pencarian serta XLSX. | Tiap item tampil sekali dengan ID induknya. Layar, total, dan ekspor memakai filter yang sama. Pada bulan baru, daftar memakai rentang baru. [Catatan Slice 06](Catatan-Pengerjaan-Slice-06.md) |
 | 07 · Pengeluaran Owner | Setelah Slice 01, sediakan input tanggal, deskripsi, dan jumlah. Tampilkan ID yang dibuat sistem dan ekspor periode berjalan. | Owner bisa menyimpan dan mengekspor. Kirim ulang menghasilkan satu catatan dengan ID yang sama. |
 | 08 · Tindakan Owner bersyarat | Tetapkan apakah cakupan mencakup koreksi, pembatalan tanpa pengganti, atau keduanya sesuai K6. | Jika diterapkan, izin terbatas pada Owner. Histori dan perhitungan rekapan dapat direkonsiliasi. |
 | 09 · Rekap lintas periode | Gabungkan hasil Slice 06–07 dan aturan Slice 08 bila berlaku. Sediakan pencarian, filter bulan/jenis, dan XLSX. | Rekap memuat histori lintas bulan dan hasil Excel cocok dengan filter. Selisih terhadap data pembanding Rp0. |
@@ -320,7 +320,7 @@ Setiap transaksi memiliki minimal satu item yang menghasilkan pemasukan. Form **
 
 ### Sumber pemasukan Owner
 
-`IncomeItems::query()` menormalisasi layanan dan penjualan produk dari transaksi induk dengan `UNION ALL`. Identitas baris memakai pasangan jenis dan ID item. Layanan menyumbang snapshot harga. Penjualan produk menyumbang jumlah kali snapshot harga satuan. Pemakaian produk lama tetap tampil sebagai keterangan. Slice 06 memakai sumber dan filter yang sama untuk daftar, total, serta XLSX.
+`IncomeItems::query()` menormalisasi layanan dan penjualan produk dari transaksi induk dengan `UNION ALL`. Identitas baris memakai pasangan jenis dan ID item. Layanan menyumbang snapshot harga. Penjualan produk menyumbang jumlah kali snapshot harga satuan. Pemakaian produk lama tetap tampil sebagai keterangan. Slice 06 menerapkan cakupan bulan berjalan dan pencarian melalui `OwnerIncomeReport` bagi daftar, total, serta XLSX.
 
 ### Penyimpanan, migrasi, dan pengujian
 

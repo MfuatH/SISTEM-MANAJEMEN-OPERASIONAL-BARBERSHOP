@@ -22,6 +22,7 @@ Stack proyek mengikuti Project Charter dan draf desain database. Tim menetapkan 
 | Bagian | Teknologi dan versi | Penggunaan |
 | --- | --- | --- |
 | Backend web | PHP **8.5.12**, Laravel **13.42.0** | Rute web, sesi Kapster, autentikasi Owner, validasi di server, dan logika operasional. |
+| Ekspor Excel | OpenSpout **5.14.0**, Brick Math **1.0.0** | Penulisan XLSX dan penjumlahan rupiah secara eksak. |
 | Frontend | JavaScript dan Blade Laravel | Form pencatatan Kapster dan pengeluaran, Rekap, serta dashboard Owner. |
 | Database | MySQL **8.4.3 LTS** | Penyimpanan data operasional melalui migrasi Laravel. Draf mengusulkan InnoDB, `utf8mb4`, dan tipe `DECIMAL` untuk nominal rupiah. |
 | Pengembangan lokal | Laragon **8.8.0**, Composer **2.10.3** | Menjalankan PHP dan MySQL secara lokal serta memasang dependensi Laravel. |
@@ -111,6 +112,10 @@ Owner membuka **Katalog produk** di `/owner/products` untuk mengelola nama dan h
 
 Jalankan `php artisan migrate` pada `barbershop_dev`, lalu mulai sesi Kapster dari beranda. Tombol **Layanan** membuka bagian **Layanan** dan **Produk dijual (opsional)**. Tombol **Produk** membuka form penjualan saja. Setelah **Simpan**, dashboard menampilkan satu baris per item dengan ID transaksi yang sama. [Cara meninjau revisi Slice 05](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-05.md#cara-meninjau-revisi)
 
+### Mencoba Pemasukan Owner
+
+Jalankan `composer install` memakai PHP 8.5. Masuk sebagai Owner dan buka **Pemasukan**. Layanan dan penjualan produk tampil per item untuk bulan berjalan WIB. Masukkan nama item, Kapster, pelanggan, atau ID transaksi untuk mencari. Tombol **Ekspor Excel** mengunduh seluruh hasil untuk pencarian tersebut. [Cara meninjau Slice 06](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-06.md#cara-meninjau)
+
 ## Status pengerjaan per slice
 
 Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [PR #1](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/1). Desain berikut menjadi acuan peninjauan fitur.
@@ -123,8 +128,8 @@ Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [P
 | 03 | Kapster memulai dan mengakhiri sesi dengan nama teks. Dashboard dilindungi sesi dan menyediakan pratinjau layanan dan harga. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-03.md) |
 | 04 | Master pelanggan. Nama pelanggan cukup sebagai keterangan opsional pada pencatatan Slice 05. | Dilewati |
 | 05 (awal) | Simpan satu layanan, nama Kapster dari sesi, nama pelanggan opsional, dan snapshot harga. | Sudah masuk `main`. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-05.md) |
-| 05 (revisi) | Form **Layanan** memisahkan layanan dan penjualan produk opsional. Form **Produk** mencatat penjualan saja. Owner dapat menghapus layanan yang belum tercatat dan mengaktifkan kembali arsip. | Dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-05.md#revisi-kebutuhan-setelah-merge) |
-| 06 | Pemasukan Owner menampilkan bulan berjalan per item layanan dan penjualan produk. Hasil pencarian dan XLSX dapat direkonsiliasi. | Direncanakan setelah revisi Slice 05 |
+| 05 (revisi) | Form **Layanan** memisahkan layanan dan penjualan produk opsional. Form **Produk** mencatat penjualan saja. Owner dapat menghapus layanan yang belum tercatat dan mengaktifkan kembali arsip. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-05.md#revisi-kebutuhan-setelah-merge) |
+| 06 | Pemasukan Owner menampilkan bulan berjalan WIB per item layanan dan penjualan produk. Daftar, total, pencarian, dan XLSX dapat direkonsiliasi. | Dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-06.md) |
 | 07 | Owner mencatat pengeluaran dengan ID buatan sistem. Riwayat dan XLSX mengikuti bulan berjalan. | Direncanakan |
 | 08 | Jika disetujui, Owner menjalankan tindakan koreksi yang dicatat untuk audit. | Bersyarat |
 | 09 | Rekap menggabungkan pemasukan dan pengeluaran lintas periode serta menyediakan filter dan XLSX. Target selisih Rp0. | Direncanakan |
