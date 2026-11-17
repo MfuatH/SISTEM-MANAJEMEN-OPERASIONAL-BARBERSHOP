@@ -1,7 +1,7 @@
 @extends('auth.owner-layout')
 
 @section('title', 'Pemasukan')
-@section('main-class', 'wide income-report')
+@section('main-class', 'wide report-page')
 
 @section('content')
     <p><a href="{{ route('owner.home') }}">Kembali ke area Owner</a></p>

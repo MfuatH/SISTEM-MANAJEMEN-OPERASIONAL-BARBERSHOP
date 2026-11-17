@@ -48,4 +48,4 @@ Ekspor memakai OpenSpout **5.14.0** dan aritmetika rupiah memakai Brick Math **1
 
 ## Kelanjutan
 
-Frontend dapat menyambungkan halaman Pemasukan menggunakan `GET /owner/pemasukan` dan `GET /owner/pemasukan/ekspor` dengan parameter `q` yang sama. Berikutnya, Slice 07 menangani pencatatan dan ekspor pengeluaran Owner. [Peta kesiapan per tahap](Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap) · [Urutan pengerjaan](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
+Frontend dapat menyambungkan halaman Pemasukan menggunakan `GET /owner/pemasukan` dan `GET /owner/pemasukan/ekspor` dengan parameter `q` yang sama. Pencatatan dan ekspor pengeluaran Owner tersedia di `main` setelah Slice 07 di-merge. [Catatan Slice 07](Catatan-Pengerjaan-Slice-07.md) [Peta kesiapan per tahap](Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap) · [Urutan pengerjaan](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
