@@ -6,35 +6,28 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable([
-    'barber_name',
-    'customer_name',
-    'service_id',
-    'service_name',
-    'amount',
-    'recorded_at',
-    'session_scope',
-    'request_key',
-    'request_hash',
-])]
+#[Fillable(['service_id', 'service_name', 'amount', 'used_product_id', 'used_product_name'])]
 class IncomeEntry extends Model
 {
     public $timestamps = false;
 
-    protected $dateFormat = 'Y-m-d H:i:s.u';
-
-    protected $hidden = ['session_scope', 'request_key', 'request_hash'];
-
     protected function casts(): array
     {
-        return [
-            'amount' => 'decimal:0',
-            'recorded_at' => 'immutable_datetime',
-        ];
+        return ['amount' => 'decimal:0'];
+    }
+
+    public function incomeTransaction(): BelongsTo
+    {
+        return $this->belongsTo(IncomeTransaction::class);
     }
 
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
+    }
+
+    public function usedProduct(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
     }
 }

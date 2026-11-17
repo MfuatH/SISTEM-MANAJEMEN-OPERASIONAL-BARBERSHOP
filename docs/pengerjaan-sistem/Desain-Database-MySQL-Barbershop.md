@@ -4,6 +4,8 @@
 
 Acuan kebutuhan fungsional adalah *Deskripsi Sistem (Terurut)* dari `deskripsi-sistem (2).md`, bagian 1–7, beserta konfirmasi kebutuhan lanjutan yang dicatat pada bagian 2. Sistem melayani satu lokasi. Kapster memulai sesi dengan nama dari beranda. Owner masuk menggunakan username dan kata sandi. Stack yang disepakati adalah Laravel 13.x, PHP 8.5.x, dan MySQL 8.4 LTS dengan Laragon. Perubahan terhadap lingkup dan kriteria penerimaan awal dicatat pada bagian 9. [Catatan fondasi Slice 00](Catatan-Pengerjaan-Slice-00.md) · [Acuan tugas kuliah](../tugas-kuliah/README.md)
 
+Bagian 1–10 mencatat skema awal Slice 05 dan rencana slice lain. Lihat bagian 11 untuk perubahan transaksi dan produk pada revisi Slice 05.
+
 ## 1. ERD usulan
 
 ```mermaid
@@ -75,7 +77,7 @@ Pada tabel usulan, `ID` berarti `BIGINT UNSIGNED`, dengan `AUTO_INCREMENT` untuk
 | `archived_at` | `UTC NULL` | Saat layanan dikeluarkan dari pilihan aktif. |
 | `created_at`, `updated_at` | `UTC` | Audit perubahan katalog. |
 
-### Tabel `income_entries` · implementasi Slice 05
+### Tabel `income_entries` · implementasi awal Slice 05
 
 **Isi dan fungsi.** Satu baris per pencatatan Kapster yang berhasil disimpan. Setiap baris menunjuk tepat satu layanan, menyimpan nama Kapster dari sesi, dan memuat keterangan nama pelanggan jika diisi. Baris ini menjadi sumber pemasukan Owner, rekap, dan grafik.
 
@@ -271,6 +273,8 @@ Contoh mengikuti keputusan satu layanan per simpan dan memakai harga katalog. `L
 
 ## 11. Usulan revisi Slice 05 — transaksi multi-layanan dan pilihan produk
 
+Implementasi pada branch revisi mencakup tiga migrasi Laravel (`000006`–`000008`), katalog produk Owner, dua form Kapster, dan satu kueri sumber pemasukan per item. [Catatan dan hasil uji revisi](Catatan-Pengerjaan-Slice-05.md#revisi-kebutuhan-setelah-merge)
+
 ### Alur yang diminta
 
 Dashboard Kapster menyediakan dua tombol. Nama Kapster diambil dari sesi dan nama pelanggan tetap opsional di kedua form.
@@ -294,7 +298,7 @@ Dua foto yang diberikan pengguna memperlihatkan laporan pemasukan barbershop dan
 | Gambar 2 · komisi jasa bulanan | 300 × Rp18.000 + tambahan Rp25.000 + 11 × Rp5.000 = Rp5.480.000. Komisi contoh 45% × Rp5.480.000 = Rp2.466.000. | Perhitungan komisi tetap menjadi acuan proses manual. |
 | Gambar 2 · komisi produk dan total Kapster | Bagian Penjualan produk menunjukkan komisi Rp9.000 + Rp3.000 + Rp8.000 + Rp2.000 = Rp22.000. Komisi jasa, komisi produk, serta dua tambahan Rp91.000 dan Rp910.000 berjumlah Rp3.489.000. Kolom Gaji yang diterima tertulis Rp3.500.000. | Angka komisi produk di kertas adalah bagian penghasilan Kapster. Pemasukan dari penjualan di aplikasi dihitung dari jumlah dan harga jual. |
 
-### Skema yang diusulkan
+### Skema revisi Slice 05
 
 ```mermaid
 erDiagram
@@ -307,7 +311,7 @@ erDiagram
 
 | Tabel | Perubahan yang diusulkan |
 | --- | --- |
-| `income_transactions` | PK `id`. Simpan nama Kapster dari sesi, nama pelanggan opsional, waktu pencatatan, cakupan sesi, kunci permintaan unik, dan hash payload transaksi. |
+| `income_transactions` | PK `id`. Simpan nama Kapster dari sesi, nama pelanggan opsional, waktu pencatatan UTC, cakupan sesi, kunci permintaan unik, dan hash payload transaksi. Indeks `(recorded_at, id)` untuk laporan dan `(session_scope, recorded_at, id)` untuk dashboard sesi. |
 | `income_entries` | Pertahankan ID dan snapshot layanan serta harga. Tambahkan FK wajib `income_transaction_id` ke transaksi induk dan FK opsional `used_product_id` ke katalog. `used_product_name VARCHAR(120) NULL` menyimpan nama produk saat layanan dicatat. Usulan awal menyediakan satu pilihan produk dipakai per item layanan. |
 | `products` | PK `id`, `name VARCHAR(120)`, `sale_price DECIMAL(15,0) NULL`, dan `archived_at DATETIME(6) NULL`. Owner menambah produk. Produk aktif bisa dipilih untuk pemakaian. Pilihan penjualan juga memerlukan harga jual positif. |
 | `income_product_sales` | PK `id`. FK wajib `income_transaction_id` ke induk dan `product_id` ke katalog. Simpan `product_name VARCHAR(120)`, `quantity INT UNSIGNED` positif, dan snapshot `unit_price DECIMAL(15,0)` positif. Nilai penjualan per item dihitung dari `quantity × unit_price`. |
@@ -316,12 +320,12 @@ Setiap transaksi memiliki minimal satu item yang menghasilkan pemasukan. Form **
 
 ### Sumber pemasukan Owner
 
-Normalisasi rincian layanan dan penjualan produk dari transaksi induk dengan `UNION ALL`. Identitas baris memakai pasangan jenis dan ID item. Layanan menyumbang snapshot harga layanan. Penjualan produk menyumbang jumlah kali snapshot harga satuan. Produk yang dipakai menjadi keterangan pada layanan. Daftar, total, dan XLSX memakai sumber dan filter yang sama. Komisi bulanan Kapster berada di luar cakupan aplikasi.
+`IncomeItems::query()` menormalisasi rincian layanan dan penjualan produk dari transaksi induk dengan `UNION ALL`. Identitas baris memakai pasangan jenis dan ID item. Layanan menyumbang snapshot harga layanan. Penjualan produk menyumbang jumlah kali snapshot harga satuan. Produk yang dipakai menjadi keterangan pada layanan. Slice 06 memakai sumber dan filter yang sama untuk daftar, total, dan XLSX.
 
 ### Penyimpanan, migrasi, dan pengujian
 
-1. Tambahkan tabel induk. Untuk setiap `income_entries` lama, buat satu transaksi induk dan kaitkan ke item lama. Pertahankan ID item, waktu, dan nominal. Nilai produk data lama dimulai dari `NULL`.
-2. Pasang FK wajib transaksi setelah backfill diverifikasi. Tambahkan katalog produk, FK pemakaian opsional, dan tabel penjualan produk. Tempatkan kunci kirim ulang pada induk setelah kode baru memakai transaksi induk.
+1. Migrasi `000006_create_products_table` menambah katalog produk. Migrasi `000007_group_income_entries_into_transactions` membuat induk dan mengaitkan satu transaksi ke setiap catatan lama. ID item, waktu, dan nominal lama dipertahankan.
+2. Setelah backfill, migrasi `000007` mewajibkan FK induk, menambah FK pemakaian produk opsional, dan memindahkan kunci kirim ulang ke induk. Migrasi `000008_create_income_product_sales_table` menambah rincian penjualan produk.
 3. Terapkan validasi per form, termasuk pilihan produk, jumlah, dan harga katalog. Kedua form memakai alur simpan yang sama untuk menyimpan induk beserta seluruh rincian dalam satu transaksi database. Kirim ulang dengan kunci dan payload yang sama mengembalikan transaksi yang telah tersimpan.
 4. Uji form **Layanan** dengan Layanan A Rp35.000, Layanan B Rp15.000, produk dipakai pada Layanan A, dan penjualan dua unit produk seharga Rp15.000 per unit. Pemasukan Owner memuat tiga baris dengan ID transaksi sama dan total Rp80.000. Uji juga form Layanan dengan produk kosong dan dengan layanan kosong.
 5. Uji form **Produk** dengan penjualan dua unit produk seharga Rp15.000 per unit. Pemasukan Owner memuat satu baris penjualan senilai Rp30.000. Uji penolakan daftar produk kosong dan permintaan yang menyisipkan item layanan.

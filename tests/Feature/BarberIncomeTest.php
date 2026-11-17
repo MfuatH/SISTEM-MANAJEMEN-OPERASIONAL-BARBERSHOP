@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\IncomeEntry;
+use App\Models\IncomeTransaction;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -25,15 +25,15 @@ class BarberIncomeTest extends TestCase
         $this->post(route('barber.entries.store'), $second)->assertRedirect(route('barber.dashboard'));
         $this->post(route('barber.entries.store'), $first)->assertRedirect(route('barber.dashboard'));
 
-        $entries = IncomeEntry::query()->whereIn('request_key', [$first['request_key'], $second['request_key']])->get()
+        $entries = IncomeTransaction::query()->whereIn('request_key', [$first['request_key'], $second['request_key']])->get()
             ->keyBy('request_key');
 
         $this->assertCount(2, $entries);
-        $this->assertSame(0, 35_000 + 15_000 - (int) $entries->sum('amount'));
+        $this->assertSame(0, 35_000 + 15_000 - (int) $entries->flatMap->entries->sum('amount'));
         $this->assertSame('Bayu', $entries[$first['request_key']]->barber_name);
         $this->assertSame('Andi', $entries[$first['request_key']]->customer_name);
         $this->assertNull($entries[$second['request_key']]->customer_name);
-        $this->assertTrue($entries[$first['request_key']]->service->is($firstService));
+        $this->assertTrue($entries[$first['request_key']]->entries()->sole()->service->is($firstService));
 
         $this->get(route('barber.dashboard'))->assertOk()
             ->assertSee('Andi')->assertSee('Layanan A')->assertSee('Rp35.000')
@@ -53,18 +53,18 @@ class BarberIncomeTest extends TestCase
 
         $this->post(route('barber.entries.store'), $stale)
             ->assertRedirect(route('barber.entry-form'))
-            ->assertSessionHasErrors('quoted_price');
-        $this->assertDatabaseMissing('income_entries', ['request_key' => $stale['request_key']]);
+            ->assertSessionHasErrors('services.0.quoted_price');
+        $this->assertDatabaseMissing('income_transactions', ['request_key' => $stale['request_key']]);
         $this->get(route('barber.entry-form'))->assertOk()->assertSee('Harga layanan berubah.')->assertSee('Rp40.000');
         $fresh = $this->entryPayload($service);
         $this->assertNotSame($stale['request_key'], $fresh['request_key']);
         $this->post(route('barber.entries.store'), $fresh)->assertRedirect(route('barber.dashboard'));
 
-        $original = IncomeEntry::query()->where('request_key', $prior['request_key'])->sole();
-        $this->assertSame('35000', $original->amount);
-        $this->assertSame('Layanan A', $original->service_name);
+        $original = IncomeTransaction::query()->where('request_key', $prior['request_key'])->sole();
+        $this->assertSame('35000', $original->entries()->sole()->amount);
+        $this->assertSame('Layanan A', $original->entries()->sole()->service_name);
         $this->assertSame('2026-09-30 16:59:59.123456', $original->recorded_at->format('Y-m-d H:i:s.u'));
-        $this->assertDatabaseHas('income_entries', ['request_key' => $fresh['request_key'], 'amount' => '40000']);
+        $this->assertSame('40000', IncomeTransaction::where('request_key', $fresh['request_key'])->sole()->entries()->sole()->amount);
     }
 
     public function test_archive_blocks_new_entries_but_allows_retry_of_a_saved_entry(): void
@@ -77,10 +77,10 @@ class BarberIncomeTest extends TestCase
         $service->forceFill(['archived_at' => now()])->save();
 
         $this->post(route('barber.entries.store'), $new)
-            ->assertRedirect(route('barber.entry-form'))->assertSessionHasErrors('service_id');
+            ->assertRedirect(route('barber.entry-form'))->assertSessionHasErrors('services.0.service_id');
         $this->post(route('barber.entries.store'), $saved)->assertRedirect(route('barber.dashboard'));
-        $this->assertDatabaseMissing('income_entries', ['request_key' => $new['request_key']]);
-        $this->assertSame(1, IncomeEntry::query()->where('request_key', $saved['request_key'])->count());
+        $this->assertDatabaseMissing('income_transactions', ['request_key' => $new['request_key']]);
+        $this->assertSame(1, IncomeTransaction::query()->where('request_key', $saved['request_key'])->count());
     }
 
     public function test_a_used_form_rejects_a_different_payload(): void
@@ -93,7 +93,7 @@ class BarberIncomeTest extends TestCase
         $this->post(route('barber.entries.store'), array_replace($payload, ['customer_name' => 'Ari']))
             ->assertRedirect(route('barber.entry-form'))->assertSessionHasErrors('request_key');
 
-        $this->assertSame('Andi', IncomeEntry::query()->where('request_key', $payload['request_key'])->sole()->customer_name);
+        $this->assertSame('Andi', IncomeTransaction::query()->where('request_key', $payload['request_key'])->sole()->customer_name);
     }
 
     public function test_sessions_with_the_same_name_have_separate_entries_and_form_keys(): void
@@ -122,10 +122,10 @@ class BarberIncomeTest extends TestCase
         $this->withCookie(config('session.cookie'), session()->getId());
         $this->startBarberSession();
         $this->get(route('barber.dashboard'))->assertOk()->assertSee('Belum ada pencatatan.');
-        $this->assertDatabaseHas('income_entries', ['request_key' => $first['request_key']]);
+        $this->assertDatabaseHas('income_transactions', ['request_key' => $first['request_key']]);
     }
 
-    public function test_validation_rejects_multiple_services_and_invalid_customer_names(): void
+    public function test_validation_rejects_a_malformed_legacy_service_and_invalid_customer_names(): void
     {
         $service = Service::factory()->create();
         $this->startBarberSession();
@@ -133,9 +133,9 @@ class BarberIncomeTest extends TestCase
         $payload = array_replace($form, ['service_id' => [$service->id], 'customer_name' => str_repeat('A', 121)]);
 
         $this->post(route('barber.entries.store'), $payload)
-            ->assertRedirect(route('barber.entry-form'))->assertSessionHasErrors(['service_id', 'customer_name']);
+            ->assertRedirect(route('barber.entry-form'))->assertSessionHasErrors(['services.0.service_id', 'customer_name']);
         $this->get(route('barber.entry-form'))->assertOk();
-        $this->assertDatabaseMissing('income_entries', ['request_key' => $form['request_key']]);
+        $this->assertDatabaseMissing('income_transactions', ['request_key' => $form['request_key']]);
     }
 
     public function test_store_requires_a_guest_barber_session(): void

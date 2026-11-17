@@ -24,7 +24,7 @@ class BarberSessionTest extends TestCase
 
         $this->assertGuest();
         $this->assertSame($userCount, User::query()->count());
-        $this->get(route('barber.dashboard'))->assertOk()->assertSee('Bayu')->assertSee('Tambah');
+        $this->get(route('barber.dashboard'))->assertOk()->assertSee('Bayu')->assertSee('Layanan')->assertSee('Produk');
     }
 
     #[DataProvider('invalidNames')]
@@ -46,6 +46,7 @@ class BarberSessionTest extends TestCase
     {
         $this->get(route('barber.dashboard'))->assertRedirect(route('home'));
         $this->get(route('barber.entry-form'))->assertRedirect(route('home'));
+        $this->get(route('barber.product-form'))->assertRedirect(route('home'));
     }
 
     public function test_a_barber_cannot_access_owner_routes_and_can_end_the_session(): void
