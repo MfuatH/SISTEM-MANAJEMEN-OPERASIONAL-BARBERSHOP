@@ -50,7 +50,7 @@ Saat menindaklanjuti uji manual, migrasi tersebut diterapkan pada `barbershop_de
 
 ## Revisi kebutuhan setelah merge
 
-**Status revisi** Implementasi dan pengujian selesai untuk review pada `feat/slice-05-multi-layanan`. Form **Layanan** memuat satu atau beberapa layanan dengan produk opsional. Form **Produk** mencatat penjualan produk saja. Katalog Owner memasok kedua form. [Desain revisi](Desain-Database-MySQL-Barbershop.md#11-usulan-revisi-slice-05--transaksi-multi-layanan-dan-pilihan-produk)
+**Status revisi** Implementasi dan pengujian selesai untuk review pada `feat/slice-05-multi-layanan`. [PR #7](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/7). Form **Layanan** memuat satu atau beberapa layanan dengan produk opsional. Form **Produk** mencatat penjualan produk saja. Katalog Owner memasok kedua form. [Desain revisi](Desain-Database-MySQL-Barbershop.md#11-usulan-revisi-slice-05--transaksi-multi-layanan-dan-pilihan-produk)
 
 **Acuan lapangan** Dua foto rekap manual menunjukkan perhitungan harian Rp344.000 dan rekap komisi bulanan yang memisahkan komisi jasa dari komisi produk. Pengguna menetapkan rekap komisi bulanan di luar lingkup aplikasi. [Pembacaan dan hitungan rekap manual](Desain-Database-MySQL-Barbershop.md#acuan-rekap-manual)
 
@@ -78,6 +78,12 @@ Saat menindaklanjuti uji manual, migrasi tersebut diterapkan pada `barbershop_de
 3. Mulai sesi Kapster. Klik **Layanan**, pilih kedua layanan, isi produk dipakai pada salah satu layanan, lalu tambahkan penjualan dua unit. Periksa total Rp80.000 sebelum klik **Simpan**. Dashboard seharusnya menampilkan tiga baris dengan satu ID transaksi.
 4. Klik **Produk**, pilih dua unit produk dengan harga satuan yang sama, dan simpan. Dashboard seharusnya menampilkan satu baris penjualan baru senilai Rp30.000 dengan ID transaksi baru.
 5. Untuk mengulang suite, jalankan `php artisan migrate --env=testing` lalu `php artisan test --env=testing`.
+
+### Jika tabel transaksi induk belum ditemukan
+
+Pesan `barbershop_dev.income_transactions doesn't exist` muncul jika kode revisi sudah berjalan dan migrasi revisi masih tertunda. Dari folder proyek dengan PHP 8.5, jalankan `php artisan migrate:status` untuk memeriksa database pengembangan. Jika migrasi `000006`–`000008` masih `Pending`, jalankan `php artisan migrate`. Setelah ketiganya berstatus `Ran`, muat ulang dashboard.
+
+Saat uji manual, ketiga migrasi diterapkan pada `barbershop_dev`. Perbandingan ID, waktu, nominal, data sesi, dan kunci kirim ulang menunjukkan catatan lama tetap sama. Dashboard, form Layanan, dan form Produk masing-masing mengembalikan HTTP 200.
 
 ## Kelanjutan
 
