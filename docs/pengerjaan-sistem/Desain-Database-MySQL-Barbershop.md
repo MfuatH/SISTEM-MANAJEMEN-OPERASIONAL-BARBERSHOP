@@ -56,7 +56,8 @@ Satu Owner dapat mencatat nol hingga banyak pengeluaran. Satu record `sessions` 
 | K6 | **Dikonfirmasi.** Pencatatan memakai layanan dan nominal, dengan aksi Kapster sebatas menambah. **Tafsiran draf.** Koreksi dan pembatalan yang diaktifkan berada di area Owner. | Slice 05 memakai waktu server dalam UTC. Kebutuhan mencatat pemasukan mundur masih terbuka. Sebelum Slice 08, pastikan cakupan koreksi atau pembatalan Owner, perlakuan periode, dan histori audit. Metode pembayaran dikeluarkan dari skema. |
 | K7 | **Dikonfirmasi.** Owner dan Admin adalah dua sebutan untuk akun yang sama. | Satu jenis akun Owner. Slice 01 menambahkan username dan menghapus atribut email akun. |
 | K8 | Apakah Forecasting disetujui, posisi prediksi di mana, dan apa yang diproyeksikan? Apakah data Juli–September 2026 masih diperlukan? | Usulan targetnya pemasukan bulanan, memakai empat bulan aktual terakhir yang sudah lengkap pada grafik dan dua bulan prediksi sesudahnya. Frasa “6 bulan kebelakang” juga dapat berarti dua prediksi atas bulan historis. Konfirmasi arti tersebut, sumber data, dan ketentuan baru sebelum Slice 11–12. |
-| K9 | **Dikonfirmasi.** Pilihan produk di form Kapster bersifat opsional. Owner menambahkan pilihan produk. **Terbuka.** Apakah produk dipilih per layanan atau per transaksi? Apakah pemakaian produk memengaruhi harga atau stok? | Usulan awal memakai satu dropdown opsional per item layanan dan katalog `products` yang dikelola Owner. Lokasi FK dan aturan harga atau stok mengikuti keputusan ini. |
+| K9 | **Dikonfirmasi.** Pilihan produk di form Kapster bersifat opsional. Owner menambahkan pilihan produk. **Terbuka.** Apakah dropdown mencatat pemakaian, penjualan, atau keduanya? Apakah pilihan berlaku per layanan atau per transaksi? Apakah stok perlu dicatat? | Usulan awal memakai satu dropdown opsional per item layanan. Foto rekap menunjukkan bagian Penjualan produk. Harga jual atau komisi produk perlu ditetapkan terpisah jika penjualan juga dicatat. |
+| K10 | **Terbuka.** Apakah rekap komisi bulanan Kapster akan didigitalisasi? | Jika disetujui, konfirmasi dasar komisi jasa, komisi per produk terjual, tambahan dan pembayaran, serta cara menggabungkan catatan Kapster antar sesi. |
 
 ## 3. Kamus tabel lainnya
 
@@ -275,6 +276,18 @@ Contoh mengikuti keputusan satu layanan per simpan dan memakai harga katalog. `L
 - Kapster dapat memilih satu atau beberapa layanan dalam satu form dan menyimpannya sekali. Nama Kapster diambil dari sesi, sedangkan nama pelanggan tetap opsional.
 - Form Kapster memiliki dropdown **Produk (opsional)**. Owner menambahkan pilihan produk melalui area Owner.
 - Pemasukan Owner pada Slice 06 menampilkan satu baris per item layanan. Item dari transaksi yang sama memiliki ID transaksi yang sama. Total pemasukan menjumlahkan nilai setiap item dalam cakupan daftar atau ekspor.
+
+### Acuan rekap manual
+
+Dua foto yang diberikan pengguna menjadi acuan untuk memisahkan laporan pemasukan barbershop dan perhitungan komisi Kapster. Angka berikut dibaca dari contoh kertas.
+
+| Acuan | Perhitungan yang dapat dicocokkan | Dampak pada desain |
+| --- | --- | --- |
+| Gambar 1 · rekap harian | 18 × Rp18.000 + Keramas Rp5.000 + Hair Tonic Rp15.000 = Rp344.000. | Periksa apakah Hair Tonic di form mewakili barang terjual, produk yang dipakai untuk layanan, atau keduanya. Tulisan QRIS dan Rp230.000 perlu penjelasan sebelum dimasukkan ke rekonsiliasi. |
+| Gambar 2 · komisi jasa bulanan | 300 × Rp18.000 + tambahan Rp25.000 + 11 × Rp5.000 = Rp5.480.000. Komisi contoh 45% × Rp5.480.000 = Rp2.466.000. | Konfirmasi dasar komisi jasa, arti tambahan Rp25.000, dan apakah tarif komisi sama untuk semua Kapster. |
+| Gambar 2 · komisi produk dan total Kapster | Bagian Penjualan produk menunjukkan komisi Rp9.000 + Rp3.000 + Rp8.000 + Rp2.000 = Rp22.000. Komisi jasa, komisi produk, serta dua tambahan Rp91.000 dan Rp910.000 berjumlah Rp3.489.000. Kolom Gaji yang diterima tertulis Rp3.500.000. | Jika komisi masuk lingkup, bedakan harga jual produk, komisi produk, dan total yang dibayarkan kepada Kapster. Selisih Rp11.000 antara total dan pembayaran membutuhkan aturan dari Owner. |
+
+Jika Owner mengonfirmasi pencatatan penjualan produk, usulkan rincian penjualan yang menyimpan jumlah, harga jual per unit, dan komisi per unit saat transaksi sesuai cakupan K9–K10. Daftar Owner menampilkan penjualan yang dikonfirmasi sebagai item pemasukan. Jika pilihan hanya menunjukkan produk yang digunakan, simpan sebagai keterangan pemakaian. Jika rekap komisi per Kapster disetujui, sepakati cara menggabungkan sesi dengan nama sama atau yang berbeda ejaan sebelum perhitungan dipakai sebagai dasar pembayaran.
 
 ### Skema yang diusulkan
 

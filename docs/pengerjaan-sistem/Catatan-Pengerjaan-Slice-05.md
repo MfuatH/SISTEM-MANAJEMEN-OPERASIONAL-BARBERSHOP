@@ -52,6 +52,8 @@ Saat menindaklanjuti uji manual, migrasi tersebut diterapkan pada `barbershop_de
 
 **Status revisi** Dalam desain pada `feat/slice-05-multi-layanan`. Kapster dapat menyimpan beberapa layanan dalam satu transaksi. Owner melihat pemasukan per item. Form Kapster juga memuat dropdown produk opsional, dan Owner menambahkan pilihan produk. Lokasi pilihan produk dan dampaknya terhadap harga atau stok masih terbuka. [Usulan revisi desain](Desain-Database-MySQL-Barbershop.md#11-usulan-revisi-slice-05--transaksi-multi-layanan-dan-pilihan-produk)
 
+**Acuan lapangan** Dua foto rekap manual menunjukkan catatan harian Rp344.000 dan perhitungan komisi Kapster bulanan. Bagian Penjualan produk pada foto bulanan mencatat komisi produk terpisah dari komisi jasa. Konfirmasi dahulu apakah dropdown Kapster mencatat penggunaan produk, penjualan, atau keduanya. Rekap komisi bulanan menjadi keputusan lingkup tersendiri. [Pembacaan dan hitungan rekap manual](Desain-Database-MySQL-Barbershop.md#acuan-rekap-manual)
+
 ## Kelanjutan
 
 Setelah revisi Slice 05 disepakati serta diuji, Slice 06 membaca rincian layanan untuk halaman Pemasukan Owner. Daftar bulan berjalan, pencarian, dan ekspor Excel memakai sumber per item yang sama. [Urutan pengerjaan per slice](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
