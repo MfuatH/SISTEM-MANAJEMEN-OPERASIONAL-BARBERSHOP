@@ -2,7 +2,7 @@
 
 - **Pemeriksaan** 17 November 2026
 - **Branch** `codex/slice-05-pencatatan-kapster`
-- **Status** Implementasi dan pengujian selesai untuk review. [Branch Slice 05](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/tree/codex/slice-05-pencatatan-kapster)
+- **Status** Implementasi dan pengujian selesai untuk review. [PR Slice 05](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/5)
 
 ## Dasar pengerjaan
 
@@ -41,6 +41,12 @@ Pengujian ini memberi bukti awal untuk KP-02, KP-04, dan KP-05. Bukti pencarian,
 3. Buka beranda sebagai tamu, mulai sesi dengan nama Bayu, lalu klik **Tambah**. Simpan Layanan A dengan nama pelanggan Andi. Klik **Tambah** lagi dan simpan Layanan B dengan nama kosong. Dashboard menampilkan dua catatan dan menunjukkan tanda `—` untuk nama kosong.
 4. Ubah harga katalog Layanan A sebagai Owner di browser terpisah. Pastikan catatan lama tetap Rp35.000 dan form baru menampilkan harga terbaru.
 5. Untuk mengulang suite, jalankan `php artisan migrate --env=testing` lalu `php artisan test --env=testing`.
+
+### Jika tabel pemasukan belum ditemukan
+
+Pesan `barbershop_dev.income_entries doesn't exist` saat membuka dashboard berarti migrasi Slice 05 belum diterapkan pada database pengembangan. Dari terminal PHP 8.5, jalankan `php artisan migrate:status` untuk memeriksa database pengembangan, lalu jalankan `php artisan migrate` jika migrasi `0001_01_01_000005_create_income_entries_table` masih `Pending`. Setelah statusnya `Ran`, muat ulang dashboard.
+
+Saat menindaklanjuti uji manual, migrasi tersebut diterapkan pada `barbershop_dev`. Dashboard Kapster dan form Tambah kemudian berhasil dibuka dengan status HTTP 200 melalui server lokal yang sedang berjalan.
 
 ## Kelanjutan
 
