@@ -121,7 +121,7 @@ Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [P
 | 03 | Kapster memulai dan mengakhiri sesi dengan nama teks. Dashboard dilindungi sesi dan menyediakan pratinjau layanan dan harga. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-03.md) |
 | 04 | Master pelanggan. Nama pelanggan cukup sebagai keterangan opsional pada pencatatan Slice 05. | Dilewati |
 | 05 | Simpan satu layanan, nama Kapster dari sesi, nama pelanggan opsional, dan snapshot harga. Setiap layanan tambahan disimpan sebagai pencatatan terpisah. | Selesai dan disetujui. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-05.md) |
-| 05 (revisi) | Satu transaksi Kapster memuat beberapa layanan dan dapat mencatat produk dipakai serta dijual. Owner menambahkan produk ke katalog. | Desain. [Usulan revisi](docs/pengerjaan-sistem/Desain-Database-MySQL-Barbershop.md#11-usulan-revisi-slice-05--transaksi-multi-layanan-dan-pilihan-produk) |
+| 05 (revisi) | Transaksi Kapster wajib memuat minimal satu layanan. Produk yang dipakai atau dijual bersifat opsional. Owner menambahkan produk ke katalog. | Desain. [Usulan revisi](docs/pengerjaan-sistem/Desain-Database-MySQL-Barbershop.md#11-usulan-revisi-slice-05--transaksi-multi-layanan-dan-pilihan-produk) |
 | 06 | Pemasukan Owner menampilkan bulan berjalan per item layanan dan penjualan produk. Hasil pencarian dan XLSX dapat direkonsiliasi. | Direncanakan setelah revisi Slice 05 |
 | 07 | Owner mencatat pengeluaran dengan ID buatan sistem. Riwayat dan XLSX mengikuti bulan berjalan. | Direncanakan |
 | 08 | Jika disetujui, Owner menjalankan tindakan koreksi yang dicatat untuk audit. | Bersyarat |

@@ -50,7 +50,7 @@ Saat menindaklanjuti uji manual, migrasi tersebut diterapkan pada `barbershop_de
 
 ## Revisi kebutuhan setelah merge
 
-**Status revisi** Dalam desain pada `feat/slice-05-multi-layanan`. Kapster dapat menyimpan beberapa layanan, mencatat produk yang dipakai, dan mencatat penjualan produk dalam transaksi yang sama. Pilihan produk bersifat opsional dan ditambah Owner. Pemasukan Owner tampil per item layanan dan penjualan produk. [Usulan revisi desain](Desain-Database-MySQL-Barbershop.md#11-usulan-revisi-slice-05--transaksi-multi-layanan-dan-pilihan-produk)
+**Status revisi** Dalam desain pada `feat/slice-05-multi-layanan`. Transaksi Kapster wajib memuat minimal satu layanan. Produk yang dipakai dan dijual bersifat opsional. Owner menambahkan pilihan produk, dan halaman Pemasukan Owner tampil per item layanan serta penjualan. Uji revisi mencakup penolakan transaksi yang hanya berisi penjualan produk. [Usulan revisi desain](Desain-Database-MySQL-Barbershop.md#11-usulan-revisi-slice-05--transaksi-multi-layanan-dan-pilihan-produk)
 
 **Acuan lapangan** Dua foto rekap manual menunjukkan perhitungan harian Rp344.000 dan rekap komisi bulanan yang memisahkan komisi jasa dari komisi produk. Pengguna menetapkan rekap komisi bulanan di luar lingkup aplikasi. [Pembacaan dan hitungan rekap manual](Desain-Database-MySQL-Barbershop.md#acuan-rekap-manual)
 
