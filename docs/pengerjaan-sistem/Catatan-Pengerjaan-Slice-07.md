@@ -2,6 +2,8 @@
 
 **17 November 2026 · Dalam review · Branch `feat/slice-07-pengeluaran-owner`**
 
+[PR #11 ke `main`](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/11)
+
 ## Status pengerjaan
 
 Slice 07 menyediakan pencatatan pengeluaran manual untuk Owner, riwayat bulan berjalan WIB, pencarian, total, dan unduhan Excel. Menu **Pengeluaran** ditautkan dari Home Owner. Dasarnya adalah autentikasi Slice 01 dan pola laporan Slice 06. [Desain database](Desain-Database-MySQL-Barbershop.md#3-kamus-tabel-lainnya) · [Catatan Slice 06](Catatan-Pengerjaan-Slice-06.md)
