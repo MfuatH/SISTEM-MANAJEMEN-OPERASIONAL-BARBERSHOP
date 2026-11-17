@@ -50,7 +50,7 @@ Saat menindaklanjuti uji manual, migrasi tersebut diterapkan pada `barbershop_de
 
 ## Revisi kebutuhan setelah merge
 
-**Status revisi** Dalam review pada `feat/slice-05-multi-layanan`. Form **Layanan** memiliki bagian layanan dan penjualan produk opsional. Form **Produk** mencatat penjualan saja. Katalog layanan Owner menyediakan **Aktifkan kembali** dan **Hapus** sesuai riwayat layanan. [PR #7](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/7) · [Desain revisi](Desain-Database-MySQL-Barbershop.md#11-usulan-revisi-slice-05--transaksi-multi-layanan-dan-pilihan-produk)
+**Status revisi** Disetujui dan di-merge ke `main` pada commit `3762ae0` melalui branch `feat/slice-05-multi-layanan`. Form **Layanan** memiliki bagian layanan dan penjualan produk opsional. Form **Produk** mencatat penjualan saja. Katalog layanan Owner menyediakan **Aktifkan kembali** dan **Hapus** sesuai riwayat layanan. [PR #7](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/7) · [Desain revisi](Desain-Database-MySQL-Barbershop.md#11-usulan-revisi-slice-05--transaksi-multi-layanan-dan-pilihan-produk)
 
 **Acuan lapangan** Dua foto rekap manual menunjukkan perhitungan harian Rp344.000 dan rekap komisi bulanan yang memisahkan komisi jasa dari komisi produk. Pengguna menetapkan rekap komisi bulanan di luar lingkup aplikasi. [Pembacaan dan hitungan rekap manual](Desain-Database-MySQL-Barbershop.md#acuan-rekap-manual)
 
@@ -90,4 +90,4 @@ Saat uji manual, ketiga migrasi diterapkan pada `barbershop_dev`. Perbandingan I
 
 ## Kelanjutan
 
-Setelah revisi Slice 05 disepakati serta diuji, Slice 06 membaca rincian layanan dan penjualan produk untuk halaman Pemasukan Owner. Daftar bulan berjalan, pencarian, dan ekspor Excel memakai sumber per item yang sama. [Urutan pengerjaan per slice](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
+Slice 06 sudah memakai rincian layanan dan penjualan produk untuk halaman Pemasukan Owner. Daftar bulan berjalan, pencarian, dan ekspor Excel memakai sumber per item yang sama. [Catatan Slice 06](Catatan-Pengerjaan-Slice-06.md)

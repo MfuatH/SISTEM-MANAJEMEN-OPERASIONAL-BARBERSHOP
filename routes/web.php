@@ -3,6 +3,7 @@
 use App\Http\Controllers\BarberIncomeController;
 use App\Http\Controllers\BarberSessionController;
 use App\Http\Controllers\OwnerAuthController;
+use App\Http\Controllers\OwnerIncomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Middleware\EnsureBarberSession;
@@ -38,6 +39,8 @@ Route::prefix('owner')->group(function (): void {
         Route::post('logout', [OwnerAuthController::class, 'destroy'])->name('owner.logout');
 
         Route::name('owner.')->group(function (): void {
+            Route::get('pemasukan', [OwnerIncomeController::class, 'index'])->name('income.index');
+            Route::get('pemasukan/ekspor', [OwnerIncomeController::class, 'export'])->name('income.export');
             Route::resource('services', ServiceController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
             Route::patch('services/{service}/archive', [ServiceController::class, 'archive'])->name('services.archive');
             Route::patch('services/{service}/restore', [ServiceController::class, 'restore'])->name('services.restore');
