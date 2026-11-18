@@ -100,6 +100,16 @@ Aplikasi Laravel ditempatkan di root repositori. Rencana tampilan Kapster dan Ow
 
 Jalankan `php artisan migrate`, lalu `php artisan owner:create pemilik --name="Pemilik"` pada lingkungan lokal. Masukkan kata sandi saat diminta, lalu buka `/owner/login`. Perintah membuat akun Owner dengan username dan kata sandi. Nama hanya digunakan untuk tampilan.
 
+Untuk akun demo lokal, isi `LOCAL_OWNER_PASSWORD` di `.env` dengan kata sandi minimal 12 karakter dan maksimal 72 byte. Username bawaan seeder adalah `pemilik_demo`, dan dapat diubah melalui `LOCAL_OWNER_USERNAME`. Jalankan perintah berikut dengan PHP 8.5 dari direktori proyek.
+
+```cmd
+php artisan config:clear
+php artisan migrate
+php artisan db:seed --class=LocalOwnerSeeder
+```
+
+Masuk melalui `/owner/login` dengan username dan kata sandi yang dipilih. Jika username sudah terdaftar, seeder memakai akun tersebut sebagaimana tersimpan. [Catatan seeder Owner](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-01.md#seeder-akun-owner-lokal)
+
 Untuk menguji alur di MySQL, jalankan `php artisan migrate --env=testing`, lalu `php artisan test --env=testing`.
 
 ### Mencoba katalog layanan dan produk

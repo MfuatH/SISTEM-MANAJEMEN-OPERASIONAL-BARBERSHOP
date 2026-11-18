@@ -114,4 +114,10 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    'local_owner' => [
+        'username' => env('LOCAL_OWNER_USERNAME', 'pemilik_demo'),
+        'name' => env('LOCAL_OWNER_NAME', 'Pemilik Demo'),
+        'password' => env('LOCAL_OWNER_PASSWORD'),
+    ],
+
 ];
