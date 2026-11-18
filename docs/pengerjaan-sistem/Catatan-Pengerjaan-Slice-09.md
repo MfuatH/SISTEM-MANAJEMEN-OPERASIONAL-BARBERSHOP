@@ -2,6 +2,8 @@
 
 **18 November 2026 · Dalam review · Branch `feat/slice-09-rekap-owner`**
 
+[PR #13 ke `main`](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/13)
+
 ## Status dan keputusan
 
 Rekap Owner menggabungkan pemasukan per item dari layanan dan penjualan produk dengan pengeluaran manual dari Slice 07. **Hasil bersih tercatat** menjadi bagian wajib dari ringkasan Rekap dan ekspor Excel. Rumusnya adalah **total pemasukan − total pengeluaran** untuk periode yang sama. [Keputusan K11](Desain-Database-MySQL-Barbershop.md#2-perubahan-kebutuhan-dan-keputusan-terbuka)
