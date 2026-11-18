@@ -20,6 +20,10 @@
         .table-scroll { overflow-x: auto; }
         .report-page { width: min(76rem, calc(100% - 2rem)); }
         .report-page input[type="search"] { max-width: 28rem; }
+        .recap-filters, .recap-totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: 1rem; }
+        .recap-filters .field { margin-bottom: .5rem; }
+        .recap-totals div { border: 1px solid #d8dfd9; border-radius: .5rem; padding: .65rem .85rem; }
+        .recap-totals dd { margin: .2rem 0 0; font-size: 1.2rem; font-weight: 600; font-variant-numeric: tabular-nums; }
         .number { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
         .report-time { white-space: nowrap; }
         caption { text-align: left; font-weight: 600; }

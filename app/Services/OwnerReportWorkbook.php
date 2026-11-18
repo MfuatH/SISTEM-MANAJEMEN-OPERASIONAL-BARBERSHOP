@@ -15,9 +15,16 @@ class OwnerReportWorkbook
      * @param  list<string>  $headings
      * @param  list<int>  $widths
      * @param  iterable<array{cells: list<Cell>, amount: string}>  $rows
+     * @param  list<Row>  $summaryRows
      */
-    public function write(string $sheetName, array $headings, array $widths, string $totalLabel, iterable $rows): void
-    {
+    public function write(
+        string $sheetName,
+        array $headings,
+        array $widths,
+        string $totalLabel,
+        iterable $rows,
+        array $summaryRows = [],
+    ): void {
         $writer = new Writer;
         $writer->openToFile('php://output');
 
@@ -39,6 +46,13 @@ class OwnerReportWorkbook
                 0 => new StringCell($totalLabel),
                 count($headings) - 1 => $this->amountCell((string) $total),
             ]));
+
+            if ($summaryRows !== []) {
+                $summary = $writer->addNewSheetAndMakeItCurrent();
+                $summary->setName('Ringkasan');
+                $summary->setColumnWidth(32, 1, 2);
+                $writer->addRows($summaryRows);
+            }
         } finally {
             $writer->close();
         }
@@ -47,6 +61,6 @@ class OwnerReportWorkbook
     public function amountCell(string $amount): NumericCell|StringCell
     {
         // Excel numeric cells retain up to 15 significant digits.
-        return strlen($amount) <= 15 ? new NumericCell((int) $amount) : new StringCell($amount);
+        return strlen(ltrim($amount, '-')) <= 15 ? new NumericCell((int) $amount) : new StringCell($amount);
     }
 }
