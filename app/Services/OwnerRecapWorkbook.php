@@ -16,7 +16,7 @@ class OwnerRecapWorkbook
             'Rekap',
             ['Tanggal (WIB)', 'Jenis', 'Kategori', 'ID referensi', 'Kapster', 'Pelanggan', 'Rincian', 'Nominal (Rp)'],
             [18, 18, 23, 20, 22, 22, 42, 22],
-            'Total nominal rincian',
+            OwnerRecapReport::DETAIL_TOTAL_LABEL,
             $report->query()->cursor()->map(fn (object $item): array => [
                 'cells' => [
                     new StringCell($item->business_date),
@@ -35,6 +35,7 @@ class OwnerRecapWorkbook
                 new Row([new StringCell('Total pengeluaran (Rp)'), $this->workbook->amountCell($summary['expenses'])]),
                 new Row([new StringCell('Hasil bersih tercatat (Rp)'), $this->workbook->amountCell($summary['net'])]),
             ],
+            footerTotals: $report->detailTotals(),
         );
     }
 }

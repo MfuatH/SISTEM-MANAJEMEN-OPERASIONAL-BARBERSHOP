@@ -122,7 +122,7 @@ Di `main`, jalankan `php artisan migrate` pada `barbershop_dev`, lalu masuk seba
 
 ### Mencoba Rekap Owner
 
-Pada branch Slice 09, masuk sebagai Owner dan buka **Rekap**. Pilih bulan atau kosongkan untuk melihat seluruh histori. Gunakan jenis dan pencarian untuk menyaring rincian. Ringkasan menampilkan pemasukan, pengeluaran, dan hasil bersih untuk periode yang sama. Ekspor Excel menyediakan lembar **Rekap** dan **Ringkasan**. Slice ini memakai migrasi Slice 00–07 yang sudah ada. [Cara meninjau Slice 09](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-09.md#cara-meninjau)
+Pada branch Slice 09, masuk sebagai Owner dan buka **Rekap**. Pilih bulan atau kosongkan untuk melihat seluruh histori. Gunakan jenis dan pencarian untuk menyaring rincian. Saat **Semua jenis** dipilih, tabel juga menampilkan total pendapatan kotor dan bersih dari hasil filter. Ringkasan menampilkan pemasukan, pengeluaran, dan hasil bersih untuk periode yang sama. Ekspor Excel menyediakan lembar **Rekap** dan **Ringkasan**. Slice ini memakai migrasi Slice 00–07 yang sudah ada. [Cara meninjau Slice 09](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-09.md#cara-meninjau)
 
 ## Status pengerjaan per slice
 

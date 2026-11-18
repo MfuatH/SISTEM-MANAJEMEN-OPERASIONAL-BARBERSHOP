@@ -12,6 +12,8 @@ class OwnerRecapReport extends OwnerReport
 {
     public const TYPES = ['IN' => 'Pemasukan', 'OUT' => 'Pengeluaran'];
 
+    public const DETAIL_TOTAL_LABEL = 'Total nominal rincian';
+
     private readonly ?CarbonImmutable $month;
 
     public function __construct(
@@ -60,7 +62,30 @@ class OwnerRecapReport extends OwnerReport
     /** @return array{income: string, expenses: string, net: string} */
     public function summary(): array
     {
-        $totals = $this->periodItems()
+        return $this->totals($this->periodItems());
+    }
+
+    /** @return array<string, string> */
+    public function detailTotals(): array
+    {
+        $details = $this->query();
+        if ($this->type !== null) {
+            return [self::DETAIL_TOTAL_LABEL => (string) $details->sum('amount')];
+        }
+
+        $totals = $this->totals($details);
+
+        return [
+            self::DETAIL_TOTAL_LABEL => (string) BigInteger::of($totals['income'])->plus($totals['expenses']),
+            'Total pendapatan kotor' => $totals['income'],
+            'Total pendapatan bersih' => $totals['net'],
+        ];
+    }
+
+    /** @return array{income: string, expenses: string, net: string} */
+    private function totals(Builder $items): array
+    {
+        $totals = $items->reorder()
             ->selectRaw("COALESCE(SUM(CASE WHEN entry_type = 'IN' THEN amount ELSE 0 END), 0) AS income,
                 COALESCE(SUM(CASE WHEN entry_type = 'OUT' THEN amount ELSE 0 END), 0) AS expenses")
             ->first();

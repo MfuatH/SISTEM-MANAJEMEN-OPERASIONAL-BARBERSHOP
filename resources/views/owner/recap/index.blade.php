@@ -98,10 +98,12 @@
                 @endforelse
             </tbody>
             <tfoot>
-                <tr>
-                    <th scope="row" colspan="7">Total nominal rincian</th>
-                    <td class="number">{{ $report::rupiah($detailTotal) }}</td>
-                </tr>
+                @foreach ($detailTotals as $label => $amount)
+                    <tr>
+                        <th scope="row" colspan="7">{{ $label }}</th>
+                        <td class="number">{{ $report::rupiah($amount) }}</td>
+                    </tr>
+                @endforeach
             </tfoot>
         </table>
     </div>

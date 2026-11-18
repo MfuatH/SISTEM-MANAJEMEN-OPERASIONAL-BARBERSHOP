@@ -48,21 +48,26 @@ class OwnerRecapTest extends TestCase
         $filters = ['month' => '2026-09'];
         $page = $this->get(route('owner.recap.index', $filters))->assertOk()
             ->assertSee('September 2026')->assertSee('Rp85.000')->assertSee('Rp20.000')->assertSee('Rp65.000')
+            ->assertSee('Total pendapatan kotor')->assertSee('Total pendapatan bersih')
             ->assertSee(Expense::reference($expense->id))->assertDontSee('Layanan Oktober')->assertDontSee('Kebersihan Oktober');
         $this->assertSame(4, $page->viewData('items')->total());
-        $this->assertSame('105000', $page->viewData('detailTotal'));
+        $this->assertSame([
+            'Total nominal rincian' => '105000',
+            'Total pendapatan kotor' => '85000',
+            'Total pendapatan bersih' => '65000',
+        ], $page->viewData('detailTotals'));
 
         $workbook = $this->readWorkbook($this->get(route('owner.recap.export', $filters))
             ->assertDownload('rekap-2026-09.xlsx'));
         $rows = $workbook['Rekap'];
-        $this->assertCount(6, $rows);
+        $this->assertCount(8, $rows);
         $items = array_slice($rows, 1, 4);
         foreach ($items as $item) {
             $this->assertSame('2026-09-30', $item->cells[0]->getValue());
         }
 
         $this->assertCount(3, array_filter($items, fn (Row $item) => $item->cells[3]->getValue() === (string) $september->id));
-        $this->assertSame(105000, $rows[5]->cells[7]->getValue());
+        $this->assertSame([105000, 85000, 65000], $this->detailFooterAmounts($rows));
         $this->assertSame(
             [85000, 20000, 65000],
             $this->summaryAmounts($workbook['Ringkasan']),
@@ -86,10 +91,11 @@ class OwnerRecapTest extends TestCase
 
         $filters = ['month' => '2026-09', 'type' => 'OUT', 'q' => '%_'];
         $page = $this->get(route('owner.recap.index', $filters))->assertOk()
-            ->assertSee('Berikutnya')->assertDontSee('Harga 100Xuji')->assertDontSee('Layanan 100%_uji');
+            ->assertSee('Berikutnya')->assertDontSee('Harga 100Xuji')->assertDontSee('Layanan 100%_uji')
+            ->assertDontSee('Total pendapatan kotor')->assertDontSee('Total pendapatan bersih');
         $this->assertSame(25, $page->viewData('items')->count());
         $this->assertSame(26, $page->viewData('items')->total());
-        $this->assertSame('26000', $page->viewData('detailTotal'));
+        $this->assertSame(['Total nominal rincian' => '26000'], $page->viewData('detailTotals'));
         $this->assertSame(['income' => '35000', 'expenses' => '28000', 'net' => '7000'], $page->viewData('summary'));
 
         $workbook = $this->readWorkbook($this->get(route('owner.recap.export', $filters + ['page' => 2])));
@@ -97,6 +103,22 @@ class OwnerRecapTest extends TestCase
         $this->assertSame('=Harga 100%_uji', $workbook['Rekap'][1]->cells[6]->getValue());
         $this->assertSame(26000, $workbook['Rekap'][27]->cells[7]->getValue());
         $this->assertSame([35000, 28000, 7000], $this->summaryAmounts($workbook['Ringkasan']));
+
+        $allTypes = ['month' => '2026-09', 'q' => '%_', 'type' => ''];
+        $all = $this->get(route('owner.recap.index', $allTypes + ['page' => 2]))->assertOk()
+            ->assertSee('Total pendapatan kotor')->assertSee('Total pendapatan bersih')->assertSee('Rp9.000');
+        $this->assertSame(27, $all->viewData('items')->total());
+        $this->assertSame([
+            'Total nominal rincian' => '61000',
+            'Total pendapatan kotor' => '35000',
+            'Total pendapatan bersih' => '9000',
+        ], $all->viewData('detailTotals'));
+        $this->assertSame($page->viewData('summary'), $all->viewData('summary'));
+
+        $allWorkbook = $this->readWorkbook($this->get(route('owner.recap.export', $allTypes)));
+        $this->assertCount(31, $allWorkbook['Rekap']);
+        $this->assertSame([61000, 35000, 9000], $this->detailFooterAmounts($allWorkbook['Rekap']));
+        $this->assertSame([35000, 28000, 7000], $this->summaryAmounts($allWorkbook['Ringkasan']));
     }
 
     public function test_search_accepts_income_transaction_and_expense_references(): void
@@ -110,6 +132,7 @@ class OwnerRecapTest extends TestCase
 
         $income = $this->get(route('owner.recap.index', ['type' => 'IN', 'q' => $transaction->id]))->assertOk();
         $this->assertSame(2, $income->viewData('items')->total());
+        $this->assertSame(['Total nominal rincian' => '50000'], $income->viewData('detailTotals'));
 
         $spending = $this->get(route('owner.recap.index', ['q' => Expense::reference($expense->id)]))->assertOk();
         $this->assertSame(1, $spending->viewData('items')->total());
@@ -129,6 +152,7 @@ class OwnerRecapTest extends TestCase
         $big = $this->readWorkbook($this->get(route('owner.recap.export', ['month' => '2026-10'])));
         $this->assertSame([0, '1999999999999998', '-1999999999999998'], $this->summaryAmounts($big['Ringkasan']));
         $this->assertInstanceOf(StringCell::class, $big['Ringkasan'][3]->cells[1]);
+        $this->assertSame(['1999999999999998', 0, '-1999999999999998'], $this->detailFooterAmounts($big['Rekap']));
 
         $negative = $this->readWorkbook($this->get(route('owner.recap.export', ['month' => '2026-09'])));
         $this->assertSame(-999999999999999, $negative['Ringkasan'][3]->cells[1]->getValue());
@@ -142,6 +166,7 @@ class OwnerRecapTest extends TestCase
 
         $emptyExport = $this->readWorkbook($this->get(route('owner.recap.export', ['month' => '2026-11'])));
         $this->assertSame([0, 0, 0], $this->summaryAmounts($emptyExport['Ringkasan']));
+        $this->assertSame([0, 0, 0], $this->detailFooterAmounts($emptyExport['Rekap']));
     }
 
     public function test_recap_and_export_require_an_active_owner_and_valid_filters(): void
@@ -187,6 +212,18 @@ class OwnerRecapTest extends TestCase
             'request_key' => (string) Str::uuid(),
             'request_hash' => hash('sha256', $description, true),
         ]);
+    }
+
+    /** @param list<Row> $rows */
+    private function detailFooterAmounts(array $rows): array
+    {
+        $totals = array_slice($rows, -3);
+        $this->assertSame(
+            ['Total nominal rincian', 'Total pendapatan kotor', 'Total pendapatan bersih'],
+            array_map(fn (Row $row) => $row->cells[0]->getValue(), $totals),
+        );
+
+        return array_map(fn (Row $row) => $row->cells[7]->getValue(), $totals);
     }
 
     private function summaryAmounts(array $rows): array

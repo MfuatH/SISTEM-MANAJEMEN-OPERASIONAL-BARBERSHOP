@@ -16,13 +16,13 @@ class OwnerRecapController extends Controller
     {
         $report = $this->report($request);
         $query = $report->query();
-        [$items, $detailTotal, $summary] = DB::transaction(fn () => [
-            (clone $query)->paginate(25)->appends($report->filters()),
-            (string) $query->sum('amount'),
+        [$items, $detailTotals, $summary] = DB::transaction(fn () => [
+            $query->paginate(25)->appends($report->filters()),
+            $report->detailTotals(),
             $report->summary(),
         ]);
 
-        return view('owner.recap.index', compact('report', 'items', 'detailTotal', 'summary'));
+        return view('owner.recap.index', compact('report', 'items', 'detailTotals', 'summary'));
     }
 
     public function export(Request $request, OwnerRecapWorkbook $workbook): StreamedResponse
