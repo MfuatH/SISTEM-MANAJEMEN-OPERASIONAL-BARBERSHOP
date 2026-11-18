@@ -37,9 +37,14 @@ class OwnerDashboardTest extends TestCase
 
         $dashboard = $this->get(route('owner.home', ['month' => '2026-10']))->assertOk()
             ->assertSee('November 2026')->assertSee('Grafik harian')->assertSee('03/11/2026')
-            ->assertSee('Rp85.000')->assertSee('Rp25.000')->assertDontSee('04/11/2026')
+            ->assertSee('Rp85.000')->assertSee('Rp25.000')->assertSee('Rp60.000')->assertDontSee('04/11/2026')
+            ->assertSee('Total hasil bersih bulan berjalan')->assertSee('Garis (Line Chart)')
+            ->assertSee('name="dashboard-chart-type" value="bar" checked', false)
+            ->assertSee('data-series="income" aria-pressed="true"', false)
+            ->assertSee('data-series="expenses" aria-pressed="true"', false)
+            ->assertSee('js/owner-dashboard.js')
             ->assertSee(route('owner.income.index'))->assertSee(route('owner.expenses.index'))->assertSee(route('owner.recap.index'));
-        $this->assertSame(['income' => '85000', 'expenses' => '25000'], $dashboard->viewData('totals'));
+        $this->assertSame(['income' => '85000', 'expenses' => '25000', 'net' => '60000'], $dashboard->viewData('totals'));
         $this->assertSame([
             ['date' => '2026-11-01', 'income' => '85000', 'expenses' => '0'],
             ['date' => '2026-11-02', 'income' => '0', 'expenses' => '20000'],
@@ -47,7 +52,7 @@ class OwnerDashboardTest extends TestCase
         ], $dashboard->viewData('days'));
 
         $recap = $this->get(route('owner.recap.index', ['month' => '2026-11']))->assertOk();
-        $this->assertSame($dashboard->viewData('totals'), array_intersect_key($recap->viewData('summary'), ['income' => true, 'expenses' => true]));
+        $this->assertSame($dashboard->viewData('totals'), $recap->viewData('summary'));
     }
 
     public function test_month_rollover_starts_a_zero_series_and_keeps_previous_month_in_recap(): void
@@ -68,11 +73,15 @@ class OwnerDashboardTest extends TestCase
         $this->travelTo(Carbon::parse('2026-11-30 17:00:00.000000', 'UTC'));
         $december = $this->get(route('owner.home'))->assertOk()
             ->assertSee('Desember 2026')->assertSee('Rp0')->assertDontSee('30/11/2026');
-        $this->assertSame(['income' => '0', 'expenses' => '0'], $december->viewData('totals'));
+        $this->assertSame(['income' => '0', 'expenses' => '0', 'net' => '0'], $december->viewData('totals'));
         $this->assertSame([['date' => '2026-12-01', 'income' => '0', 'expenses' => '0']], $december->viewData('days'));
 
         $recap = $this->get(route('owner.recap.index', ['month' => '2026-11']))->assertOk();
         $this->assertSame(['income' => '35000', 'expenses' => '5000', 'net' => '30000'], $recap->viewData('summary'));
+
+        $this->expense($owner, '2026-12-01', '5000');
+        $negative = $this->get(route('owner.home'))->assertOk()->assertSee('-Rp5.000');
+        $this->assertSame(['income' => '0', 'expenses' => '5000', 'net' => '-5000'], $negative->viewData('totals'));
     }
 
     private function transaction(string $recordedAt): IncomeTransaction

@@ -39,6 +39,10 @@
                         <dt>Total pengeluaran bulan berjalan</dt>
                         <dd>{{ App\Services\OwnerReport::rupiah($totals['expenses']) }}</dd>
                     </div>
+                    <div>
+                        <dt>Total hasil bersih bulan berjalan</dt>
+                        <dd>{{ App\Services\OwnerReport::rupiah($totals['net']) }}</dd>
+                    </div>
                 </dl>
             </section>
 

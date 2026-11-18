@@ -11,7 +11,7 @@ class OwnerDashboardReport
      * @return array{
      *     month: CarbonImmutable,
      *     today: CarbonImmutable,
-     *     totals: array{income: string, expenses: string},
+     *     totals: array{income: string, expenses: string, net: string},
      *     days: list<array{date: string, income: string, expenses: string}>
      * }
      */
@@ -46,7 +46,11 @@ class OwnerDashboardReport
         return [
             'month' => $month,
             'today' => $today,
-            'totals' => ['income' => (string) $income, 'expenses' => (string) $expenses],
+            'totals' => [
+                'income' => (string) $income,
+                'expenses' => (string) $expenses,
+                'net' => (string) $income->minus($expenses),
+            ],
             'days' => $days,
         ];
     }

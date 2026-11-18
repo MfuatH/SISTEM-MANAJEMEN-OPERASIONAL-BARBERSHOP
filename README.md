@@ -126,7 +126,7 @@ Di `main`, masuk sebagai Owner dan buka **Rekap**. Pilih bulan atau kosongkan un
 
 ### Mencoba Home Owner
 
-Pada branch Slice 10, masuk sebagai Owner dan buka **Home**. Cocokkan kartu pemasukan dan pengeluaran bulan berjalan WIB dengan **Rekap** pada bulan yang sama. Grafik menampilkan dua seri harian sejak tanggal 1 sampai hari ini. Klik **Lihat angka per hari** untuk memeriksa nominal grafik. [Cara meninjau Slice 10](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-10.md#cara-meninjau)
+Pada branch Slice 10, masuk sebagai Owner dan buka **Home**. Cocokkan kartu pemasukan, pengeluaran, dan hasil bersih bulan berjalan WIB dengan **Rekap** pada bulan yang sama. Pilih grafik **Batang** atau **Garis** dan aktifkan seri **Pemasukan** atau **Pengeluaran**. Klik **Lihat angka per hari** untuk memeriksa nominal grafik. [Cara meninjau Slice 10](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-10.md#cara-meninjau)
 
 ## Status pengerjaan per slice
 
@@ -144,7 +144,7 @@ Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [P
 | 07 | Owner mencatat pengeluaran dengan ID buatan sistem. Riwayat, pencarian, total, dan XLSX mengikuti bulan berjalan WIB. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-07.md) |
 | 08 | Tindakan koreksi Owner dan jejak audit menunggu penetapan cakupan. | Ditunda. Pengerjaan dilanjutkan ke Slice 09. |
 | 09 | Rekap menggabungkan pemasukan dan pengeluaran lintas periode dengan pencarian, filter, dan hasil bersih tercatat di halaman serta XLSX. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-09.md) |
-| 10 | Home Owner menampilkan total pemasukan dan pengeluaran bulan berjalan serta grafik harian WIB dari sumber Rekap. | Dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-10.md) |
+| 10 | Home Owner menampilkan total pemasukan, pengeluaran, dan hasil bersih bulan berjalan serta grafik harian WIB dengan pilihan Batang atau Garis dan tombol seri. | Dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-10.md) |
 | 11 | Bila sumber historis dipakai, rekonsiliasi CSV/Excel privat dan uji impor ulang. | Opsional |
 | 12 | Bila disetujui, perbarui tampilan empat bulan aktual dan dua prediksi setiap bulan. | Opsional |
 | 13 | Uji integrasi MySQL, pembatasan akses, rekonsiliasi laporan, ekspor, dan UAT. | Direncanakan |

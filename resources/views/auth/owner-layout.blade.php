@@ -34,12 +34,24 @@
         .dashboard-totals dd { margin: .2rem 0 0; font-size: 1.35rem; font-weight: 600; overflow-wrap: anywhere; }
         .dashboard-legend { display: flex; flex-wrap: wrap; gap: .75rem; }
         .dashboard-swatch { display: inline-block; width: .7rem; height: .7rem; margin-right: .35rem; border-radius: .15rem; }
-        .dashboard-income { background: #21664e; }
-        .dashboard-expenses { background: #a74c28; }
+        .dashboard-chart-section { --dashboard-income: #21664e; --dashboard-expenses: #a74c28; }
+        .dashboard-chart-section [hidden] { display: none; }
+        .dashboard-controls, .dashboard-series, .dashboard-chart-types label { display: flex; align-items: center; flex-wrap: wrap; gap: .55rem; }
+        .dashboard-controls { justify-content: space-between; margin-bottom: 1rem; }
+        .dashboard-chart-types { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem; margin: 0; padding: .4rem .75rem .55rem; }
+        .dashboard-chart-types input { width: auto; margin: 0; accent-color: #164b39; }
+        .dashboard-series { align-self: end; }
+        .dashboard-series button { padding: .4rem .65rem; border: 1px solid #89968e; background: white; color: #1b2522; }
+        .dashboard-series button[aria-pressed="true"] { background: #edf2ed; border-color: #164b39; }
+        .dashboard-series button[aria-pressed="false"] .dashboard-swatch { background: #abb3ad; }
+        .dashboard-income { background: var(--dashboard-income); }
+        .dashboard-expenses { background: var(--dashboard-expenses); }
         .dashboard-chart-area { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: .5rem; margin-bottom: .85rem; }
         .dashboard-axis { display: flex; flex-direction: column; justify-content: space-between; text-align: right; height: 10rem; max-width: 7.5rem; overflow-wrap: anywhere; font-size: .8rem; }
         .dashboard-chart-scroll { overflow-x: auto; }
-        .dashboard-chart { display: flex; gap: .3rem; width: max-content; min-width: 100%; }
+        .dashboard-chart { position: relative; display: flex; gap: .3rem; width: max-content; min-width: 100%; }
+        .dashboard-line { position: absolute; inset: 0 0 auto; width: 100%; height: 10rem; pointer-events: none; }
+        .dashboard-chart[data-type="line"] .dashboard-bar { visibility: hidden; }
         .dashboard-day { flex: 1 0 2rem; text-align: center; font-size: .8rem; }
         .dashboard-bars { height: 10rem; display: flex; justify-content: center; align-items: flex-end; gap: .15rem; border-bottom: 1px solid #89968e; background: repeating-linear-gradient(to top, transparent 0 calc(25% - 1px), #edf2ed calc(25% - 1px) 25%); }
         .dashboard-bar { display: block; width: .65rem; border-radius: .15rem .15rem 0 0; }
@@ -70,5 +82,6 @@
 </head>
 <body>
     <main class="@yield('main-class')">@yield('content')</main>
+    @stack('scripts')
 </body>
 </html>
