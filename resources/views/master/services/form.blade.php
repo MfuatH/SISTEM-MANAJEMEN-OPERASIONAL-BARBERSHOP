@@ -1,8 +1,8 @@
-@extends('auth.owner-layout')
+@extends('auth.owner-catalog')
 
 @section('title', $service->exists ? 'Ubah layanan' : 'Tambah layanan')
 
-@section('content')
+@section('catalog-content')
     <p><a href="{{ route('owner.services.index') }}">Kembali ke katalog</a></p>
     <h1>{{ $service->exists ? 'Ubah layanan' : 'Tambah layanan' }}</h1>
 

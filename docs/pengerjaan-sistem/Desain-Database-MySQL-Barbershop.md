@@ -68,7 +68,7 @@ Pada tabel usulan, `ID` berarti `BIGINT UNSIGNED`, dengan `AUTO_INCREMENT` untuk
 
 ### Tabel `services` · implementasi Slice 02
 
-**Isi dan fungsi.** Katalog pilihan layanan beserta harga aktif. Owner mengelola katalog di `/owner/services`. Endpoint baca-saja `GET /services/active` menyediakan `id`, `name`, dan `current_price` sebagai teks angka rupiah dari layanan dengan `archived_at IS NULL`. Satu layanan dapat dirujuk oleh banyak pemasukan.
+**Isi dan fungsi.** Katalog pilihan layanan beserta harga aktif. Owner mengelola katalog dari pop-up Pemasukan yang memuat `/owner/services`. Endpoint baca-saja `GET /services/active` menyediakan `id`, `name`, dan `current_price` sebagai teks angka rupiah dari layanan dengan `archived_at IS NULL`. Satu layanan dapat dirujuk oleh banyak pemasukan.
 
 | Kolom | Tipe | Kunci dan kegunaan |
 | --- | --- | --- |
@@ -130,7 +130,7 @@ Tabel berikut digunakan oleh infrastruktur Laravel. `sessions.user_id` dan `pass
 - **Pemasukan.** Form memuat pilihan satu layanan, dengan teks `Pilih layanan` saat pilihan kosong. Harga layanan yang dipilih tampil sebagai nilai baca-saja. Server mengambil nama Kapster dari sesi, menormalisasi nama pelanggan opsional, dan memeriksa layanan aktif. Transaksi memakai kunci baca pada baris katalog saat memvalidasi dan menyimpan snapshot. Jika harga yang dikirim berbeda dari harga katalog, form memuat harga terbaru dan meminta simpan ulang. Satu simpan berhasil menghasilkan satu baris pemasukan. Untuk layanan tambahan, buka form baru dan simpan dengan kunci permintaan baru. [Transaksi database Laravel](https://laravel.com/docs/13.x/database#database-transactions)
 - **Pengeluaran.** Owner mengisi tanggal, deskripsi, dan jumlah. Tanggal awal mengikuti WIB dan Owner dapat memilih tanggal lain yang valid. Server memvalidasi isian, mengambil pencatat dari sesi login, menyimpan waktu simpan UTC, dan menampilkan referensi `EXP-{id}`. Pengiriman dengan UUID, pencatat, dan payload yang sama memakai catatan yang sudah tersimpan, sedangkan isi berbeda untuk UUID yang sudah dipakai ditolak. [Catatan Slice 07](Catatan-Pengerjaan-Slice-07.md)
 - **Kirim ulang.** Server menerbitkan UUID baru dan tanda tangan HMAC untuk satu form. Saat menyimpan atau mengulang, server memverifikasi tanda tangan terhadap sesi aktif. Payload dinormalisasi untuk membentuk hash, termasuk nama Kapster, nama pelanggan opsional, layanan, dan harga yang dikonfirmasi. Kunci dan hash yang sama merujuk ke pemasukan yang sudah tersimpan. Jika isi berubah untuk kunci yang sudah dipakai, server meminta form baru. Jika pengiriman serentak menghasilkan konflik UQ, server membaca catatan yang menang dan mencocokkan sidik sesi serta hash payload. Ketentuan tersebut berlaku pada alur Kapster. Pengeluaran memakai aturan UUID per Owner pada alur di atas.
-- **Data lama.** Semua FK domain memakai `ON DELETE RESTRICT` dan `ON UPDATE RESTRICT`. Owner dapat menghapus layanan yang belum pernah dicatat. Layanan yang sudah tercatat dapat diarsipkan dan diaktifkan kembali. Snapshot layanan dan nama Kapster dipertahankan untuk Rekap lintas periode.
+- **Data lama.** Semua FK domain memakai `ON DELETE RESTRICT` dan `ON UPDATE RESTRICT`. Owner dapat menghapus layanan atau produk yang belum memiliki rujukan transaksi. Item yang sudah tercatat dapat diarsipkan dan diaktifkan kembali. Produk dilindungi oleh FK penjualan `income_product_sales.product_id` dan pemakaian lama `income_entries.used_product_id`. Snapshot dipertahankan untuk Rekap lintas periode.
 - **Koreksi.** Tindakan koreksi dan pembatalan yang disetujui melewati pemeriksaan izin Owner. Usulan Slice 08 mencatat pelaku, waktu, alasan, serta tautan antara catatan asli dan pengganti. Saat koreksi, simpan audit dan pengganti secara atomik. Isi dan status histori mengikuti hasil keputusan K6.
 - **Constraint.** Terapkan `CHECK` untuk harga dan jumlah positif. Validasi nama Kapster pada awal sesi serta panjang nama pelanggan jika diisi. Validasi keterisian deskripsi, format tanggal, rentang nominal, dan status aktif di Laravel. [MySQL CHECK](https://dev.mysql.com/doc/refman/8.4/en/create-table-check-constraints.html)
 
@@ -146,7 +146,7 @@ Tabel berikut digunakan oleh infrastruktur Laravel. `sessions.user_id` dan `pass
 | Halaman Owner | Sumber dan cakupan | Pencarian, filter, dan ekspor |
 | --- | --- | --- |
 | Home | `OwnerFinancialEntries::query()` untuk kartu pemasukan, pengeluaran, dan hasil bersih bulan berjalan serta dua seri harian sejak tanggal 1 sampai hari ini. | Gunakan WIB. Hari yang sudah berjalan tanpa catatan bernilai Rp0. [Catatan Slice 10](Catatan-Pengerjaan-Slice-10.md) |
-| Pemasukan | `IncomeItems::query()` dari `income_entries` dan `income_product_sales`, dengan waktu dari induk `income_transactions`. Cakupan bulan berjalan WIB. | Cari nama item, Kapster, pelanggan, atau ID transaksi. Total dan XLSX mengikuti seluruh hasil pencarian. [Catatan Slice 06](Catatan-Pengerjaan-Slice-06.md) |
+| Pemasukan | `IncomeItems::query()` dari `income_entries` dan `income_product_sales`, dengan waktu dari induk `income_transactions`. Cakupan bulan berjalan WIB. | Cari nama item, Kapster, pelanggan, atau ID transaksi. Total dan XLSX mengikuti seluruh hasil pencarian. Dari Pemasukan, Owner membuka pop-up katalog layanan dan produk. [Catatan Slice 06](Catatan-Pengerjaan-Slice-06.md) |
 | Pengeluaran | `OwnerExpenseReport::query()` membaca `expenses` dari awal bulan WIB hingga sebelum awal bulan berikutnya berdasarkan `incurred_on`. | Cari ID pengeluaran atau deskripsi. Daftar, total, dan Excel memakai periode dan pencarian yang sama. [Catatan Slice 07](Catatan-Pengerjaan-Slice-07.md) |
 | Rekap | Seluruh periode dari dua sumber. Baris dinormalisasi ke jenis, ID sumber, tanggal, nama Kapster bila ada, label, dan nominal. | Cari teks pada baris yang secara konsisten diproyeksikan ke rekap. Filter opsional dengan bulan dan jenis `IN` atau `OUT`. Ekspor seluruh rincian untuk pencarian dan filter yang sama, termasuk baris di luar halaman saat ini. Halaman dan XLSX memuat ringkasan pemasukan, pengeluaran, dan hasil bersih tercatat. |
 
@@ -227,7 +227,7 @@ Contoh mengikuti keputusan satu layanan per simpan dan memakai harga katalog. `L
 
 | Kriteria awal | Bukti pada kebutuhan terbaru dan keputusan yang masih diperlukan |
 | --- | --- |
-| KP-01 · Master operasional | Uji katalog dan pengarsipan sesuai kewenangan. Selaraskan kriteria awal QMP dengan nama Kapster dari sesi dan nama pelanggan opsional pada catatan (K1–K3). |
+| KP-01 · Master operasional | Uji tambah, ubah, arsip, aktifkan kembali, dan hapus untuk kedua katalog sesuai kewenangan. Selaraskan kriteria awal QMP dengan nama Kapster dari sesi dan nama pelanggan opsional pada catatan (K1–K3). |
 | KP-02 · Pencatatan dan pembukuan | Peragakan simpan Kapster dan input pengeluaran Owner. Bandingkan Pemasukan, Pengeluaran, Rekap, serta XLSX dengan data pembanding. Cocokkan ketiga nilai ringkasan Rekap, termasuk hasil bersih tercatat. Target selisih terhadap pembanding Rp0. |
 | KP-03 · Dashboard | Cocokkan total bulanan dan grafik harian. Kriteria dashboard mingguan pada rancangan awal perlu diselaraskan dengan tampilan terbaru. |
 | KP-04 · Autentikasi dan akses | Uji login Owner, akses langsung ke rute terbatas, akun nonaktif, dan cakupan baca dua sesi Kapster bernama sama. Uji izin pembatalan dan koreksi jika tindakan tersebut diterapkan. |
@@ -302,7 +302,7 @@ erDiagram
 | `products` | PK `id`, `name VARCHAR(120)`, `sale_price DECIMAL(15,0) NULL`, dan `archived_at DATETIME(6) NULL`. Owner mengisi katalog. Form penjualan Kapster hanya menampilkan produk aktif dengan harga jual positif. |
 | `income_product_sales` | PK `id`. FK wajib `income_transaction_id` ke induk dan `product_id` ke katalog. Simpan `product_name VARCHAR(120)`, `quantity INT UNSIGNED` positif, dan snapshot `unit_price DECIMAL(15,0)` positif. Nilai penjualan per item dihitung dari `quantity × unit_price`. |
 
-Setiap transaksi memiliki minimal satu item yang menghasilkan pemasukan. Form **Layanan** mensyaratkan layanan, sementara form **Produk** mensyaratkan penjualan produk dan menolak item layanan. Laravel menerapkan validasi sesuai rute sebelum menyimpan induk dan item. Produk yang sudah direferensikan dapat diarsipkan. FK memakai `RESTRICT` agar catatan lama tetap bisa dibaca.
+Setiap transaksi memiliki minimal satu item yang menghasilkan pemasukan. Form **Layanan** mensyaratkan layanan, sementara form **Produk** mensyaratkan penjualan produk dan menolak item layanan. Laravel menerapkan validasi sesuai rute sebelum menyimpan induk dan item. Produk yang sudah direferensikan dapat diarsipkan dan diaktifkan kembali. FK memakai `RESTRICT` untuk melindungi riwayat penjualan dan pemakaian. Produk tanpa rujukan dapat dihapus.
 
 ### Sumber pemasukan Owner
 

@@ -1,13 +1,18 @@
-@extends('auth.owner-layout')
+@extends('auth.owner-catalog')
 
 @section('title', 'Katalog produk')
 @section('main-class', 'wide')
 
-@section('content')
-    <p><a href="{{ route('owner.home') }}">Kembali ke area Owner</a></p>
+@section('catalog-content')
+    @unless (request()->header('Sec-Fetch-Dest') === 'iframe')
+        <p><a href="{{ route('owner.income.index') }}">Kembali ke Pemasukan</a></p>
+    @endunless
     <h1>Katalog produk</h1>
     @if (session('status'))
         <p role="status">{{ session('status') }}</p>
+    @endif
+    @if (session('error'))
+        <p class="error" role="alert">{{ session('error') }}</p>
     @endif
     <p><a class="button" href="{{ route('owner.products.create') }}">Tambah produk</a></p>
     <div class="table-scroll">
@@ -22,16 +27,11 @@
                         <td>{{ $product->sale_price === null ? 'Belum ada harga jual' : 'Rp'.number_format((int) $product->sale_price, 0, ',', '.') }}</td>
                         <td>{{ $product->archived_at ? 'Diarsipkan' : 'Aktif' }}</td>
                         <td>
-                            <div class="actions">
-                                <a href="{{ route('owner.products.edit', $product) }}">Ubah</a>
-                                @unless ($product->archived_at)
-                                    <form method="post" action="{{ route('owner.products.archive', $product) }}">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="secondary">Arsipkan</button>
-                                    </form>
-                                @endunless
-                            </div>
+                            @include('master.catalog.actions', [
+                                'resource' => 'owner.products',
+                                'item' => $product,
+                                'hasHistory' => $product->sales_exists || $product->historical_usage_exists,
+                            ])
                         </td>
                     </tr>
                 @empty
@@ -45,6 +45,7 @@
             @if ($products->previousPageUrl())
                 <a href="{{ $products->previousPageUrl() }}">Sebelumnya</a>
             @endif
+            <span>Halaman {{ $products->currentPage() }} dari {{ $products->lastPage() }}</span>
             @if ($products->nextPageUrl())
                 <a href="{{ $products->nextPageUrl() }}">Berikutnya</a>
             @endif

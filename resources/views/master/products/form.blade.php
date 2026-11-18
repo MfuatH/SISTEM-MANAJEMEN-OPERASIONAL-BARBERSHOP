@@ -1,8 +1,8 @@
-@extends('auth.owner-layout')
+@extends('auth.owner-catalog')
 
 @section('title', $product->exists ? 'Ubah produk' : 'Tambah produk')
 
-@section('content')
+@section('catalog-content')
     <p><a href="{{ route('owner.products.index') }}">Kembali ke katalog produk</a></p>
     <h1>{{ $product->exists ? 'Ubah produk' : 'Tambah produk' }}</h1>
 

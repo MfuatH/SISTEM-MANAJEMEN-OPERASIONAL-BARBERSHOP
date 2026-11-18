@@ -102,11 +102,9 @@ Jalankan `php artisan migrate`, lalu `php artisan owner:create pemilik --name="P
 
 Untuk menguji alur di MySQL, jalankan `php artisan migrate --env=testing`, lalu `php artisan test --env=testing`.
 
-### Mencoba katalog layanan
+### Mencoba katalog layanan dan produk
 
-Setelah migrasi, buka **Katalog layanan** di `/owner/services` sebagai Owner. **Arsipkan** menyembunyikan layanan dari pilihan Kapster dan **Aktifkan kembali** memunculkannya. Gunakan **Hapus** untuk layanan yang belum tercatat pada transaksi. **Layanan A** dan **Layanan B** dapat dibuat sebagai data uji. Daftar aktif tersedia di `GET /services/active`.
-
-Owner membuka **Katalog produk** di `/owner/products` untuk mengelola nama dan harga jual. Produk aktif dengan harga jual muncul pada form penjualan Kapster.
+Pada branch Slice 10, buka **Pemasukan** sebagai Owner, lalu klik **Katalog layanan** atau **Katalog produk**. Kelola nama, harga, dan status lewat pop-up. **Arsipkan** mengeluarkan item dari pilihan Kapster. **Aktifkan kembali** memulihkan item aktif. Gunakan **Hapus** untuk item yang belum tercatat dalam transaksi. Produk aktif dengan harga jual tersedia pada form penjualan Kapster. [Cara meninjau katalog](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-10.md#cara-meninjau)
 
 ### Mencoba sesi Kapster
 
@@ -144,7 +142,7 @@ Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [P
 | 07 | Owner mencatat pengeluaran dengan ID buatan sistem. Riwayat, pencarian, total, dan XLSX mengikuti bulan berjalan WIB. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-07.md) |
 | 08 | Tindakan koreksi Owner dan jejak audit menunggu penetapan cakupan. | Ditunda. Pengerjaan dilanjutkan ke Slice 09. |
 | 09 | Rekap menggabungkan pemasukan dan pengeluaran lintas periode dengan pencarian, filter, dan hasil bersih tercatat di halaman serta XLSX. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-09.md) |
-| 10 | Home Owner menampilkan total pemasukan, pengeluaran, dan hasil bersih bulan berjalan serta grafik harian WIB dengan pilihan Batang atau Garis dan tombol seri. | Dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-10.md) |
+| 10 | Home Owner menampilkan kartu dan grafik harian interaktif. Home, Pemasukan, Pengeluaran, dan Rekap memakai sidebar bersama. Katalog dibuka dari Pemasukan. | Dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-10.md) |
 | 11 | Bila sumber historis dipakai, rekonsiliasi CSV/Excel privat dan uji impor ulang. | Opsional |
 | 12 | Bila disetujui, perbarui tampilan empat bulan aktual dan dua prediksi setiap bulan. | Opsional |
 | 13 | Uji integrasi MySQL, pembatasan akses, rekonsiliasi laporan, ekspor, dan UAT. | Direncanakan |
@@ -154,7 +152,7 @@ Contoh kueri Rekap telah diperiksa pada MySQL 8.4.3 menggunakan data fiktif. Gun
 
 ## Status backend dan kesiapan frontend
 
-Per **18 November 2026**, Slice 09 sudah masuk `main`. Landing Page, halaman Kapster, Login Owner, Pemasukan, Pengeluaran, dan Rekap siap diintegrasikan. Home, sidebar, kartu bulanan, dan grafik harian siap diintegrasikan pada branch Slice 10 yang sedang direview.
+Per **18 November 2026**, Slice 09 sudah masuk `main`. Landing Page, halaman Kapster, Login Owner, Pemasukan, Pengeluaran, dan Rekap siap diintegrasikan. Home, sidebar bersama, kartu bulanan, grafik harian, dan pop-up katalog pada Pemasukan siap diintegrasikan pada branch Slice 10 yang sedang direview.
 
 Acuan wireframe tersedia dan Forecasting bersifat opsional. [Kesiapan frontend Slice 10](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-10.md#kesiapan-frontend) [Detail kesiapan sembilan tahap frontend](docs/pengerjaan-sistem/Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
 

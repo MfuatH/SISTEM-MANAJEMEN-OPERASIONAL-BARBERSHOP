@@ -1,10 +1,12 @@
-@extends('auth.owner-layout')
+@extends('auth.owner-catalog')
 
 @section('title', 'Katalog layanan')
 @section('main-class', 'wide')
 
-@section('content')
-    <p><a href="{{ route('owner.home') }}">Kembali ke area Owner</a></p>
+@section('catalog-content')
+    @unless (request()->header('Sec-Fetch-Dest') === 'iframe')
+        <p><a href="{{ route('owner.income.index') }}">Kembali ke Pemasukan</a></p>
+    @endunless
     <h1>Katalog layanan</h1>
 
     @if (session('status'))
@@ -34,31 +36,11 @@
                         <td>Rp{{ number_format((int) $service->current_price, 0, ',', '.') }}</td>
                         <td>{{ $service->archived_at === null ? 'Aktif' : 'Diarsipkan' }}</td>
                         <td>
-                            <div class="actions">
-                                <a href="{{ route('owner.services.edit', $service) }}">Ubah</a>
-                                @if ($service->archived_at === null)
-                                    <form method="post" action="{{ route('owner.services.archive', $service) }}">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button class="secondary" type="submit">Arsipkan</button>
-                                    </form>
-                                @else
-                                    <form method="post" action="{{ route('owner.services.restore', $service) }}">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button class="secondary" type="submit">Aktifkan kembali</button>
-                                    </form>
-                                @endif
-                                @if ($service->income_entries_exists)
-                                    <button class="secondary" type="button" disabled title="Sudah tercatat pada transaksi">Hapus</button>
-                                @else
-                                    <form method="post" action="{{ route('owner.services.destroy', $service) }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="secondary" type="submit" aria-label="Hapus {{ $service->name }}">Hapus</button>
-                                    </form>
-                                @endif
-                            </div>
+                            @include('master.catalog.actions', [
+                                'resource' => 'owner.services',
+                                'item' => $service,
+                                'hasHistory' => $service->income_entries_exists,
+                            ])
                         </td>
                     </tr>
                 @empty

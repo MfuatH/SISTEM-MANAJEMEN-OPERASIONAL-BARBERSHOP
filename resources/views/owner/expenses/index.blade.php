@@ -1,10 +1,8 @@
-@extends('auth.owner-layout')
+@extends('auth.owner-area')
 
 @section('title', 'Pengeluaran')
-@section('main-class', 'wide report-page')
 
-@section('content')
-    <p><a href="{{ route('owner.home') }}">Kembali ke area Owner</a></p>
+@section('owner-content')
     <h1>Pengeluaran</h1>
     <p>{{ $report->month->locale('id')->translatedFormat('F Y') }}</p>
     @if (session('status'))

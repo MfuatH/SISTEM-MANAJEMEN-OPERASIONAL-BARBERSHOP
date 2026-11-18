@@ -1,12 +1,11 @@
-@extends('auth.owner-layout')
+@extends('auth.owner-area')
 
 @section('title', 'Pemasukan')
-@section('main-class', 'wide report-page')
 
-@section('content')
-    <p><a href="{{ route('owner.home') }}">Kembali ke area Owner</a></p>
+@section('owner-content')
     <h1>Pemasukan</h1>
     <p>{{ $report->month->locale('id')->translatedFormat('F Y') }}</p>
+    @include('owner.income.catalog-dialog')
 
     <form method="get" action="{{ route('owner.income.index') }}">
         <div class="field">

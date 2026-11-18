@@ -84,6 +84,36 @@ class OwnerDashboardTest extends TestCase
         $this->assertSame(['income' => '0', 'expenses' => '5000', 'net' => '-5000'], $negative->viewData('totals'));
     }
 
+    public function test_owner_pages_share_navigation_and_only_income_opens_catalog_dialogs(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $routes = ['owner.home', 'owner.income.index', 'owner.expenses.index', 'owner.recap.index'];
+
+        foreach ($routes as $route) {
+            $page = $this->get(route($route))->assertOk()
+                ->assertSee('aria-label="Menu Owner"', false)
+                ->assertSee('aria-current="page"', false);
+
+            foreach ($routes as $menuRoute) {
+                $page->assertSee('href="'.route($menuRoute).'"', false);
+            }
+
+            if ($route === 'owner.income.index') {
+                $page->assertSee('id="owner-catalog-dialog"', false)
+                    ->assertSee('data-catalog-url="'.route('owner.services.index', absolute: false).'"', false)
+                    ->assertSee('data-catalog-url="'.route('owner.products.index', absolute: false).'"', false)
+                    ->assertSee('aria-haspopup="dialog"', false);
+            } else {
+                $page->assertDontSee('Katalog layanan')->assertDontSee('Katalog produk');
+            }
+        }
+
+        foreach (['owner.services.index', 'owner.products.index'] as $catalog) {
+            $this->get(route($catalog), ['Sec-Fetch-Dest' => 'iframe'])->assertOk()
+                ->assertDontSee('Kembali ke Pemasukan')->assertDontSee('aria-label="Menu Owner"', false);
+        }
+    }
+
     private function transaction(string $recordedAt): IncomeTransaction
     {
         return IncomeTransaction::create([

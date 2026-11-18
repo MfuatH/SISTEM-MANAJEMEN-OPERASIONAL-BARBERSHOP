@@ -53,8 +53,9 @@ Route::prefix('owner')->group(function (): void {
             Route::resource('services', ServiceController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
             Route::patch('services/{service}/archive', [ServiceController::class, 'archive'])->name('services.archive');
             Route::patch('services/{service}/restore', [ServiceController::class, 'restore'])->name('services.restore');
-            Route::resource('products', ProductController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+            Route::resource('products', ProductController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
             Route::patch('products/{product}/archive', [ProductController::class, 'archive'])->name('products.archive');
+            Route::patch('products/{product}/restore', [ProductController::class, 'restore'])->name('products.restore');
         });
     });
 });
