@@ -3,10 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Database\Seeders\LocalOwnerSeeder;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Hash;
+use RuntimeException;
 use Tests\TestCase;
 
 class OwnerAuthenticationTest extends TestCase
@@ -90,6 +92,60 @@ class OwnerAuthenticationTest extends TestCase
         $owner = User::where('username', 'pemilik')->firstOrFail();
         $this->assertTrue(Hash::check('contoh-kata-sandi', $owner->password));
         $this->assertSame('Owner Uji', $owner->name);
+    }
+
+    public function test_local_owner_seeder_creates_an_account_for_login_and_preserves_it_on_reruns(): void
+    {
+        config([
+            'auth.local_owner.username' => ' OWNER.SEED_UJI ',
+            'auth.local_owner.name' => ' Owner Seed Uji ',
+            'auth.local_owner.password' => 'sandi-seeder-uji',
+        ]);
+
+        $this->artisan('db:seed', ['--class' => 'LocalOwnerSeeder'])->assertSuccessful();
+
+        $owner = User::query()->where('username', 'owner.seed_uji')->sole();
+        $this->assertSame('Owner Seed Uji', $owner->name);
+        $this->assertTrue(Hash::check('sandi-seeder-uji', $owner->password));
+        $this->post(route('owner.login.store'), [
+            'username' => 'owner.seed_uji',
+            'password' => 'sandi-seeder-uji',
+        ])->assertRedirect(route('owner.home'));
+        $this->assertAuthenticatedAs($owner);
+
+        $owner->forceFill(['disabled_at' => now()])->save();
+        config([
+            'auth.local_owner.name' => 'Nama Baru',
+            'auth.local_owner.password' => 'sandi-pengganti-uji',
+        ]);
+
+        $this->artisan('db:seed', ['--class' => LocalOwnerSeeder::class])->assertSuccessful();
+
+        $after = User::query()->where('username', 'owner.seed_uji')->sole();
+        $this->assertTrue($after->is($owner));
+        $this->assertSame($owner->password, $after->password);
+        $this->assertSame('Owner Seed Uji', $after->name);
+        $this->assertNotNull($after->disabled_at);
+    }
+
+    public function test_local_owner_seeder_requires_a_configured_password(): void
+    {
+        config(['auth.local_owner.password' => null]);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Isi LOCAL_OWNER_PASSWORD');
+
+        (new LocalOwnerSeeder)->run();
+    }
+
+    public function test_local_owner_seeder_refuses_production(): void
+    {
+        $this->app->instance('env', 'production');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('hanya dapat dijalankan pada lingkungan local atau testing');
+
+        (new LocalOwnerSeeder)->run();
     }
 
     public function test_login_attempts_are_rate_limited(): void

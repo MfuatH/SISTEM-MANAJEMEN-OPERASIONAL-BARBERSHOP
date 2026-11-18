@@ -8,6 +8,6 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Provision a local Owner through the interactive owner:create command.
+        // Run LocalOwnerSeeder explicitly when a local development account is needed.
     }
 }

@@ -24,6 +24,14 @@ Berkas utama dapat ditinjau melalui [migrasi akun](../../database/migrations/000
 
 **Login Owner siap diintegrasikan.** Halaman `GET /owner/login` membuka form. Kirim `username` dan `password` dengan token CSRF ke `POST /owner/login`. Tampilkan pesan validasi dari Laravel. Login berhasil menuju area Owner `/owner`, dan tombol keluar menggunakan `POST /owner/logout`. Pemeriksaan akun aktif dan akses area Owner dilakukan di server.
 
+## Seeder akun Owner lokal
+
+`LocalOwnerSeeder` menyediakan akun demo yang dapat dibuat ulang setelah skema lokal dimigrasikan. Isi `LOCAL_OWNER_PASSWORD` pada `.env` dengan minimal 12 karakter dan maksimal 72 byte. Nilai awal username dan nama tampilan adalah `pemilik_demo` dan `Pemilik Demo`. Ubah melalui `LOCAL_OWNER_USERNAME` dan `LOCAL_OWNER_NAME` jika diperlukan.
+
+Jalankan `php artisan config:clear`, `php artisan migrate`, lalu `php artisan db:seed --class=LocalOwnerSeeder` dari direktori proyek. Login lewat `/owner/login` dengan kredensial dari `.env`. Seeder tersedia pada lingkungan `local` dan `testing`. Username yang sudah terdaftar memakai data akun yang tersimpan, termasuk kata sandi dan status aktifnya. [LocalOwnerSeeder](../../database/seeders/LocalOwnerSeeder.php) · [PR #15](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/15)
+
+Pengujian pada MySQL 8.4.3 dengan skema sementara lulus dengan **63 tes dan 886 asersi**. Pemeriksaan mencakup login akun hasil seed, hash kata sandi, pengulangan seeder pada akun nonaktif, penolakan ketika kata sandi kosong, dan penolakan di lingkungan produksi.
+
 ## Bukti pengujian
 
 | Pemeriksaan | Hasil |
