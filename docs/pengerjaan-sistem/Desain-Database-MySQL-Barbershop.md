@@ -60,6 +60,7 @@ Satu Owner dapat mencatat nol hingga banyak pengeluaran. Satu record `sessions` 
 | K8 | Apakah Forecasting disetujui, posisi prediksi di mana, dan apa yang diproyeksikan? Apakah data Juli–September 2026 masih diperlukan? | Usulan targetnya pemasukan bulanan, memakai empat bulan aktual terakhir yang sudah lengkap pada grafik dan dua bulan prediksi sesudahnya. Frasa “6 bulan kebelakang” juga dapat berarti dua prediksi atas bulan historis. Konfirmasi arti tersebut, sumber data, dan ketentuan baru sebelum Slice 11–12. |
 | K9 | **Dikonfirmasi.** Dashboard Kapster memiliki tombol **Layanan** dan **Produk**. Form Layanan memuat minimal satu layanan dan bagian penjualan produk opsional. Form Produk mencatat penjualan saja. Owner mengisi katalog. | Pemasukan menjumlahkan layanan dan produk terjual. Kolom pemakaian produk dipertahankan untuk membaca catatan lama. Kebutuhan pencatatan stok masih terbuka. |
 | K10 | **Dikonfirmasi.** Rekap komisi bulanan Kapster berada di luar lingkup aplikasi. | Foto rekap komisi menjadi acuan proses manual. Rancangan pemasukan hanya memakai nilai layanan dan penjualan produk. |
+| K11 | **Dikonfirmasi 18 November 2026.** Rekap menampilkan hasil bersih dari pemasukan dan pengeluaran tercatat. | Slice 09 menghitung total pemasukan dikurangi total pengeluaran pada periode WIB yang sama. Tampilkan hasilnya pada Rekap dan XLSX. |
 
 ## 3. Kamus tabel lainnya
 
@@ -147,34 +148,17 @@ Tabel berikut digunakan oleh infrastruktur Laravel. `sessions.user_id` dan `pass
 | Home | Dua total dan dua seri harian dari awal bulan berjalan. | Hari yang sudah berjalan tanpa transaksi ditampilkan Rp0. |
 | Pemasukan | `IncomeItems::query()` dari `income_entries` dan `income_product_sales`, dengan waktu dari induk `income_transactions`. Cakupan bulan berjalan WIB. | Cari nama item, Kapster, pelanggan, atau ID transaksi. Total dan XLSX mengikuti seluruh hasil pencarian. [Catatan Slice 06](Catatan-Pengerjaan-Slice-06.md) |
 | Pengeluaran | `OwnerExpenseReport::query()` membaca `expenses` dari awal bulan WIB hingga sebelum awal bulan berikutnya berdasarkan `incurred_on`. | Cari ID pengeluaran atau deskripsi. Daftar, total, dan Excel memakai periode dan pencarian yang sama. [Catatan Slice 07](Catatan-Pengerjaan-Slice-07.md) |
-| Rekap | Seluruh periode dari dua sumber. Baris dinormalisasi ke jenis, ID sumber, tanggal, nama Kapster bila ada, label, dan nominal. | Cari teks pada baris yang secara konsisten diproyeksikan ke rekap. Filter opsional dengan bulan dan jenis `IN` atau `OUT`. Ekspor seluruh hasil untuk pencarian dan filter yang sama, termasuk baris di luar halaman saat ini. |
+| Rekap | Seluruh periode dari dua sumber. Baris dinormalisasi ke jenis, ID sumber, tanggal, nama Kapster bila ada, label, dan nominal. | Cari teks pada baris yang secara konsisten diproyeksikan ke rekap. Filter opsional dengan bulan dan jenis `IN` atau `OUT`. Ekspor seluruh rincian untuk pencarian dan filter yang sama, termasuk baris di luar halaman saat ini. Halaman dan XLSX memuat ringkasan pemasukan, pengeluaran, dan hasil bersih tercatat. |
 
 **Periode.** Gunakan kalender operasional `Asia/Jakarta` dan interval `[awal bulan, awal bulan berikutnya)`. Hitung batas pemasukan dalam UTC dan bandingkan langsung dengan `recorded_at`. Untuk pengeluaran, pakai tanggal lokal pada `incurred_on`. Saat bulan berganti, Home menampilkan Rp0 dan tabel Pemasukan serta Pengeluaran kosong sampai ada catatan untuk bulan baru. Riwayat tetap tersimpan dan dapat dibaca melalui Rekap. [Fungsi tanggal dan waktu MySQL](https://dev.mysql.com/doc/refman/8.4/en/date-and-time-functions.html)
 
-**Rekap.** Gunakan `UNION ALL` untuk menyatukan hasil karena kedua sumber berisi kejadian yang berbeda. Identitas gabungan adalah `(entry_type, source_id)`. Urutkan berdasarkan tanggal dan identitas gabungan agar paginasi dan ekspor deterministik. Kueri contoh memakai satu bulan. Untuk Rekap tanpa pilihan bulan, kedua cabang dijalankan tanpa predikat tanggal. Tambahkan filter jenis dan pencarian sebagai parameter, dengan predikat yang sama untuk daftar dan ekspor.
+**Rekap.** `OwnerRecapReport` menggabungkan hasil `IncomeItems::query()` dan `expenses` dengan `UNION ALL`. Gunakan pasangan `(item_type, source_id)` sebagai identitas baris karena ID layanan, penjualan produk, dan pengeluaran berasal dari tabel yang berbeda. Induk transaksi menyediakan waktu UTC dan ID yang ditampilkan pada baris pemasukan. Rekap mengurutkan rincian dengan tanggal, waktu pemasukan, kategori item, dan ID sumber agar paginasi serta ekspor konsisten. Bila bulan kosong, kedua sumber dibaca untuk seluruh periode. [Kueri Rekap](../../app/Services/OwnerRecapReport.php)
 
-```sql
-WITH entries AS (
-    SELECT 'IN' AS entry_type, i.id AS source_id,
-           DATE(CONVERT_TZ(i.recorded_at, '+00:00', '+07:00')) AS business_date,
-           i.barber_name, i.service_name AS label, i.amount
-    FROM income_entries AS i
-    WHERE i.recorded_at >= :utc_start AND i.recorded_at < :utc_end
+Di implementasi, Laravel menerapkan satu pembentuk rentang dan sumber kueri laporan. Daftar dan XLSX memakai kueri rincian yang sama. Daftar dipaginasi, sedangkan XLSX mencakup seluruh hasil. Home memakai sumber keuangan yang sama tanpa kata kunci pencarian halaman lain. Grafik mengelompokkan per `business_date` dan `entry_type`; total bulanan menjumlahkan seluruh baris untuk jenis yang sama. XLSX menyimpan nominal sebagai angka selama muat dalam 15 digit presisi Excel. Nilai yang lebih panjang dan label masukan pengguna ditulis sebagai teks. Selisih antara layar, ekspor, dan pembanding dinilai pada data dan filter yang sama. Rekap, total bulanan, dan ekspor dihitung dari kueri tersebut.
 
-    UNION ALL
+**Hasil bersih tercatat pada Rekap.** Wajib hitung total pemasukan dikurangi total pengeluaran pada periode WIB yang sama. Pemasukan menjumlahkan nominal tiap layanan dan penjualan produk. Pengeluaran menjumlahkan `expenses.amount` berdasarkan `incurred_on`. Tampilkan kedua total dan hasil bersih di halaman serta XLSX. Gunakan Rp0 untuk jenis tanpa catatan dan pertahankan tanda negatif saat pengeluaran lebih besar. Ringkasan memakai bulan pilihan atau seluruh periode jika bulan kosong. Pencarian dan filter jenis berlaku pada rincian dan total nominal rincian. Saat **Semua jenis** dipilih, rincian juga memuat total pendapatan kotor dari pemasukan yang cocok dan total pendapatan bersih dari pemasukan dikurangi pengeluaran yang cocok. Ringkasan tetap memakai pemasukan dan pengeluaran dalam periode yang sama. XLSX menempatkan rincian dan ringkasan periode pada lembar masing-masing. [Catatan Slice 09](Catatan-Pengerjaan-Slice-09.md)
 
-    SELECT 'OUT', e.id, e.incurred_on, NULL, e.description, e.amount
-    FROM expenses AS e
-    WHERE e.incurred_on >= :local_start AND e.incurred_on < :local_end
-)
-SELECT entry_type, source_id, business_date, barber_name, label, amount
-FROM entries
-ORDER BY business_date DESC, entry_type, source_id DESC
-```
-
-Di implementasi, Laravel menerapkan satu pembentuk rentang dan sumber kueri laporan. Daftar dan XLSX memakai kueri yang sama dengan cakupan per halaman. Home memakai sumber keuangan yang sama tanpa kata kunci pencarian halaman lain. Grafik mengelompokkan per `business_date` dan `entry_type`; total bulanan menjumlahkan seluruh baris untuk jenis yang sama. Bila layar menampilkan saldo, rumusnya pemasukan dikurangi pengeluaran. XLSX menyimpan nominal sebagai angka selama muat dalam 15 digit presisi Excel. Nilai yang lebih panjang dan label masukan pengguna ditulis sebagai teks. Selisih antara layar, ekspor, dan pembanding dinilai pada data dan filter yang sama. Rekap, total bulanan, dan ekspor dihitung dari kueri tersebut.
-
-Contoh SQL memakai offset WIB `+07:00`. Gunakan aturan zona yang sama untuk pembentukan batas dan pengelompokan tanggal. Tampilkan ID pengeluaran berdasarkan `source_id` pada baris `OUT`. Jika tindakan Owner pada K6 diimplementasikan, terapkan aturan status yang sama pada daftar, agregat, dan ekspor.
+Rekap menampilkan tanggal pemasukan dalam WIB dan tanggal pengeluaran sesuai `incurred_on`. Baris `OUT` memakai `EXP-{id}` sebagai referensi. Slice 08 ditunda. Saat tindakan Owner pada K6 diimplementasikan, terapkan aturan status yang sama pada daftar, agregat, dan ekspor.
 
 ## 6. Forecasting opsional
 
@@ -203,7 +187,7 @@ Pemeriksaan repo menemukan tiga migrasi bawaan `0001_01_01_000000_create_users_t
 | 3 | 05 | Migrasi `0001_01_01_000005_create_income_entries_table.php` membuat `income_entries` dengan satu FK wajib `service_id` dan `customer_name` opsional. | Bergantung pada `services`. Harga dan nama Kapster disalin saat simpan. `recorded_at` memakai waktu server UTC sesuai implementasi awal K6. |
 | 4 | 05 revisi | Migrasi `000006`–`000008` membuat katalog produk, induk transaksi, dan rincian penjualan produk. | Jalankan sesudah `000005`. [Rincian migrasi revisi](#penyimpanan-migrasi-dan-pengujian) |
 | 5 | 07 | Migrasi `0001_01_01_000009_create_expenses_table.php` membuat `expenses`. | Bergantung pada `users`. Sistem mengisi PK dan memakainya untuk referensi `EXP-{id}`. Rollback dibatasi pada tabel kosong. |
-| Bersyarat | 08 | Tambahkan atribut audit dan relasi pengganti sesuai alur yang disetujui. | K6. Owner memegang izin. Tetapkan cakupan tindakan, periode, dan aturan status sebelum migrasi. |
+| Ditunda | 08 | Tambahkan atribut audit dan relasi pengganti sesuai alur yang disetujui. | K6. Owner memegang izin. Tetapkan cakupan tindakan, periode, dan aturan status sebelum migrasi. |
 | Opsional | 11 | Buat `historical_imports`, lalu `historical_monthly_revenues`. | K8, termasuk kebutuhan impor dan pemetaan file aktual. |
 
 Slice 06, 09, dan 10 membaca sumber operasional yang sama. Slice 12 dapat memakai sumber bulanan yang disepakati tanpa migrasi tambahan pada usulan awal. Gunakan migrasi baru setiap kali mengubah fondasi yang sudah diterapkan. Uji penerapan dan rollback pada MySQL 8.4 di skema uji terpisah. Dalam rollback skema fitur, lepaskan tabel anak sebelum induknya. [Migrasi Laravel](https://laravel.com/docs/13.x/migrations)
@@ -221,7 +205,7 @@ Contoh mengikuti keputusan satu layanan per simpan dan memakai harga katalog. `L
 | E01 | Pengeluaran | 30 Sep 2026 | Owner | Perlengkapan | 20.000 |
 | E02 | Pengeluaran | 1 Okt 2026 | Owner | Kebersihan | 5.000 |
 
-| Periode | Pemasukan (Rp) | Pengeluaran (Rp) | Selisih pemasukan dan pengeluaran (Rp) |
+| Periode | Pemasukan (Rp) | Pengeluaran (Rp) | Hasil bersih tercatat (Rp) |
 | --- | ---: | ---: | ---: |
 | 29 September | 35.000 | 0 | 35.000 |
 | 30 September | 50.000 | 20.000 | 30.000 |
@@ -244,7 +228,7 @@ Contoh mengikuti keputusan satu layanan per simpan dan memakai harga katalog. `L
 | Kriteria awal | Bukti pada kebutuhan terbaru dan keputusan yang masih diperlukan |
 | --- | --- |
 | KP-01 · Master operasional | Uji katalog dan pengarsipan sesuai kewenangan. Selaraskan kriteria awal QMP dengan nama Kapster dari sesi dan nama pelanggan opsional pada catatan (K1–K3). |
-| KP-02 · Pencatatan dan pembukuan | Peragakan simpan Kapster dan input pengeluaran Owner. Bandingkan Pemasukan, Pengeluaran, Rekap, serta XLSX dengan fixture. Target selisih Rp0. |
+| KP-02 · Pencatatan dan pembukuan | Peragakan simpan Kapster dan input pengeluaran Owner. Bandingkan Pemasukan, Pengeluaran, Rekap, serta XLSX dengan data pembanding. Cocokkan ketiga nilai ringkasan Rekap, termasuk hasil bersih tercatat. Target selisih terhadap pembanding Rp0. |
 | KP-03 · Dashboard | Cocokkan total bulanan dan grafik harian. Kriteria dashboard mingguan pada rancangan awal perlu diselaraskan dengan tampilan terbaru. |
 | KP-04 · Autentikasi dan akses | Uji login Owner, akses langsung ke rute terbatas, akun nonaktif, dan cakupan baca dua sesi Kapster bernama sama. Uji izin pembatalan dan koreksi jika tindakan tersebut diterapkan. |
 | KP-05 · Keamanan | Uji sesi Laravel, hash kata sandi, validasi, CSRF, dan HTTPS. Jika Forecasting dipakai, uji pemanggilan Python secara internal. |
@@ -263,8 +247,8 @@ Contoh mengikuti keputusan satu layanan per simpan dan memakai harga katalog. `L
 | 05 · Pencatatan Kapster | Pencatatan awal satu layanan dikembangkan menjadi transaksi multi-layanan. Form Layanan memuat penjualan produk opsional, dan form Produk khusus penjualan. Owner mengelola katalog serta status layanan. | Sudah di-merge. Uji kedua form, pemulihan arsip, perlindungan riwayat, kirim ulang, dan rekonsiliasi. [Catatan Slice 05](Catatan-Pengerjaan-Slice-05.md#revisi-kebutuhan-setelah-merge) |
 | 06 · Pemasukan Owner | Membaca rincian layanan dan penjualan produk pada bulan berjalan WIB. Menyediakan pencarian dan XLSX. | Sudah di-merge. Setiap item tampil sekali dengan ID induk. Layar, total, dan ekspor memakai filter yang sama. [Catatan Slice 06](Catatan-Pengerjaan-Slice-06.md) |
 | 07 · Pengeluaran Owner | Mencatat tanggal, deskripsi, dan jumlah. Menyediakan ID sistem, pencarian, total, dan XLSX periode berjalan. | Selesai dan di-merge. Kirim ulang menghasilkan satu catatan dengan ID yang sama. Total daftar dan XLSX cocok dengan pembanding dengan selisih Rp0. [Catatan Slice 07](Catatan-Pengerjaan-Slice-07.md) |
-| 08 · Tindakan Owner bersyarat | Tetapkan apakah cakupan mencakup koreksi, pembatalan tanpa pengganti, atau keduanya sesuai K6. | Jika diterapkan, izin terbatas pada Owner. Histori dan perhitungan rekapan dapat direkonsiliasi. |
-| 09 · Rekap lintas periode | Gabungkan hasil Slice 06–07 dan aturan Slice 08 bila berlaku. Sediakan pencarian, filter bulan/jenis, dan XLSX. | Rekap memuat histori lintas bulan dan hasil Excel cocok dengan filter. Selisih terhadap data pembanding Rp0. |
+| 08 · Tindakan Owner bersyarat | Ditunda per 18 November 2026. Tetapkan cakupan berdasarkan K6 saat pengerjaan dilanjutkan. | Jika diterapkan, izin terbatas pada Owner. Histori dan perhitungan rekapan dapat direkonsiliasi. |
+| 09 · Rekap lintas periode | Gabungkan hasil Slice 06–07. Sediakan pencarian, filter bulan/jenis, hasil bersih tercatat, dan XLSX. | Selesai dan di-merge. Histori dan rincian Excel cocok dengan filter. Ringkasan halaman dan Excel memuat total pemasukan, total pengeluaran, serta hasil bersih pada periode yang sama dengan selisih Rp0 terhadap pembanding. [Catatan Slice 09](Catatan-Pengerjaan-Slice-09.md) |
 | 10 · Home bulanan | Gunakan sumber Slice 09 untuk total dan dua seri harian bulan berjalan. | Pergantian bulan menghitung rentang baru. Bulan tanpa catatan bernilai Rp0 dan histori tetap tersedia di Rekap. |
 | 11 · Histori opsional | Jalankan setelah keputusan K8 dan pemetaan sumber. Verifikasi file privat, cakupan, dan impor ulang. | Setiap bulan direkonsiliasi dan tetap memiliki satu nilai sumber setelah impor ulang. |
 | 12 · Forecasting opsional | Setelah K8, gunakan deret bulanan tervalidasi dan jalankan satu model internal Python. | Empat bulan aktual dan dua prediksi berlabel jelas, diperbarui bulanan sesuai sumbu waktu yang disepakati. |

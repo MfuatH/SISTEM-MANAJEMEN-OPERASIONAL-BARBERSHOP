@@ -5,6 +5,7 @@ use App\Http\Controllers\BarberSessionController;
 use App\Http\Controllers\OwnerAuthController;
 use App\Http\Controllers\OwnerExpenseController;
 use App\Http\Controllers\OwnerIncomeController;
+use App\Http\Controllers\OwnerRecapController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Middleware\EnsureBarberSession;
@@ -46,6 +47,8 @@ Route::prefix('owner')->group(function (): void {
             Route::get('pengeluaran/tambah', [OwnerExpenseController::class, 'create'])->name('expenses.create');
             Route::post('pengeluaran', [OwnerExpenseController::class, 'store'])->name('expenses.store');
             Route::get('pengeluaran/ekspor', [OwnerExpenseController::class, 'export'])->name('expenses.export');
+            Route::get('rekap', [OwnerRecapController::class, 'index'])->name('recap.index');
+            Route::get('rekap/ekspor', [OwnerRecapController::class, 'export'])->name('recap.export');
             Route::resource('services', ServiceController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
             Route::patch('services/{service}/archive', [ServiceController::class, 'archive'])->name('services.archive');
             Route::patch('services/{service}/restore', [ServiceController::class, 'restore'])->name('services.restore');

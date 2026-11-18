@@ -15,9 +15,18 @@ class OwnerReportWorkbook
      * @param  list<string>  $headings
      * @param  list<int>  $widths
      * @param  iterable<array{cells: list<Cell>, amount: string}>  $rows
+     * @param  list<Row>  $summaryRows
+     * @param  array<string, string>|null  $footerTotals
      */
-    public function write(string $sheetName, array $headings, array $widths, string $totalLabel, iterable $rows): void
-    {
+    public function write(
+        string $sheetName,
+        array $headings,
+        array $widths,
+        string $totalLabel,
+        iterable $rows,
+        array $summaryRows = [],
+        ?array $footerTotals = null,
+    ): void {
         $writer = new Writer;
         $writer->openToFile('php://output');
 
@@ -31,14 +40,26 @@ class OwnerReportWorkbook
 
             $total = BigInteger::zero();
             foreach ($rows as $row) {
-                $total = $total->plus($row['amount']);
+                if ($footerTotals === null) {
+                    $total = $total->plus($row['amount']);
+                }
+
                 $writer->addRow(new Row([...$row['cells'], $this->amountCell($row['amount'])]));
             }
 
-            $writer->addRow(new Row([
-                0 => new StringCell($totalLabel),
-                count($headings) - 1 => $this->amountCell((string) $total),
-            ]));
+            foreach ($footerTotals ?? [$totalLabel => (string) $total] as $label => $amount) {
+                $writer->addRow(new Row([
+                    0 => new StringCell($label),
+                    count($headings) - 1 => $this->amountCell($amount),
+                ]));
+            }
+
+            if ($summaryRows !== []) {
+                $summary = $writer->addNewSheetAndMakeItCurrent();
+                $summary->setName('Ringkasan');
+                $summary->setColumnWidth(32, 1, 2);
+                $writer->addRows($summaryRows);
+            }
         } finally {
             $writer->close();
         }
@@ -47,6 +68,6 @@ class OwnerReportWorkbook
     public function amountCell(string $amount): NumericCell|StringCell
     {
         // Excel numeric cells retain up to 15 significant digits.
-        return strlen($amount) <= 15 ? new NumericCell((int) $amount) : new StringCell($amount);
+        return strlen(ltrim($amount, '-')) <= 15 ? new NumericCell((int) $amount) : new StringCell($amount);
     }
 }
