@@ -1,6 +1,6 @@
 # Catatan Pengerjaan Slice 09 — Rekap Keuangan Lintas Periode
 
-**18 November 2026 · Dalam review · Branch `feat/slice-09-rekap-owner`**
+**18 November 2026 · Selesai dan di-merge ke `main` · Branch `feat/slice-09-rekap-owner`**
 
 [PR #13 ke `main`](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/13)
 
@@ -17,7 +17,7 @@ Rekap Owner menggabungkan pemasukan per item dari layanan dan penjualan produk d
 
 ## Kesiapan frontend
 
-Halaman Rekap siap diintegrasikan pada branch Slice 09 melalui `GET /owner/rekap`. Tombol **Ekspor Excel** memakai `GET /owner/rekap/ekspor` dengan parameter yang sama. Kedua rute memerlukan akun Owner aktif.
+Halaman Rekap siap diintegrasikan dari `main` melalui `GET /owner/rekap`. Tombol **Ekspor Excel** memakai `GET /owner/rekap/ekspor` dengan parameter yang sama. Kedua rute memerlukan akun Owner aktif.
 
 | Parameter | Penggunaan |
 | --- | --- |
@@ -44,11 +44,11 @@ Uji juga mencakup batas awal bulan WIB, akses khusus Owner, dan penyimpanan desk
 
 ## Cara meninjau
 
-1. Buka branch Slice 09 dan jalankan Laravel dengan PHP 8.5 serta MySQL 8.4. Jika migrasi sebelumnya masih tertunda pada database lokal, jalankan `php artisan migrate`.
+1. Ambil `main` terbaru dan jalankan Laravel dengan PHP 8.5 serta MySQL 8.4. Jika migrasi sebelumnya masih tertunda pada database lokal, jalankan `php artisan migrate`.
 2. Masuk sebagai Owner, buka **Rekap**, lalu pilih bulan yang berisi pemasukan dan pengeluaran. Periksa hasil bersih dengan mengurangkan kedua total pada ringkasan.
 3. Pada **Semua jenis**, gunakan pencarian dan bandingkan total nominal, kotor, dan bersih pada halaman dengan lembar **Rekap** di Excel. Pilih **Pengeluaran** untuk memeriksa bahwa rincian hanya menampilkan total nominal. Cocokkan lembar **Ringkasan** dengan tiga nilai periode di halaman.
 4. Untuk mengulang suite, jalankan `php artisan test --env=testing` pada database pengujian yang sudah dimigrasikan.
 
 ## Kelanjutan
 
-Slice 08 ditunda berdasarkan keputusan 18 November 2026. Slice 10 dapat memakai sumber Rekap untuk dashboard bulanan setelah review Slice 09.
+Slice 08 ditunda berdasarkan keputusan 18 November 2026. Slice 10 dapat memakai sumber Rekap untuk dashboard bulanan setelah Slice 09 masuk `main`.

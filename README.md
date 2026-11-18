@@ -122,7 +122,7 @@ Di `main`, jalankan `php artisan migrate` pada `barbershop_dev`, lalu masuk seba
 
 ### Mencoba Rekap Owner
 
-Pada branch Slice 09, masuk sebagai Owner dan buka **Rekap**. Pilih bulan atau kosongkan untuk melihat seluruh histori. Gunakan jenis dan pencarian untuk menyaring rincian. Saat **Semua jenis** dipilih, tabel juga menampilkan total pendapatan kotor dan bersih dari hasil filter. Ringkasan menampilkan pemasukan, pengeluaran, dan hasil bersih untuk periode yang sama. Ekspor Excel menyediakan lembar **Rekap** dan **Ringkasan**. Slice ini memakai migrasi Slice 00–07 yang sudah ada. [Cara meninjau Slice 09](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-09.md#cara-meninjau)
+Di `main`, masuk sebagai Owner dan buka **Rekap**. Pilih bulan atau kosongkan untuk melihat seluruh histori. Gunakan jenis dan pencarian untuk menyaring rincian. Saat **Semua jenis** dipilih, tabel juga menampilkan total pendapatan kotor dan bersih dari hasil filter. Ringkasan menampilkan pemasukan, pengeluaran, dan hasil bersih untuk periode yang sama. Ekspor Excel menyediakan lembar **Rekap** dan **Ringkasan**. Slice ini memakai migrasi Slice 00–07 yang sudah ada. [Cara meninjau Slice 09](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-09.md#cara-meninjau)
 
 ## Status pengerjaan per slice
 
@@ -139,7 +139,7 @@ Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [P
 | 06 | Pemasukan Owner menampilkan satu baris per layanan atau penjualan produk pada bulan berjalan WIB. Daftar, total, pencarian, dan ekspor XLSX memakai sumber yang sama. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-06.md) |
 | 07 | Owner mencatat pengeluaran dengan ID buatan sistem. Riwayat, pencarian, total, dan XLSX mengikuti bulan berjalan WIB. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-07.md) |
 | 08 | Tindakan koreksi Owner dan jejak audit menunggu penetapan cakupan. | Ditunda. Pengerjaan dilanjutkan ke Slice 09. |
-| 09 | Rekap menggabungkan pemasukan dan pengeluaran lintas periode dengan pencarian, filter, dan hasil bersih tercatat di halaman serta XLSX. | Dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-09.md) |
+| 09 | Rekap menggabungkan pemasukan dan pengeluaran lintas periode dengan pencarian, filter, dan hasil bersih tercatat di halaman serta XLSX. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-09.md) |
 | 10 | Home menampilkan dua total bulanan dan grafik harian. Pergantian bulan memakai rentang baru dan histori tersedia di Rekap. | Direncanakan |
 | 11 | Bila sumber historis dipakai, rekonsiliasi CSV/Excel privat dan uji impor ulang. | Opsional |
 | 12 | Bila disetujui, perbarui tampilan empat bulan aktual dan dua prediksi setiap bulan. | Opsional |
@@ -150,9 +150,9 @@ Contoh kueri Rekap telah diperiksa pada MySQL 8.4.3 menggunakan data fiktif. Gun
 
 ## Status backend dan kesiapan frontend
 
-Per **18 November 2026**, backend sampai Slice 07 sudah masuk `main`. Landing Page, halaman Kapster, Login Owner, Pemasukan, dan Pengeluaran siap diintegrasikan. Home dan sidebar Owner bisa memakai menu aktif. Total bulanan dan grafik Home dijadwalkan pada Slice 10.
+Per **18 November 2026**, Slice 09 sudah masuk `main`. Landing Page, halaman Kapster, Login Owner, Pemasukan, Pengeluaran, dan Rekap siap diintegrasikan. Home dan sidebar Owner bisa memakai menu aktif. Total bulanan dan grafik Home dijadwalkan pada Slice 10.
 
-Rekap siap diintegrasikan pada branch Slice 09 yang sedang direview. Acuan wireframe tersedia dan Forecasting bersifat opsional. [Kesiapan frontend Slice 09](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-09.md#kesiapan-frontend) [Detail kesiapan sembilan tahap frontend](docs/pengerjaan-sistem/Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
+Acuan wireframe tersedia dan Forecasting bersifat opsional. [Kesiapan frontend Slice 09](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-09.md#kesiapan-frontend) [Detail kesiapan sembilan tahap frontend](docs/pengerjaan-sistem/Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
 
 ## Alur kerja Git dan GitHub
 
