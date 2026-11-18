@@ -3,6 +3,7 @@
 use App\Http\Controllers\BarberIncomeController;
 use App\Http\Controllers\BarberSessionController;
 use App\Http\Controllers\OwnerAuthController;
+use App\Http\Controllers\OwnerDashboardController;
 use App\Http\Controllers\OwnerExpenseController;
 use App\Http\Controllers\OwnerIncomeController;
 use App\Http\Controllers\OwnerRecapController;
@@ -37,7 +38,7 @@ Route::prefix('owner')->group(function (): void {
     });
 
     Route::middleware(['auth', EnsureOwnerIsActive::class])->group(function (): void {
-        Route::view('/', 'owner.home')->name('owner.home');
+        Route::get('/', OwnerDashboardController::class)->name('owner.home');
         Route::post('logout', [OwnerAuthController::class, 'destroy'])->name('owner.logout');
 
         Route::name('owner.')->group(function (): void {

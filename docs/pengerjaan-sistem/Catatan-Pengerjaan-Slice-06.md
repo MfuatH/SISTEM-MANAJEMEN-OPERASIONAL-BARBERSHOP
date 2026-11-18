@@ -27,7 +27,7 @@ Ekspor memakai OpenSpout **5.14.0** dan aritmetika rupiah memakai Brick Math **1
 
 **Halaman Pemasukan siap diintegrasikan.** Gunakan `GET /owner/pemasukan` untuk daftar serta total bulan berjalan WIB. Tampilkan satu baris per item dengan ID transaksi, waktu, Kapster, pelanggan, jenis, nama item, jumlah, harga satuan, dan nilai. Teruskan pencarian `q` pada paginasi dan `GET /owner/pemasukan/ekspor` agar XLSX memakai hasil yang sama.
 
-**Home Dashboard Owner dan sidebar siap sebagian.** Halaman `GET /owner` tersedia untuk tata letak Home dan sidebar. Sambungkan menu yang sudah aktif ke Pemasukan, Katalog Layanan, dan Katalog Produk. Total bulanan dan grafik harian ada pada cakupan Slice 10. [Peta kesiapan per tahap](Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
+**Home Dashboard Owner dan sidebar.** Pada Slice 06, `GET /owner` menyediakan navigasi Pemasukan dan katalog. Kartu bulanan dan grafik harian tersedia pada branch Slice 10. [Catatan Slice 10](Catatan-Pengerjaan-Slice-10.md#kesiapan-frontend) [Peta kesiapan per tahap](Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
 
 ## Bukti pengujian
 

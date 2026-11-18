@@ -24,6 +24,31 @@
         .recap-filters .field { margin-bottom: .5rem; }
         .recap-totals div { border: 1px solid #d8dfd9; border-radius: .5rem; padding: .65rem .85rem; }
         .recap-totals dd { margin: .2rem 0 0; font-size: 1.2rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+        .dashboard-layout { display: grid; grid-template-columns: 10.5rem minmax(0, 1fr); gap: 1.75rem; }
+        .dashboard-sidebar { border-right: 1px solid #d8dfd9; padding-right: 1rem; }
+        .dashboard-sidebar ul, .dashboard-legend { margin: 0 0 1rem; padding: 0; list-style: none; }
+        .dashboard-sidebar a { display: block; padding: .45rem .6rem; border-radius: .3rem; }
+        .dashboard-sidebar a[aria-current="page"] { background: #edf2ed; font-weight: 600; text-decoration: none; }
+        .dashboard-totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: 1rem; }
+        .dashboard-totals div { border: 1px solid #d8dfd9; border-radius: .5rem; padding: .75rem 1rem; }
+        .dashboard-totals dd { margin: .2rem 0 0; font-size: 1.35rem; font-weight: 600; overflow-wrap: anywhere; }
+        .dashboard-legend { display: flex; flex-wrap: wrap; gap: .75rem; }
+        .dashboard-swatch { display: inline-block; width: .7rem; height: .7rem; margin-right: .35rem; border-radius: .15rem; }
+        .dashboard-income { background: #21664e; }
+        .dashboard-expenses { background: #a74c28; }
+        .dashboard-chart-area { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: .5rem; margin-bottom: .85rem; }
+        .dashboard-axis { display: flex; flex-direction: column; justify-content: space-between; text-align: right; height: 10rem; max-width: 7.5rem; overflow-wrap: anywhere; font-size: .8rem; }
+        .dashboard-chart-scroll { overflow-x: auto; }
+        .dashboard-chart { display: flex; gap: .3rem; width: max-content; min-width: 100%; }
+        .dashboard-day { flex: 1 0 2rem; text-align: center; font-size: .8rem; }
+        .dashboard-bars { height: 10rem; display: flex; justify-content: center; align-items: flex-end; gap: .15rem; border-bottom: 1px solid #89968e; background: repeating-linear-gradient(to top, transparent 0 calc(25% - 1px), #edf2ed calc(25% - 1px) 25%); }
+        .dashboard-bar { display: block; width: .65rem; border-radius: .15rem .15rem 0 0; }
+        @media (max-width: 48rem) {
+            .owner-dashboard { padding: 1rem; }
+            .dashboard-layout { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+            .dashboard-sidebar { border-right: 0; border-bottom: 1px solid #d8dfd9; padding: 0 0 .75rem; }
+            .dashboard-sidebar ul { display: flex; flex-wrap: wrap; }
+        }
         .number { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
         .report-time { white-space: nowrap; }
         caption { text-align: left; font-weight: 600; }
