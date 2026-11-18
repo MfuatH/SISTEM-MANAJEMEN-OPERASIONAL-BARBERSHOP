@@ -26,7 +26,7 @@ Halaman Pengeluaran siap diintegrasikan dari `main`. Gunakan sesi login Owner ya
 | `POST /owner/pengeluaran` | Kirim `incurred_on`, `description`, `amount`, `request_key`, dan token CSRF. Pertahankan pesan validasi dan pesan sukses dengan referensi sistem. |
 | `GET /owner/pengeluaran/ekspor` | Unduh `pengeluaran-YYYY-MM.xlsx`. Sertakan nilai `q` yang sama dengan daftar. |
 
-Untuk tahap **Home Dashboard Owner dan Sidebar**, menu **Pengeluaran** dapat diarahkan ke daftar di atas. Kartu total dan grafik Home dikerjakan pada Slice 10. [Peta kesiapan sembilan tahap](Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
+Menu **Pengeluaran** pada sidebar bersama membuka daftar di atas. Di `main`, Home menampilkan kartu pemasukan, pengeluaran, dan hasil bersih serta grafik harian. [Catatan Slice 10](Catatan-Pengerjaan-Slice-10.md#kesiapan-frontend) [Peta kesiapan sembilan tahap](Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
 
 ## Bukti pengujian
 

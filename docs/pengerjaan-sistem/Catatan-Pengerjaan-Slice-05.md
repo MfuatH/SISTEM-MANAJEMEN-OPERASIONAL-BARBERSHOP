@@ -68,7 +68,7 @@ Saat menindaklanjuti uji manual, migrasi tersebut diterapkan pada `barbershop_de
 
 Untuk form Blade, kirim `customer_name` jika diisi, daftar `services` dan `products` sesuai form, serta token CSRF, `request_key`, dan `request_signature` dari halaman. Item layanan memakai `service_id` dan `quoted_price`. Item penjualan memakai `product_id`, `quantity`, dan `quoted_price`. Tampilkan harga katalog dan tangani validasi ketika harga berubah sebelum simpan.
 
-**Katalog Owner siap diintegrasikan.** Menu `/owner/products` mengelola produk dan harga jual. Di katalog layanan, **Aktifkan kembali** memakai `PATCH /owner/services/{service}/restore` dan **Hapus** memakai `DELETE /owner/services/{service}`. Layanan yang sudah memiliki transaksi dapat diarsipkan dan diaktifkan kembali.
+**Katalog Owner siap diintegrasikan.** Di `main`, tombol pada Pemasukan membuka pop-up katalog layanan dan produk. Keduanya mendukung arsip, aktifkan kembali, dan hapus item tanpa riwayat. Pengaktifan kembali memakai `PATCH /owner/services/{service}/restore` atau `PATCH /owner/products/{product}/restore`. Penghapusan memakai `DELETE /owner/services/{service}` atau `DELETE /owner/products/{product}`. Penjualan produk dan catatan pemakaian lama melindungi produk dari penghapusan. [Penempatan katalog pada Pemasukan](Catatan-Pengerjaan-Slice-10.md#kesiapan-frontend)
 
 ### Bukti uji revisi
 

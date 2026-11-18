@@ -8,6 +8,7 @@ use App\Models\Service;
 use App\Models\User;
 use App\Services\IncomeItems;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class BarberMultiIncomeTest extends TestCase
@@ -153,6 +154,55 @@ class BarberMultiIncomeTest extends TestCase
         $this->get(route('owner.products.index'))->assertOk()->assertSee('Rp15.000');
         $this->patch(route('owner.products.archive', $product))->assertRedirect(route('owner.products.index'));
         $this->assertNotNull($product->fresh()->archived_at);
+        $this->assertFalse(Product::query()->active()->whereKey($product->id)->exists());
+        $this->get(route('owner.products.index'))->assertOk()->assertSee('Aktifkan kembali');
+
+        $this->patch(route('owner.products.restore', $product))->assertRedirect(route('owner.products.index'));
+        $this->assertTrue(Product::query()->active()->whereKey($product->id)->exists());
+
+        $this->delete(route('owner.products.destroy', $product))->assertRedirect(route('owner.products.index'));
+        $this->assertModelMissing($product);
+    }
+
+    public function test_product_deletion_preserves_sale_and_historical_usage_records(): void
+    {
+        $sold = Product::create(['name' => 'Produk dengan penjualan', 'sale_price' => '15000']);
+        $used = Product::create(['name' => 'Produk dengan pemakaian lama']);
+        $this->patch(route('owner.products.restore', $sold))->assertRedirect(route('login'));
+        $this->delete(route('owner.products.destroy', $sold))->assertRedirect(route('login'));
+        $this->actingAs(User::factory()->create());
+
+        $transaction = IncomeTransaction::create([
+            'barber_name' => 'Bayu',
+            'recorded_at' => now('UTC'),
+            'session_scope' => hash('sha256', 'protected product fixture', true),
+            'request_key' => (string) Str::uuid(),
+            'request_hash' => hash('sha256', 'protected product fixture', true),
+        ]);
+        $sale = $transaction->productSales()->create([
+            'product_id' => $sold->id,
+            'product_name' => $sold->name,
+            'quantity' => 1,
+            'unit_price' => '15000',
+        ]);
+        $service = Service::factory()->create(['current_price' => '35000']);
+        $entry = $transaction->entries()->create([
+            'service_id' => $service->id,
+            'service_name' => $service->name,
+            'amount' => '35000',
+            'used_product_id' => $used->id,
+            'used_product_name' => $used->name,
+        ]);
+
+        $catalog = $this->get(route('owner.products.index'))->assertOk()->assertSee('Sudah tercatat pada transaksi');
+        foreach ([$sold, $used] as $product) {
+            $catalog->assertDontSee('action="'.route('owner.products.destroy', $product).'"', false);
+            $this->delete(route('owner.products.destroy', $product))
+                ->assertRedirect(route('owner.products.index'))->assertSessionHas('error');
+            $this->assertModelExists($product);
+        }
+        $this->assertModelExists($sale);
+        $this->assertModelExists($entry);
     }
 
     private function startBarber(): void

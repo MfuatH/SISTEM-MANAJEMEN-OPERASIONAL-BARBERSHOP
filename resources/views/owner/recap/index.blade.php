@@ -1,10 +1,8 @@
-@extends('auth.owner-layout')
+@extends('auth.owner-area')
 
 @section('title', 'Rekap')
-@section('main-class', 'wide report-page')
 
-@section('content')
-    <p><a href="{{ route('owner.home') }}">Kembali ke area Owner</a></p>
+@section('owner-content')
     <h1>Rekap</h1>
 
     <form method="get" action="{{ route('owner.recap.index') }}">

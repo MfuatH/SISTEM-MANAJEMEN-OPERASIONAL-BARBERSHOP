@@ -51,4 +51,4 @@ Uji juga mencakup batas awal bulan WIB, akses khusus Owner, dan penyimpanan desk
 
 ## Kelanjutan
 
-Slice 08 ditunda berdasarkan keputusan 18 November 2026. Slice 10 dapat memakai sumber Rekap untuk dashboard bulanan setelah Slice 09 masuk `main`.
+Slice 08 ditunda berdasarkan keputusan 18 November 2026. Slice 10 memakai sumber yang sama dengan Rekap untuk kartu total dan grafik harian Owner. [Catatan Slice 10](Catatan-Pengerjaan-Slice-10.md)

@@ -1,8 +1,8 @@
-@extends('auth.owner-layout')
+@extends('auth.owner-area')
 
 @section('title', 'Tambah pengeluaran')
 
-@section('content')
+@section('owner-content')
     <p><a href="{{ route('owner.expenses.index') }}">Kembali ke Pengeluaran</a></p>
     <h1>Tambah pengeluaran</h1>
 

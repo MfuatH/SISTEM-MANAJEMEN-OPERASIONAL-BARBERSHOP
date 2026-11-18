@@ -11,7 +11,7 @@ Aplikasi menyatukan pencatatan pemasukan, pengeluaran, dan laporan bulanan untuk
 | Sesi | Alur utama |
 | --- | --- |
 | Kapster | Mulai dari beranda dengan nama berbentuk teks. Gunakan **Layanan** untuk mencatat beberapa layanan dan penjualan produk opsional, atau **Produk** untuk penjualan produk saja. Nama pelanggan opsional dan harga diambil dari katalog. |
-| Owner | Istilah Admin pada deskripsi sistem merujuk ke akun Owner yang sama. Masuk dengan username dan kata sandi. Kelola katalog layanan, catat pengeluaran, buka Home, Pemasukan, Pengeluaran, dan Rekap, serta ekspor laporan ke Excel. |
+| Owner | Istilah Admin pada deskripsi sistem merujuk ke akun Owner yang sama. Masuk dengan username dan kata sandi. Kelola katalog layanan dan produk dari Pemasukan, catat pengeluaran, buka Home dan Rekap, serta ekspor laporan ke Excel. |
 
 Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Pada pergantian bulan, tampilan beralih ke periode baru. Rekap tetap menyediakan histori seluruh periode dan filter bulan atau jenis. Metode pembayaran dan pembuatan struk keluar dari cakupan. Forecasting bersifat opsional. [Rincian kebutuhan dan keputusan](docs/pengerjaan-sistem/Desain-Database-MySQL-Barbershop.md#2-perubahan-kebutuhan-dan-keputusan-terbuka)
 
@@ -102,11 +102,9 @@ Jalankan `php artisan migrate`, lalu `php artisan owner:create pemilik --name="P
 
 Untuk menguji alur di MySQL, jalankan `php artisan migrate --env=testing`, lalu `php artisan test --env=testing`.
 
-### Mencoba katalog layanan
+### Mencoba katalog layanan dan produk
 
-Setelah migrasi, buka **Katalog layanan** di `/owner/services` sebagai Owner. **Arsipkan** menyembunyikan layanan dari pilihan Kapster dan **Aktifkan kembali** memunculkannya. Gunakan **Hapus** untuk layanan yang belum tercatat pada transaksi. **Layanan A** dan **Layanan B** dapat dibuat sebagai data uji. Daftar aktif tersedia di `GET /services/active`.
-
-Owner membuka **Katalog produk** di `/owner/products` untuk mengelola nama dan harga jual. Produk aktif dengan harga jual muncul pada form penjualan Kapster.
+Di `main`, buka **Pemasukan** sebagai Owner, lalu klik **Katalog layanan** atau **Katalog produk**. Kelola nama, harga, dan status lewat pop-up. **Arsipkan** mengeluarkan item dari pilihan Kapster. **Aktifkan kembali** memulihkan item aktif. Gunakan **Hapus** untuk item yang belum tercatat dalam transaksi. Produk aktif dengan harga jual tersedia pada form penjualan Kapster. [Cara meninjau katalog](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-10.md#cara-meninjau)
 
 ### Mencoba sesi Kapster
 
@@ -124,6 +122,10 @@ Di `main`, jalankan `php artisan migrate` pada `barbershop_dev`, lalu masuk seba
 
 Di `main`, masuk sebagai Owner dan buka **Rekap**. Pilih bulan atau kosongkan untuk melihat seluruh histori. Gunakan jenis dan pencarian untuk menyaring rincian. Saat **Semua jenis** dipilih, tabel juga menampilkan total pendapatan kotor dan bersih dari hasil filter. Ringkasan menampilkan pemasukan, pengeluaran, dan hasil bersih untuk periode yang sama. Ekspor Excel menyediakan lembar **Rekap** dan **Ringkasan**. Slice ini memakai migrasi Slice 00–07 yang sudah ada. [Cara meninjau Slice 09](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-09.md#cara-meninjau)
 
+### Mencoba Home Owner
+
+Di `main`, masuk sebagai Owner dan buka **Home**. Cocokkan kartu pemasukan, pengeluaran, dan hasil bersih bulan berjalan WIB dengan **Rekap** pada bulan yang sama. Pilih grafik **Batang** atau **Garis** dan aktifkan seri **Pemasukan** atau **Pengeluaran**. Klik **Lihat angka per hari** untuk memeriksa nominal grafik. [Cara meninjau Slice 10](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-10.md#cara-meninjau)
+
 ## Status pengerjaan per slice
 
 Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [PR #1](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/1). Desain berikut menjadi acuan peninjauan fitur.
@@ -140,7 +142,7 @@ Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [P
 | 07 | Owner mencatat pengeluaran dengan ID buatan sistem. Riwayat, pencarian, total, dan XLSX mengikuti bulan berjalan WIB. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-07.md) |
 | 08 | Tindakan koreksi Owner dan jejak audit menunggu penetapan cakupan. | Ditunda. Pengerjaan dilanjutkan ke Slice 09. |
 | 09 | Rekap menggabungkan pemasukan dan pengeluaran lintas periode dengan pencarian, filter, dan hasil bersih tercatat di halaman serta XLSX. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-09.md) |
-| 10 | Home menampilkan dua total bulanan dan grafik harian. Pergantian bulan memakai rentang baru dan histori tersedia di Rekap. | Direncanakan |
+| 10 | Home Owner menampilkan kartu dan grafik harian interaktif. Home, Pemasukan, Pengeluaran, dan Rekap memakai sidebar bersama. Katalog dibuka dari Pemasukan. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-10.md) |
 | 11 | Bila sumber historis dipakai, rekonsiliasi CSV/Excel privat dan uji impor ulang. | Opsional |
 | 12 | Bila disetujui, perbarui tampilan empat bulan aktual dan dua prediksi setiap bulan. | Opsional |
 | 13 | Uji integrasi MySQL, pembatasan akses, rekonsiliasi laporan, ekspor, dan UAT. | Direncanakan |
@@ -150,9 +152,9 @@ Contoh kueri Rekap telah diperiksa pada MySQL 8.4.3 menggunakan data fiktif. Gun
 
 ## Status backend dan kesiapan frontend
 
-Per **18 November 2026**, Slice 09 sudah masuk `main`. Landing Page, halaman Kapster, Login Owner, Pemasukan, Pengeluaran, dan Rekap siap diintegrasikan. Home dan sidebar Owner bisa memakai menu aktif. Total bulanan dan grafik Home dijadwalkan pada Slice 10.
+Per **18 November 2026**, Slice 10 sudah masuk `main`. Landing Page, halaman Kapster, login Owner, Home, Pemasukan, Pengeluaran, dan Rekap siap diintegrasikan. Area Owner memakai sidebar bersama, dengan kartu dan grafik di Home serta pop-up katalog di Pemasukan.
 
-Acuan wireframe tersedia dan Forecasting bersifat opsional. [Kesiapan frontend Slice 09](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-09.md#kesiapan-frontend) [Detail kesiapan sembilan tahap frontend](docs/pengerjaan-sistem/Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
+Acuan wireframe tersedia dan Forecasting bersifat opsional. [Kesiapan frontend Slice 10](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-10.md#kesiapan-frontend) [Detail kesiapan sembilan tahap frontend](docs/pengerjaan-sistem/Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
 
 ## Alur kerja Git dan GitHub
 

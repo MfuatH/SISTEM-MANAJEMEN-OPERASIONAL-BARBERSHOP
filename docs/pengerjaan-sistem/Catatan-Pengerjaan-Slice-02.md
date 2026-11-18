@@ -22,9 +22,9 @@ Berkas utama dapat ditinjau melalui [migrasi katalog](../../database/migrations/
 
 ## Kesiapan frontend
 
-**Katalog layanan siap diintegrasikan.** Owner dapat membuka `GET /owner/services` untuk daftar layanan, harga, status arsip, dan tindakan katalog. Form tambah mengirim `name` dan `current_price` ke `POST /owner/services`. Pembaruan memakai `PUT /owner/services/{service}` dan pengarsipan memakai `PATCH /owner/services/{service}/archive`.
+**Katalog layanan siap diintegrasikan.** Di `main`, tombol **Katalog layanan** pada Pemasukan membuka `GET /owner/services` dalam pop-up untuk menampilkan daftar, harga, status arsip, dan tindakan katalog. Form tambah mengirim `name` dan `current_price` ke `POST /owner/services`. Pembaruan memakai `PUT /owner/services/{service}` dan pengarsipan memakai `PATCH /owner/services/{service}/archive`.
 
-**Pilihan layanan Kapster siap digunakan.** `GET /services/active` mengembalikan layanan aktif dalam `data`, dengan `id`, `name`, dan `current_price`. Tindakan **Aktifkan kembali** serta **Hapus** ditambahkan pada revisi Slice 05. [Catatan Slice 05](Catatan-Pengerjaan-Slice-05.md#kesiapan-frontend)
+**Pilihan layanan Kapster siap digunakan.** `GET /services/active` mengembalikan layanan aktif dalam `data`, dengan `id`, `name`, dan `current_price`. Tindakan **Aktifkan kembali** serta **Hapus** ditambahkan pada revisi Slice 05. [Catatan Slice 05](Catatan-Pengerjaan-Slice-05.md#kesiapan-frontend) · [Pop-up Pemasukan](Catatan-Pengerjaan-Slice-10.md#kesiapan-frontend)
 
 ## Bukti pengujian
 
@@ -38,6 +38,8 @@ Berkas utama dapat ditinjau melalui [migrasi katalog](../../database/migrations/
 Bukti ini mendukung KP-01 untuk katalog layanan dan KP-04 untuk pembatasan pengelolaan. Pemeriksaan harga historis pada transaksi dilakukan saat pencatatan Kapster tersedia di Slice 05. [Kriteria penerimaan](Desain-Database-MySQL-Barbershop.md#9-penyesuaian-bukti-penerimaan-qmp)
 
 ## Panduan review
+
+Untuk meninjau alur terbaru dari `main`, buka **Pemasukan → Katalog layanan**. Langkah di bawah memakai branch implementasi awal. [Cara meninjau Slice 10](Catatan-Pengerjaan-Slice-10.md#cara-meninjau)
 
 1. Checkout branch PR di Terminal Laragon dan jalankan `php artisan migrate` pada database lokal.
 2. Masuk sebagai Owner, pilih **Katalog layanan**, dan tambah **Layanan A** dengan harga uji Rp35.000. Ubah harganya menjadi Rp40.000.

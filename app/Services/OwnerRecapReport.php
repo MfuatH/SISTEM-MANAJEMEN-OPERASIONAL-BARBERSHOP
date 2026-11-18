@@ -6,7 +6,6 @@ use App\Models\Expense;
 use Brick\Math\BigInteger;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\DB;
 
 class OwnerRecapReport extends OwnerReport
 {
@@ -28,7 +27,7 @@ class OwnerRecapReport extends OwnerReport
 
     public function query(): Builder
     {
-        $query = $this->periodItems()
+        $query = OwnerFinancialEntries::query($this->month)
             ->orderByDesc('business_date')
             ->orderByDesc('recorded_at')
             ->orderBy('item_type')
@@ -62,7 +61,7 @@ class OwnerRecapReport extends OwnerReport
     /** @return array{income: string, expenses: string, net: string} */
     public function summary(): array
     {
-        return $this->totals($this->periodItems());
+        return $this->totals(OwnerFinancialEntries::query($this->month));
     }
 
     /** @return array<string, string> */
@@ -85,10 +84,7 @@ class OwnerRecapReport extends OwnerReport
     /** @return array{income: string, expenses: string, net: string} */
     private function totals(Builder $items): array
     {
-        $totals = $items->reorder()
-            ->selectRaw("COALESCE(SUM(CASE WHEN entry_type = 'IN' THEN amount ELSE 0 END), 0) AS income,
-                COALESCE(SUM(CASE WHEN entry_type = 'OUT' THEN amount ELSE 0 END), 0) AS expenses")
-            ->first();
+        $totals = OwnerFinancialEntries::selectTotals($items->reorder())->first();
 
         return [
             'income' => (string) $totals->income,
@@ -119,27 +115,5 @@ class OwnerRecapReport extends OwnerReport
     public static function category(string $itemType): string
     {
         return $itemType === 'expense' ? 'Pengeluaran' : OwnerIncomeReport::itemType($itemType);
-    }
-
-    private function periodItems(): Builder
-    {
-        $income = IncomeItems::query()
-            ->select([])
-            ->selectRaw("'IN' AS entry_type, items.item_type, items.item_id AS source_id,
-                tx.id AS transaction_id, DATE(tx.recorded_at + INTERVAL 7 HOUR) AS business_date,
-                tx.recorded_at, tx.barber_name, tx.customer_name, items.item_name AS label, items.amount");
-
-        $expenses = DB::table('expenses')
-            ->selectRaw("'OUT' AS entry_type, 'expense' AS item_type, id AS source_id,
-                NULL AS transaction_id, incurred_on AS business_date, NULL AS recorded_at,
-                NULL AS barber_name, NULL AS customer_name, description AS label, amount");
-
-        if ($this->month !== null) {
-            $income->where('tx.recorded_at', '>=', $this->month->utc())
-                ->where('tx.recorded_at', '<', $this->month->addMonth()->utc());
-            $expenses->whereBetween('incurred_on', [$this->month->toDateString(), $this->month->endOfMonth()->toDateString()]);
-        }
-
-        return DB::query()->fromSub($income->unionAll($expenses), 'recap');
     }
 }

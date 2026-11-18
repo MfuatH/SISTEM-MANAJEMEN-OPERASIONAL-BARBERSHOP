@@ -19,7 +19,7 @@ class ServiceCatalogTest extends TestCase
     {
         $this->actingAs(User::factory()->create());
 
-        $this->get(route('owner.home'))->assertSee('Katalog layanan');
+        $this->get(route('owner.income.index'))->assertOk()->assertSee('Katalog layanan');
         $this->get(route('owner.services.create'))->assertOk()->assertSee('Tambah layanan');
 
         $this->post(route('owner.services.store'), ['name' => 'Layanan A', 'current_price' => '35000'])
