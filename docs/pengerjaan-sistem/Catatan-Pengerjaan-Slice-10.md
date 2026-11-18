@@ -1,8 +1,8 @@
 # Catatan Pengerjaan Slice 10 — Home Dashboard Owner
 
-**18 November 2026 · Dalam review · Branch `feat/slice-10-dashboard-owner`**
+**18 November 2026 · Selesai dan di-merge ke `main` · Branch `feat/slice-10-dashboard-owner`**
 
-[PR #14 ke `main`](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/14)
+[PR #14](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/14)
 
 ## Status dan lingkup
 
@@ -19,7 +19,7 @@ Slice 10 dimulai dari `main` setelah Rekap Slice 09 di-merge pada commit `3e8ef5
 
 ## Kesiapan frontend
 
-Home siap diintegrasikan pada branch Slice 10. Controller menyuplai nilai berikut pada view `owner.home`.
+Home siap diintegrasikan dari `main`. Controller menyuplai nilai berikut pada view `owner.home`.
 
 | Data | Isi |
 | --- | --- |
@@ -28,6 +28,10 @@ Home siap diintegrasikan pada branch Slice 10. Controller menyuplai nilai beriku
 | `days` | Satu entri per hari berisi `date` dengan format `YYYY-MM-DD`, `income`, dan `expenses`. Hari tanpa transaksi bernilai `"0"`. |
 
 Gunakan sidebar untuk Home, Pemasukan, Pengeluaran, dan Rekap. Tempatkan tombol **Katalog layanan** dan **Katalog produk** di dalam konten Pemasukan. Pertahankan dialog saat pengguna membuka formulir atau menyimpan perubahan. Grafik menggunakan skala yang sama pada tampilan Batang dan Garis. Gunakan radio button untuk memilih jenis grafik serta tombol dengan `aria-pressed` untuk mengaktifkan seri pada grafik dan tabel harian. Gunakan `POST /owner/logout` dengan CSRF untuk keluar. [Peta kesiapan frontend](Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
+
+### Integrasi layout login Owner
+
+Simulasi merge branch desain login frontend menunjukkan konflik pada `resources/views/auth/owner-layout.blade.php`, baik terhadap `main` sebelum Slice 10 maupun terhadap branch Slice 10. File tersebut memasok layout dasar untuk area Owner. Saat desain login diintegrasikan, tempatkan gaya login pada layout khusus dan pertahankan layout area Owner untuk sidebar, grafik, serta pop-up. [Branch desain login](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/tree/feat/frontend-slice-01-auth-owner)
 
 ## Hasil pengujian
 
@@ -48,7 +52,7 @@ Suite Laravel lulus dengan **60 tes dan 869 asersi** pada MySQL 8.4.3 di `barber
 
 ## Cara meninjau
 
-1. Ambil branch Slice 10, jalankan Laravel pada PHP 8.5 dan MySQL 8.4, lalu masuk sebagai Owner.
+1. Ambil `main` terbaru, jalankan Laravel pada PHP 8.5 dan MySQL 8.4, lalu masuk sebagai Owner.
 2. Buka **Home**. Periksa tiga kartu bulan berjalan. Pilih **Batang** atau **Garis**, lalu aktifkan dan matikan setiap seri. Buka **Lihat angka per hari** untuk mencocokkan nominal pada tanggal tertentu.
 3. Buka **Rekap**, pilih bulan yang sama dengan kartu Home, lalu cocokkan total pemasukan, pengeluaran, dan hasil bersih. Rekonsiliasi memakai target selisih **Rp0** pada data dan periode yang sama.
 4. Buka **Pemasukan** lalu jalankan aksi pada kedua pop-up. Coba arsip, aktifkan kembali, dan hapus produk uji yang belum dipakai. Tutup pop-up dan periksa Pemasukan tetap pada periode dan pencarian yang sedang dibuka.
@@ -56,4 +60,4 @@ Suite Laravel lulus dengan **60 tes dan 869 asersi** pada MySQL 8.4.3 di `barber
 
 ## Kelanjutan
 
-Setelah Slice 10 disetujui, Slice 11 dan 12 mengikuti keputusan tentang data historis serta Forecasting. Pengujian integrasi dan UAT dijadwalkan pada Slice 13. [Urutan pengerjaan](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
+Slice 11 dan 12 mengikuti keputusan tentang data historis serta Forecasting. Pengujian integrasi dan UAT dijadwalkan pada Slice 13. [Urutan pengerjaan](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
