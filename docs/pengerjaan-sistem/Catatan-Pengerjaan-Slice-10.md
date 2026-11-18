@@ -2,6 +2,8 @@
 
 **18 November 2026 · Dalam review · Branch `feat/slice-10-dashboard-owner`**
 
+[PR #14 ke `main`](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/14)
+
 ## Status dan lingkup
 
 Slice 10 dimulai dari `main` setelah Rekap Slice 09 di-merge pada commit `3e8ef52`. Home Owner menampilkan kartu total pemasukan dan pengeluaran bulan berjalan serta grafik harian dari tanggal 1 sampai hari ini dalam WIB. Menu Home, Pemasukan, Pengeluaran, Rekap, dan katalog tetap tersedia pada navigasi Owner. [Catatan Slice 09](Catatan-Pengerjaan-Slice-09.md)
