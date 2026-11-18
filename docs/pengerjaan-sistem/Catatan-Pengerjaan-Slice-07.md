@@ -53,4 +53,4 @@ Untuk tahap **Home Dashboard Owner dan Sidebar**, menu **Pengeluaran** dapat dia
 
 ## Kelanjutan
 
-Slice 08 bergantung pada keputusan Owner terkait koreksi dan jejak audit sesuai K6. Slice 09 akan memakai data pemasukan dan pengeluaran untuk Rekap lintas periode. [Urutan pengerjaan](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
+Slice 08 bergantung pada keputusan Owner terkait koreksi dan jejak audit sesuai K6. Slice 09 akan memakai data pemasukan dan pengeluaran untuk Rekap lintas periode dan perhitungan hasil bersih tercatat. [Catatan Slice 09](Catatan-Pengerjaan-Slice-09.md) [Urutan pengerjaan](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
