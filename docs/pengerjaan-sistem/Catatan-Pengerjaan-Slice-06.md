@@ -4,9 +4,13 @@
 - **Branch** `feat/slice-06-pemasukan-owner`
 - **Status** Disetujui setelah uji manual dan di-merge ke `main` pada commit `685dbc1`. [PR #8](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/8)
 
+---
+
 ## Dasar pengerjaan
 
 Revisi Slice 05 disetujui setelah uji manual dan di-merge melalui PR #7 pada commit `3762ae0`. Slice 06 membaca transaksi dan rincian yang sudah tersimpan. [Catatan Slice 05](Catatan-Pengerjaan-Slice-05.md#revisi-kebutuhan-setelah-merge)
+
+---
 
 ## Pekerjaan yang diselesaikan
 
@@ -23,11 +27,15 @@ Ekspor memakai OpenSpout **5.14.0** dan aritmetika rupiah memakai Brick Math **1
 
 [Lihat kueri laporan](../../app/Services/OwnerIncomeReport.php) · [Lihat penulis XLSX](../../app/Services/OwnerIncomeWorkbook.php) · [Lihat tes fitur](../../tests/Feature/OwnerIncomeTest.php)
 
+---
+
 ## Kesiapan frontend
 
 **Halaman Pemasukan siap diintegrasikan.** Gunakan `GET /owner/pemasukan` untuk daftar serta total bulan berjalan WIB. Tampilkan satu baris per item dengan ID transaksi, waktu, Kapster, pelanggan, jenis, nama item, jumlah, harga satuan, dan nilai. Teruskan pencarian `q` pada paginasi dan `GET /owner/pemasukan/ekspor` agar XLSX memakai hasil yang sama.
 
 **Home Dashboard Owner dan sidebar.** Di `main`, Home menampilkan kartu bulanan dan grafik harian. Pemasukan masuk di sidebar Owner bersama Home, Pengeluaran, dan Rekap. Kedua katalog dibuka melalui pop-up di Pemasukan. [Catatan Slice 10](Catatan-Pengerjaan-Slice-10.md#kesiapan-frontend) [Peta kesiapan per tahap](Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
+
+---
 
 ## Bukti pengujian
 
@@ -39,12 +47,16 @@ Ekspor memakai OpenSpout **5.14.0** dan aritmetika rupiah memakai Brick Math **1
 | Batas WIB | Item sebelum dan tepat pada awal bulan masuk periode masing-masing. Bulan kosong menampilkan Rp0 dan menghasilkan XLSX dengan total Rp0. |
 | Isi workbook dan akses | Uji Laravel membaca file XLSX dan XML lembar untuk memeriksa tipe kolom, ketiadaan formula, angka presisi besar, dan pembatasan akses. Uji HTTP login Owner, daftar, dan unduh XLSX memverifikasi total Rp30.000 dengan pembaca openpyxl. File unduhan uji dan data fiktif dibersihkan setelah pemeriksaan. |
 
+---
+
 ## Cara meninjau
 
 1. Di `main` dengan PHP 8.5, jalankan `composer install` untuk memasang dependensi sesuai lockfile.
 2. Mulai MySQL dan Laravel. Masuk sebagai Owner, lalu buka **Pemasukan**. Gunakan data pengembangan atau contoh layanan Rp35.000 dan penjualan dua produk seharga Rp15.000 per unit.
 3. Cocokkan daftar, nilai setiap item, dan total. Gunakan kolom pencarian untuk memilih satu nama produk, lalu klik **Ekspor Excel** dan bandingkan jumlah baris serta total.
 4. Untuk mengulang suite, jalankan `php artisan migrate --env=testing` lalu `php artisan test --env=testing`.
+
+---
 
 ## Kelanjutan
 

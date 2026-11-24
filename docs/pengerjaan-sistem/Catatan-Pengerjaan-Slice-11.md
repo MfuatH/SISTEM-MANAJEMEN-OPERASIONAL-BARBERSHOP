@@ -4,12 +4,16 @@
 
 **Fondasi** Berangkat dari `main` commit `900a769`. Lingkungan uji memakai PHP 8.5.12, Laravel 13.42.0, MySQL 8.4.3 LTS, dan Python 3.14.0. Generator memakai pustaka standar Python. [Branch Slice 11](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/tree/feat/slice-11-data-historis)
 
+---
+
 ## Cakupan pengerjaan
 
 1. Membuat generator paket sintetis Juli–Oktober 2026 dengan seed default `20261124`. Asumsi demo adalah buka setiap hari pukul 09.00–21.00 WIB, dua Kapster fiktif, dan sekitar 60% nama pelanggan kosong. Satu transaksi dapat memuat beberapa layanan dan produk terjual, atau penjualan produk saja.
 2. Menggunakan harga referensi Potong rambut Rp18.000, Keramas Rp5.000, Semir hitam Rp25.000, Bleaching dan Highlight masing-masing Rp65.000, serta Hair Tonic Rp15.000. Foto menjadi acuan pola dan harga contoh. Volume tetap mengikuti ketentuan 14–15 transaksi per hari.
 3. Menambah tiga tabel histori, pilihan satu sumber per bulan, dan perintah untuk pratinjau, impor, perubahan sumber, serta pembacaan window. Pemasukan operasional, Pengeluaran, Home, Rekap, dan ekspor tetap membaca tabel operasional.
 4. Menyediakan skema dan enam fixture JSON. Slice 12 memakai tiga bulan lengkap berurutan dan memprediksi satu bulan berikutnya. Target pada kontrak v1 adalah pemasukan kotor dari layanan dan produk terjual.
+
+---
 
 ## Paket CSV privat
 
@@ -22,12 +26,16 @@
 
 CSV memakai UTF-8, koma, dan header sesuai urutan tabel. Impor membaca paket hanya dari `storage/app/private/imports/` dan memeriksa hash, duplikat, relasi item, cakupan tanggal, jumlah transaksi, serta total rupiah. Database menyimpan metadata dan total bulanan. Untuk impor agregat Slice 11, baris transaksi tetap di berkas privat. Revisi Slice 12 menyediakan perintah demo lokal yang mencatat transaksi sintetis langsung ke Pemasukan. [Lihat Catatan Slice 12](Catatan-Pengerjaan-Slice-12.md#cara-meninjau) Pemetaan buku/Excel aktual memerlukan contoh struktur file. Importer menerima paket aktual yang telah dinormalisasi ke `csv-v1` dengan `data_kind=actual`.
 
+---
+
 ## Perilaku sumber dan integritas
 
 - Impor ulang dengan manifest dan versi pemetaan yang sama memakai kembali batch semula. `--activate` memilih bulan lengkap yang sudah berakhir. Saat bulan memiliki sumber lain, seluruh aktivasi dan impor baru dibatalkan. Jalankan tanpa `--activate` untuk menyimpan batch terlebih dahulu, kemudian pilih bulan yang ingin diganti.
 - `forecast:month-source … application` mencatat bahwa operator sudah mengecek kelengkapan bulan dari aplikasi, termasuk bulan Rp0 bila memang lengkap. `forecast:month-source … import --import-id=…` memilih batch yang mencakup bulan tersebut. Jendela data mensyaratkan bulan impor lengkap.
 - Window memakai tepat tiga bulan sebelum target. Status `available` berarti ketiganya siap. `insufficient_data` menyertakan daftar bulan yang hilang, belum ditutup, atau belum lengkap. Setiap nilai memuat jenis dan referensi sumber untuk Slice 12. Window dengan sumber sintetis dan aktual berlabel `mixed`.
 - Migrasi `0001_01_01_000010_create_forecasting_history_tables.php` memiliki rollback terarah saat tabel histori masih kosong. Untuk basis data berisi histori atau pilihan sumber, rollback ditolak untuk melindungi data.
+
+---
 
 ## Cara meninjau
 
@@ -49,6 +57,8 @@ php artisan forecast:month-source 2026-09 application
 php artisan forecast:month-source 2026-09 import --import-id=1
 ```
 
+---
+
 ## Bukti pengujian
 
 | Bulan WIB | Transaksi | Pemasukan kotor sintetis |
@@ -65,6 +75,8 @@ php artisan forecast:month-source 2026-09 import --import-id=1
 - `php artisan test --env=testing` lulus **65 tes, 912 assertion**, termasuk lima tes Slice 11. Cakupan mencakup pratinjau, impor ulang, hash salah, jumlah salah, rollback konflik pilihan, batas WIB, satu sumber pada periode tumpang tindih, bulan nol, dan bulan belum lengkap.
 - Pint, `git diff --check`, skema dan enam fixture JSON diperiksa. Paket CSV hasil generator diabaikan Git.
 
+---
+
 ## Kesiapan frontend
 
 Tim frontend dapat memakai fixture `disabled`, `processing`, `insufficient_data`, `ready`, `stale`, dan `unavailable`. `ready` dan `stale` berisi tiga bulan historis dan satu proyeksi. Gunakan label asal data dan bulan pada respons. [Kontrak dan fixture v1](../../forecasting/contract/v1/README.md)
@@ -72,6 +84,8 @@ Tim frontend dapat memakai fixture `disabled`, `processing`, `insufficient_data`
 Slice 11 menambahkan CLI, tabel histori, dan artefak kontrak. Rute, layout, Blade, serta aset halaman yang dipakai frontend tetap sama. Endpoint Owner, model Python, MAE, serta pembaruan bulanan tersedia melalui acuan Slice 12. [Catatan Slice 12](Catatan-Pengerjaan-Slice-12.md) Ketepatan prediksi lapangan menunggu histori aktual dan evaluasi.
 
 Simulasi merge terhadap branch frontend lokal pada commit 773ce5b menemukan konflik lama di layout login Owner. Konflik yang sama muncul ketika branch tersebut dibandingkan langsung dengan main, dengan ketiga versi file yang identik. Integrasi layout tetap dikerjakan bersama tim frontend saat branch itu ditinjau.
+
+---
 
 ## Referensi
 

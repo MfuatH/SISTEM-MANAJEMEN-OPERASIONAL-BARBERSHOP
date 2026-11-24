@@ -4,9 +4,13 @@
 - **Pull request** [PR #2 ke main](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/2)
 - **Status** Implementasi dan pengujian selesai. PR #2 sudah di-merge ke `main` pada commit `34d6ace`.
 
+---
+
 ## Dasar pengerjaan
 
 Slice 00 telah masuk ke `main` pada commit `505f053` dan menyediakan Laravel, MySQL, serta tabel bawaan `users` dan `sessions`. Pada Slice 01, **Owner dan Admin adalah dua sebutan untuk akun dan izin yang sama**. Akun memakai username dan kata sandi. [Catatan Slice 00](Catatan-Pengerjaan-Slice-00.md) · [Keputusan K7](Desain-Database-MySQL-Barbershop.md#2-perubahan-kebutuhan-dan-keputusan-terbuka)
+
+---
 
 ## Pekerjaan yang diselesaikan
 
@@ -20,9 +24,13 @@ Slice 00 telah masuk ke `main` pada commit `505f053` dan menyediakan Laravel, My
 
 Berkas utama dapat ditinjau melalui [migrasi akun](../../database/migrations/0001_01_01_000003_configure_owner_accounts.php), [rute web](../../routes/web.php), [kontroler autentikasi](../../app/Http/Controllers/OwnerAuthController.php), [pembuatan akun](../../app/Console/Commands/CreateOwner.php), dan [pengujian autentikasi](../../tests/Feature/OwnerAuthenticationTest.php).
 
+---
+
 ## Kesiapan frontend
 
 **Login Owner siap diintegrasikan.** Halaman `GET /owner/login` membuka form. Kirim `username` dan `password` dengan token CSRF ke `POST /owner/login`. Tampilkan pesan validasi dari Laravel. Login berhasil menuju area Owner `/owner`, dan tombol keluar menggunakan `POST /owner/logout`. Pemeriksaan akun aktif dan akses area Owner dilakukan di server.
+
+---
 
 ## Bukti pengujian
 
@@ -34,7 +42,9 @@ Berkas utama dapat ditinjau melalui [migrasi akun](../../database/migrations/000
 | Pemeriksaan kode | Laravel Pint lulus untuk berkas PHP yang diubah. |
 | Database pengembangan lokal | Migrasi maju berhasil pada `barbershop_dev`. Akun Owner dapat dibuat oleh penguji melalui perintah interaktif. |
 
-Bukti di atas mendukung KP-04 dan bagian KP-05 yang terkait autentikasi, validasi, dan CSRF. Pemeriksaan HTTPS di lingkungan target mengikuti Slice 13–14. [Kriteria penerimaan](Desain-Database-MySQL-Barbershop.md#9-penyesuaian-bukti-penerimaan-qmp)
+Bukti di atas mendukung KP-04 dan bagian KP-05 yang terkait autentikasi, validasi, dan CSRF. Pemeriksaan HTTPS dilakukan pada lingkungan target. [Kriteria penerimaan](Desain-Database-MySQL-Barbershop.md#9-penyesuaian-bukti-penerimaan-qmp)
+
+---
 
 ## Panduan review
 
@@ -42,6 +52,8 @@ Bukti di atas mendukung KP-04 dan bagian KP-05 yang terkait autentikasi, validas
 2. Jalankan `php artisan migrate` dan `php artisan owner:create pemilik --name="Pemilik"` untuk membuat akun di database lokal. Masukkan kata sandi saat diminta.
 3. Buka `/owner/login`, masuk, lalu coba keluar. Setelah keluar, buka `/owner` secara langsung dan pastikan browser dialihkan ke halaman login.
 4. Jalankan `php artisan migrate --env=testing` dan `php artisan test --env=testing`. Untuk mengulang pemeriksaan rollback, gunakan database uji terpisah dan pastikan migrasi Slice 01 tercatat sebagai migrasi terakhir melalui `migrate:status --env=testing`.
+
+---
 
 ## Riwayat dan kelanjutan
 

@@ -4,9 +4,13 @@
 - **Branch** `feat/slice-05-pencatatan-kapster`
 - **Status** Selesai dan disetujui setelah pengecekan manual pada 17 November 2026. [PR Slice 05](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/6)
 
+---
+
 ## Dasar pengerjaan
 
 Slice 03 disetujui dan di-merge ke `main` melalui PR #4 pada commit `ae14cd6`. Slice 04 dilewati sesuai K1. Nama pelanggan cukup sebagai keterangan opsional per catatan. K3 menetapkan tepat satu layanan per pencatatan. Dua layanan dari satu kunjungan disimpan sebagai dua pencatatan. [Catatan Slice 03](Catatan-Pengerjaan-Slice-03.md) · [Keputusan skema](Desain-Database-MySQL-Barbershop.md#2-perubahan-kebutuhan-dan-keputusan-terbuka)
+
+---
 
 ## Pekerjaan yang diselesaikan
 
@@ -21,6 +25,8 @@ Slice 03 disetujui dan di-merge ke `main` melalui PR #4 pada commit `ae14cd6`. S
 
 [Lihat migrasi](../../database/migrations/0001_01_01_000005_create_income_entries_table.php) · [Lihat model](../../app/Models/IncomeEntry.php) · [Lihat tes fitur](../../tests/Feature/BarberIncomeTest.php)
 
+---
+
 ## Bukti pengujian
 
 | Pemeriksaan | Hasil |
@@ -33,6 +39,8 @@ Slice 03 disetujui dan di-merge ke `main` melalui PR #4 pada commit `ae14cd6`. S
 | Format kode | Laravel Pint lulus pada berkas PHP yang berubah. |
 
 Pengujian ini memberi bukti awal untuk KP-02, KP-04, dan KP-05. Bukti pencarian, ekspor, dan Rekap disiapkan pada slice yang membaca catatan tersebut. [Kriteria penerimaan](Desain-Database-MySQL-Barbershop.md#9-penyesuaian-bukti-penerimaan-qmp)
+
+---
 
 ## Cara meninjau
 
@@ -47,6 +55,8 @@ Pengujian ini memberi bukti awal untuk KP-02, KP-04, dan KP-05. Bukti pencarian,
 Pesan `barbershop_dev.income_entries doesn't exist` saat membuka dashboard berarti migrasi Slice 05 belum diterapkan pada database pengembangan. Dari terminal PHP 8.5, jalankan `php artisan migrate:status` untuk memeriksa database pengembangan, lalu jalankan `php artisan migrate` jika migrasi `0001_01_01_000005_create_income_entries_table` masih `Pending`. Setelah statusnya `Ran`, muat ulang dashboard.
 
 Saat menindaklanjuti uji manual, migrasi tersebut diterapkan pada `barbershop_dev`. Dashboard Kapster dan form Tambah kemudian berhasil dibuka dengan status HTTP 200 melalui server lokal yang sedang berjalan.
+
+---
 
 ## Revisi kebutuhan setelah merge
 
@@ -95,6 +105,8 @@ Untuk uji katalog, arsipkan layanan uji, periksa bahwa pilihan Kapster hilang, l
 Pesan `barbershop_dev.income_transactions doesn't exist` muncul jika kode revisi sudah berjalan dan migrasi revisi masih tertunda. Dari folder proyek dengan PHP 8.5, jalankan `php artisan migrate:status` untuk memeriksa database pengembangan. Jika migrasi `000006`–`000008` masih `Pending`, jalankan `php artisan migrate`. Setelah ketiganya berstatus `Ran`, muat ulang dashboard.
 
 Saat uji manual, ketiga migrasi diterapkan pada `barbershop_dev`. Perbandingan ID, waktu, nominal, data sesi, dan kunci kirim ulang menunjukkan catatan lama tetap sama. Dashboard, form Layanan, dan form Produk masing-masing mengembalikan HTTP 200.
+
+---
 
 ## Kelanjutan
 

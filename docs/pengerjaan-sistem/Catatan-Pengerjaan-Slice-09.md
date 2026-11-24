@@ -4,9 +4,13 @@
 
 [PR #13 ke `main`](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/13)
 
+---
+
 ## Status dan keputusan
 
 Rekap Owner menggabungkan pemasukan per item dari layanan dan penjualan produk dengan pengeluaran manual dari Slice 07. **Hasil bersih tercatat** menjadi bagian wajib dari ringkasan Rekap dan ekspor Excel. Rumusnya adalah **total pemasukan − total pengeluaran** untuk periode yang sama. [Keputusan K11](Desain-Database-MySQL-Barbershop.md#2-perubahan-kebutuhan-dan-keputusan-terbuka)
+
+---
 
 ## Implementasi
 
@@ -14,6 +18,8 @@ Rekap Owner menggabungkan pemasukan per item dari layanan dan penjualan produk d
 2. Ringkasan menampilkan **Total pemasukan**, **Total pengeluaran**, dan **Hasil bersih tercatat** untuk bulan yang dipilih dalam WIB atau seluruh periode saat bulan kosong. Aritmetika memakai rupiah eksak, termasuk nilai negatif.
 3. Pencarian dan filter jenis menyaring rincian. **Total nominal rincian** menjumlahkan nominal semua baris yang sesuai, termasuk baris setelah halaman pertama. Saat **Semua jenis** dipilih, **Total pendapatan kotor** menjumlahkan pemasukan pada rincian dan **Total pendapatan bersih** mengurangkan pengeluaran pada rincian. Kedua nilai mengikuti pencarian dan bulan. Ringkasan periode tetap mencakup pemasukan dan pengeluaran. Dengan filter Pengeluaran, misalnya, rincian hanya memuat biaya dan hasil bersih tetap memperhitungkan pemasukan.
 4. Ekspor XLSX memuat seluruh hasil dan total rincian pada lembar **Rekap** serta tiga nilai periode pada lembar **Ringkasan**. Nilai hingga 15 digit disimpan sebagai angka. Nilai yang lebih panjang disimpan sebagai teks agar digit tetap utuh. [Desain laporan](Desain-Database-MySQL-Barbershop.md#5-sumber-laporan-grafik-dan-ekspor)
+
+---
 
 ## Kesiapan frontend
 
@@ -27,6 +33,8 @@ Halaman Rekap siap diintegrasikan dari `main` melalui `GET /owner/rekap`. Tombol
 | `page` | Halaman rincian pada daftar. Ekspor mencakup semua hasil. |
 
 Pertahankan label periode pada tiga nilai ringkasan dan pakai parameter yang sama pada tautan ekspor. Gunakan total nominal rincian untuk semua pilihan jenis. Tambahkan pendapatan kotor dan bersih rincian saat **Semua jenis** dipilih. Gunakan `/owner/rekap` pada menu Home atau sidebar Owner. [Peta kesiapan frontend](Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
+
+---
 
 ## Hasil pengujian
 
@@ -42,6 +50,8 @@ Suite Laravel lulus dengan **56 tes dan 761 asersi** pada MySQL 8.4.3 di `barber
 
 Uji juga mencakup batas awal bulan WIB, akses khusus Owner, dan penyimpanan deskripsi sebagai teks pada Excel. Uji HTTP melalui login Owner berhasil membuka Rekap, menerapkan filter Pengeluaran, dan mengunduh file. Pembaca openpyxl memverifikasi isi kedua lembar dan hasil bersih Rp65.000. Data dan file fiktif dibersihkan setelah uji. Selisih terhadap data pembanding adalah **Rp0**. [Uji Rekap](../../tests/Feature/OwnerRecapTest.php) · [Data uji fiktif](Desain-Database-MySQL-Barbershop.md#8-data-uji-fiktif-dan-rekonsiliasi)
 
+---
+
 ## Cara meninjau
 
 1. Ambil `main` terbaru dan jalankan Laravel dengan PHP 8.5 serta MySQL 8.4. Jika migrasi sebelumnya masih tertunda pada database lokal, jalankan `php artisan migrate`.
@@ -49,6 +59,8 @@ Uji juga mencakup batas awal bulan WIB, akses khusus Owner, dan penyimpanan desk
 3. Pada **Semua jenis**, gunakan pencarian dan bandingkan total nominal, kotor, dan bersih pada halaman dengan lembar **Rekap** di Excel. Pilih **Pengeluaran** untuk memeriksa bahwa rincian hanya menampilkan total nominal. Cocokkan lembar **Ringkasan** dengan tiga nilai periode di halaman.
 4. Untuk mengulang suite, jalankan `php artisan test --env=testing` pada database pengujian yang sudah dimigrasikan.
 
+---
+
 ## Kelanjutan
 
-Slice 08 ditunda berdasarkan keputusan 18 November 2026. Slice 10 memakai sumber yang sama dengan Rekap untuk kartu total dan grafik harian Owner. [Catatan Slice 10](Catatan-Pengerjaan-Slice-10.md)
+Slice 08 sempat ditunda pada 18 November 2026 dan kemudian dilewati karena alur operasional saat ini sudah sesuai kebutuhan. Slice 10 memakai sumber yang sama dengan Rekap untuk kartu total dan grafik harian Owner. [Catatan Slice 10](Catatan-Pengerjaan-Slice-10.md)
