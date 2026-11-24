@@ -3,10 +3,17 @@
 @section('title', 'Tambah pengeluaran')
 
 @section('owner-content')
-    <p><a href="{{ route('owner.expenses.index') }}">Kembali ke Pengeluaran</a></p>
-    <h1>Tambah pengeluaran</h1>
+    <p>
+        <a class="back-link" href="{{ route('owner.expenses.index') }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+            Kembali ke Pengeluaran
+        </a>
+    </p>
+    <header class="owner-page-header">
+        <h1>Tambah pengeluaran</h1>
+    </header>
 
-    <form method="post" action="{{ route('owner.expenses.store') }}">
+    <form class="owner-form" method="post" action="{{ route('owner.expenses.store') }}">
         @csrf
         <div class="field">
             <label for="incurred-on">Tanggal pengeluaran</label>
