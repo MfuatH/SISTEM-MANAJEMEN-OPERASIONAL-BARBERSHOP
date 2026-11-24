@@ -25,9 +25,10 @@ final readonly class HistoryPackage
         public string $manifestHash,
         public array $months,
         public array $statistics,
+        public array $transactions,
     ) {}
 
-    public static function fromDirectory(string $relativeDirectory): self
+    public static function fromDirectory(string $relativeDirectory, bool $includeTransactions = false): self
     {
         $root = realpath(storage_path('app/private/imports'));
         $directory = $root === false ? false : realpath($root.DIRECTORY_SEPARATOR.$relativeDirectory);
@@ -56,6 +57,7 @@ final readonly class HistoryPackage
         }
 
         $transactions = [];
+        $details = [];
         $counts = [];
         $blankNames = 0;
         foreach (self::rows($directory, $manifest, 'transactions.csv') as $index => $row) {
@@ -70,6 +72,14 @@ final readonly class HistoryPackage
 
             $month = substr($day, 0, 7).'-01';
             $transactions[$id] = $month;
+            if ($includeTransactions) {
+                $details[$id] = [
+                    'recorded_at_wib' => $recordedAt,
+                    'barber_name' => $barber,
+                    'customer_name' => trim($customer) === '' ? null : $customer,
+                    'items' => [],
+                ];
+            }
             $counts[$month] = ($counts[$month] ?? 0) + 1;
             $blankNames += (int) (trim($customer) === '');
         }
@@ -92,6 +102,11 @@ final readonly class HistoryPackage
             $month = $transactions[$id];
             $totals[$month] = ($totals[$month] ?? BigInteger::zero())->plus($amount);
             $itemCount++;
+            if ($includeTransactions) {
+                $details[$id]['items'][] = [
+                    'type' => $type, 'name' => $label, 'quantity' => (int) $quantity, 'unit_price' => $unitPrice,
+                ];
+            }
         }
 
         if (count($seen) !== count($transactions)) {
@@ -139,7 +154,7 @@ final readonly class HistoryPackage
             'transactions' => count($transactions),
             'items' => $itemCount,
             'blank_names' => $blankNames,
-        ]);
+        ], $details);
     }
 
     private static function within(string $path, string $root): bool

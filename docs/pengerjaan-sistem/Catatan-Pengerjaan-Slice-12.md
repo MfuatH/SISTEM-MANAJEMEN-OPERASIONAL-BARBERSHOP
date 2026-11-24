@@ -10,9 +10,9 @@
 2. Saat empat bulan lengkap tersedia, uji retrospektif membandingkan hasil model dengan bulan keempat. Bulan pembanding dipisahkan dari pelatihan uji. MAE, aktual, prediksi uji, jumlah bulan uji, dan galat pembanding sederhana diberi label sumber data.
 3. Laravel menjalankan Python dengan daftar argumen tetap dan stdin JSON, membatasi proses hingga 20 detik, lalu memeriksa keluaran. Hasil dibulatkan ke rupiah utuh dengan kebijakan setengah menjauhi nol. Nilai negatif tersimpan sebagai metadata privat dan ditandai perlu ditinjau.
 4. Snapshot privat dipublikasikan secara atomik di `storage/app/private/forecasting/latest.json`. Snapshot menyimpan versi model, sidik jari histori, metadata batch, input, hasil, dan evaluasi. Penguncian cache mencegah proses ganda. Refresh dengan tahun, bulan, dan sumber yang sama memakai hasil siap yang sudah ada.
-5. Halaman dan JSON `/owner/forecasting` serta `/owner/forecasting/data` hanya dapat dibuka oleh Owner aktif, memakai respons kontrak v1 dan header privat tanpa cache. Feature flag awal adalah `FORECAST_ENABLED=false`. [Kontrak JSON](../../forecasting/contract/v1/README.md)
+5. Halaman dan JSON `/owner/forecasting` serta `/owner/forecasting/data` hanya dapat dibuka oleh Owner aktif, memakai respons kontrak v1 dan header privat tanpa cache. Forecasting aktif secara bawaan. Tombol **Perbarui prediksi** memakai `POST /owner/forecasting/refresh` dengan CSRF dan pembatas permintaan. [Kontrak JSON](../../forecasting/contract/v1/README.md)
 
-Scheduler memeriksa setiap jam. Saat bulan kalender berganti, proyeksi menunggu tiga bulan lengkap dan pilihan sumber. Konfirmasi sumber bulan terdahulu memakai proses Slice 11. Selama menunggu, halaman dapat menampilkan hasil terakhir dengan label kedaluwarsa. [Cara meninjau histori Slice 11](Catatan-Pengerjaan-Slice-11.md#cara-meninjau)
+Scheduler memeriksa setiap jam melalui `forecast:refresh --monthly` dan menerbitkan satu hasil siap secara otomatis per bulan target. Bulan WIB yang sudah selesai dengan transaksi aplikasi dibaca otomatis. Pilihan eksplisit masih berlaku untuk batch impor atau konfirmasi Rp0. Jika data berubah setelah terbit, Owner dapat klik **Perbarui prediksi** untuk menghitung kembali pada bulan yang sama. [Cara meninjau histori Slice 11](Catatan-Pengerjaan-Slice-11.md#cara-meninjau)
 
 ## Handoff frontend
 
@@ -30,23 +30,21 @@ Halaman `resources/views/owner/forecasting/index.blade.php` adalah acuan fungsio
 
 Gunakan enam fixture sebagai bahan pengembangan sebelum memakai data lokal. [Kontrak dan fixture](../../forecasting/contract/v1/README.md)
 
-Pada branch ini, backend berasal dari main 57742ad dan tema berasal dari feature/ui-redesign 356e19a. Benturan pada sidebar diselesaikan dengan mempertahankan layout redesign dan tautan Forecasting bersyarat. Regresi awal gabungan lulus **71 tes dan 976 assertion** pada MySQL 8.4.3. Setelah revisi grafik bulanan dari main, regresi gabungan lulus **71 tes dan 980 assertion**.
+Pada branch ini, backend berasal dari main 57742ad dan tema berasal dari feature/ui-redesign 356e19a. Benturan pada sidebar diselesaikan dengan mempertahankan layout redesign dan tautan Forecasting bersyarat. Regresi awal gabungan lulus **71 tes dan 976 assertion** pada MySQL 8.4.3. Setelah revisi grafik bulanan dari main, regresi gabungan lulus **71 tes dan 980 assertion**. Revisi histori Pemasukan dan pembaruan otomatis lulus **75 tes dan 1.020 assertion** pada branch integrasi.
 
 ## Cara meninjau
 
-Gunakan database pengembangan dan selesaikan migrasi serta impor paket dari panduan Slice 11. Perintah berikut mengaktifkan Forecasting untuk sesi PowerShell yang sama.
+Gunakan database pengembangan. Jalankan migrasi, bentuk paket sintetis, lalu jalankan `php artisan forecast:demo-import slice11-synthetic-20261124`. Rekap per bulan menampilkan transaksi berlabel **(Demo)**. Perintah berikut menyiapkan Python dan server untuk sesi PowerShell yang sama.
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r forecasting/requirements.txt
-$env:FORECAST_ENABLED='true'
 $env:FORECAST_PYTHON=(Resolve-Path -LiteralPath .\.venv\Scripts\python.exe).Path
 php artisan config:clear
-php artisan forecast:refresh
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-Masuk sebagai Owner, buka **Forecasting**, dan cocokkan angka layar dengan `/owner/forecasting/data`. Uji pilihan **Batang** dan **Garis**, urutan tiga bulan historis lalu satu prediksi, dan nominal pada **Lihat angka per bulan**. Jika prediksi belum tersedia, grafik hanya menampilkan histori ketika tiga bulan lengkap tersedia. Hasil contoh November 2026 berlaku saat target adalah November dan sumber Agustus–Oktober telah dipilih. Untuk terminal scheduler terpisah, letakkan pengaturan di `.env` lokal dan jalankan `php artisan schedule:work`. Cek jadwal melalui `php artisan schedule:list`.
+Masuk sebagai Owner, buka **Forecasting**, klik **Perbarui prediksi**, dan cocokkan angka layar dengan `/owner/forecasting/data`. Uji pilihan **Batang** dan **Garis**, urutan tiga bulan historis lalu satu prediksi, dan nominal pada **Lihat angka per bulan**. Jika prediksi belum tersedia, grafik hanya menampilkan histori ketika tiga bulan lengkap tersedia. Hasil contoh November 2026 berlaku saat target adalah November dan histori Pemasukan Agustus–Oktober tersedia. Untuk terminal scheduler terpisah, letakkan pengaturan di `.env` lokal dan jalankan `php artisan schedule:work`. Cek jadwal melalui `php artisan schedule:list`.
 
 ## Bukti pengujian
 
@@ -56,6 +54,7 @@ Masuk sebagai Owner, buka **Forecasting**, dan cocokkan angka layar dengan `/own
 | Uji retrospektif satu bulan | Prediksi Oktober dari Juli–September **Rp8.502.000** terhadap aktual sintetis **Rp8.792.000**. MAE **Rp290.000**. Pembanding memakai Rp8.573.000 dari September dan menghasilkan galat **Rp219.000**. |
 | Tes regresi | Kandidat backend lulus **71 tes dan 975 assertion** pada MySQL 8.4.3. Rangkaian tes meliputi akses Owner, enam status, jendela latih dan uji, output Python rusak, timeout, prediksi negatif, penguncian, navigasi, serta tampilan acuan. |
 | Revisi grafik bulanan | 71 tes Laravel dan 979 assertion lulus di MySQL 8.4.3. Uji JavaScript memeriksa pilihan Batang/Garis, empat titik Forecasting, segmen prediksi putus-putus, dan tombol seri Home. |
+| Histori Pemasukan dan refresh | Di barbershop_dev, impor memasukkan 1.783 transaksi dan 2.085 item dengan total Rp35.273.000 di Rekap. Impor ulang menambah 0 transaksi. Forecasting membaca sumber aplikasi, berlabel sintetis, dan menghasilkan Rp8.573.667 untuk November. Pengulangan refresh otomatis bulan yang sama menghasilkan up_to_date. Regresi revisi ini lulus 75 tes dan 1.019 assertion di MySQL 8.4.3. |
 | Jalur Python Windows | Laravel berhasil menjalankan Python dari jalur berspasi. Keluaran untuk fixture adalah Rp5.750.000. |
 | Jadwal dan format | `schedule:list` mencantumkan refresh per jam, Pint dan `git diff --check` lulus. |
 

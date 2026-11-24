@@ -14,6 +14,8 @@ use RuntimeException;
 
 class MonthlyForecast
 {
+    private const SNAPSHOT_VERSION = 2;
+
     private const LOCK = 'forecasting:refresh';
 
     private const RUNNING = 'forecasting:refreshing';
@@ -22,20 +24,26 @@ class MonthlyForecast
 
     public function __construct(private MonthlyRevenueHistory $history, private PythonLinearRegression $model) {}
 
-    public function refresh(): string
+    public function refresh(bool $monthly = false, bool $force = false): string
     {
         if (! config('forecasting.enabled')) {
             return 'disabled';
         }
 
-        return Cache::lock(self::LOCK, self::LOCK_SECONDS)->get(function (): string {
+        return Cache::lock(self::LOCK, self::LOCK_SECONDS)->get(function () use ($monthly, $force): string {
+            $last = $this->snapshot();
+            $ready = ($last['response']['status'] ?? null) === 'ready';
+            $target = CarbonImmutable::now(OwnerReport::TIMEZONE)->format('Y-m');
+            if (! $force && $monthly && $ready && ($last['version'] ?? null) === self::SNAPSHOT_VERSION &&
+                $last['response']['predictions'][0]['month'] === $target) {
+                return 'up_to_date';
+            }
+
             $context = $this->context();
             if ($context['window']['status'] !== 'available') {
                 return 'insufficient_data';
             }
-
-            $last = $this->snapshot();
-            if ($last !== null && $last['fingerprint'] === $context['hash'] && $last['response']['status'] === 'ready') {
+            if (! $force && $ready && $last['fingerprint'] === $context['hash']) {
                 return 'up_to_date';
             }
 
@@ -109,7 +117,7 @@ class MonthlyForecast
         });
 
         return [
-            'hash' => hash('sha256', json_encode([PythonLinearRegression::VERSION, $window, $holdout], JSON_THROW_ON_ERROR)),
+            'hash' => hash('sha256', json_encode([self::SNAPSHOT_VERSION, PythonLinearRegression::VERSION, $window, $holdout], JSON_THROW_ON_ERROR)),
             'window' => $window,
             'holdout' => $holdout,
             'evaluation_target' => $evaluationTarget,
@@ -207,6 +215,7 @@ class MonthlyForecast
         $path = config('forecasting.snapshot_path');
         File::ensureDirectoryExists(dirname($path), 0700);
         File::replace($path, json_encode([
+            'version' => self::SNAPSHOT_VERSION,
             'fingerprint' => $context['hash'],
             'model_version' => PythonLinearRegression::VERSION,
             'input' => $context['window'],

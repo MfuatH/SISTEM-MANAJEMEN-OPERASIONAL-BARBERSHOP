@@ -13,7 +13,7 @@ Aplikasi menyatukan pencatatan pemasukan, pengeluaran, dan laporan bulanan untuk
 | Kapster | Mulai dari beranda dengan nama berbentuk teks. Gunakan **Layanan** untuk mencatat beberapa layanan dan penjualan produk opsional, atau **Produk** untuk penjualan produk saja. Nama pelanggan opsional dan harga diambil dari katalog. |
 | Owner | Istilah Admin pada deskripsi sistem merujuk ke akun Owner yang sama. Masuk dengan username dan kata sandi. Kelola katalog layanan dan produk dari Pemasukan, catat pengeluaran, buka Home dan Rekap, serta ekspor laporan ke Excel. |
 
-Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Pada pergantian bulan, tampilan beralih ke periode baru. Rekap tetap menyediakan histori seluruh periode dan filter bulan atau jenis. Metode pembayaran dan pembuatan struk keluar dari cakupan. Forecasting bersifat opsional. [Rincian kebutuhan dan keputusan](docs/pengerjaan-sistem/Desain-Database-MySQL-Barbershop.md#2-perubahan-kebutuhan-dan-keputusan-terbuka)
+Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Pada pergantian bulan, tampilan beralih ke periode baru. Rekap tetap menyediakan histori seluruh periode dan filter bulan atau jenis. Metode pembayaran dan pembuatan struk keluar dari cakupan. Forecasting tersedia secara bawaan. [Rincian kebutuhan dan keputusan](docs/pengerjaan-sistem/Desain-Database-MySQL-Barbershop.md#2-perubahan-kebutuhan-dan-keputusan-terbuka)
 
 ## Stack teknis
 
@@ -209,12 +209,12 @@ php artisan db:show
 php artisan migrate
 python forecasting/generate_synthetic_history.py storage/app/private/imports/slice11-synthetic-20261124
 php artisan forecast:history-import slice11-synthetic-20261124 --preview
-php artisan forecast:history-import slice11-synthetic-20261124 --activate
+php artisan forecast:demo-import slice11-synthetic-20261124
 ```
 
-`--preview` memvalidasi paket dan menampilkan total tanpa menulis ke database. `--activate` memilih bulan lengkap yang sudah berakhir. Jika bulan sudah memakai sumber berbeda, simpan paket dengan menjalankan impor tanpa `--activate`, lalu tentukan sumber bulan yang akan dipakai. Agregat impor hanya digunakan untuk Forecasting. [Format CSV dan panduan impor](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-11.md#paket-csv-privat)
+`--preview` memvalidasi paket tanpa menulis ke database. `forecast:demo-import` menyimpan transaksi dan item ke tabel Pemasukan yang dipakai Kapster, dengan tanggal asli dan nama Kapster berlabel **(Demo)**. Pengulangan paket yang sama memakai batch yang sama. Perintah demo tersedia pada lingkungan lokal dan pengujian. Di aplikasi, buka **Rekap → Pemasukan** dan pilih bulan Juli–Oktober 2026 untuk melihat histori. Halaman Pemasukan menampilkan bulan berjalan. [Format CSV dan panduan impor](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-11.md#paket-csv-privat)
 
-Untuk histori operasional, pilih satu sumber untuk setiap bulan yang sudah selesai. Contoh berikut menunjukkan dua pilihan untuk Oktober 2026. Jalankan pilihan yang sesuai dan ganti `1` dengan ID batch sebenarnya jika memakai impor.
+Forecasting otomatis memakai transaksi aplikasi untuk bulan WIB yang sudah berakhir dan mempunyai catatan. Bulan tanpa transaksi perlu dikonfirmasi sebelum dipakai sebagai Rp0. Perintah berikut tersedia untuk memilih sumber secara eksplisit jika diperlukan. Ganti `1` dengan ID batch impor yang sesuai.
 
 ```powershell
 php artisan forecast:month-source 2026-10 application
@@ -223,7 +223,7 @@ php artisan forecast:month-source 2026-10 import --import-id=1
 
 Periksa tiga bulan input dengan `php artisan forecast:history-window`. Jika statusnya `insufficient_data`, lihat `missing_months` untuk mengetahui bulan yang belum lengkap atau belum memiliki sumber. Untuk meninjau periode demo secara eksplisit, gunakan `php artisan forecast:history-window 2026-11`. Argumen bulan pada perintah ini hanya untuk pemeriksaan. Refresh tetap memakai bulan berjalan WIB, sehingga paket Juli–Oktober 2026 saja tidak mencukupi untuk refresh pada Desember 2026 atau sesudahnya.
 
-#### 2. Aktifkan fitur dan buat prediksi
+#### 2. Siapkan Python dan buka Forecasting
 
 Siapkan Python 3.14 dan pasang dependensi versi proyek di lingkungan virtual.
 
@@ -234,20 +234,18 @@ python -m venv .venv
 (Resolve-Path -LiteralPath .\.venv\Scripts\python.exe).Path.Replace('\', '/')
 ```
 
-Tambahkan pengaturan berikut ke `.env` lokal. Isi `FORECAST_PYTHON` dengan jalur absolut yang ditampilkan perintah terakhir.
+Forecasting aktif secara bawaan. Jika `.env` lama berisi `FORECAST_ENABLED=false`, hapus baris itu atau ubah menjadi `true`. Isi `FORECAST_PYTHON` dengan jalur absolut yang ditampilkan perintah terakhir.
 
 ```dotenv
-FORECAST_ENABLED=true
 FORECAST_PYTHON="C:/path/to/Scaffold-Barbershop/.venv/Scripts/python.exe"
 ```
 
 ```powershell
 php artisan config:clear
-php artisan forecast:refresh
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-`forecast:refresh` menghasilkan `ready` jika prediksi tersimpan dan `up_to_date` jika input serta hasil siap masih sama. Masuk sebagai Owner, lalu buka **Forecasting** dari sidebar. [Buka halaman Forecasting lokal](http://127.0.0.1:8000/owner/forecasting)
+Masuk sebagai Owner dan buka **Forecasting** di sidebar. Pilih **Perbarui prediksi** kapan saja untuk meminta perhitungan langsung. Pembaruan otomatis berjalan lewat scheduler pada langkah 4. [Buka halaman Forecasting lokal](http://127.0.0.1:8000/owner/forecasting)
 
 #### 3. Baca hasil dan status
 
@@ -259,19 +257,19 @@ Pilih **Batang** atau **Garis (Line Chart)** pada grafik bulanan. Saat prediksi 
 | `processing` | Refresh sedang berjalan. Muat ulang halaman setelah selesai. |
 | `insufficient_data` | Histori belum lengkap. Periksa `missing_months` lewat `forecast:history-window`. |
 | `ready` | Prediksi sesuai dengan periode dan sumber terkini. |
-| `stale` | Halaman menampilkan hasil terakhir saat periode atau sumber berubah. Periksa histori terkini, lalu jalankan refresh. |
-| `unavailable` | Prediksi periode ini belum dibuat atau gagal. Jalankan refresh, lalu periksa `reason_code` jika status berlanjut. |
+| `stale` | Halaman menampilkan hasil terakhir saat periode atau sumber berubah. Periksa histori terkini, lalu klik **Perbarui prediksi**. |
+| `unavailable` | Prediksi periode ini belum dibuat atau gagal. Klik **Perbarui prediksi**, lalu periksa `reason_code` jika status berlanjut. |
 
 #### 4. Jalankan pembaruan rutin dan cek endpoint
 
-Scheduler memeriksa kebutuhan refresh **setiap jam** dan membuat prediksi baru saat tiga bulan sumber terbaru siap. Pilih sumber untuk bulan yang baru selesai. Untuk mencoba scheduler lokal, jalankan perintah berikut di terminal terpisah dengan `.env` yang sama.
+Scheduler memeriksa **setiap jam** dan otomatis menerbitkan satu hasil siap per bulan target WIB, setelah tiga bulan input tersedia. Jika scheduler dimulai setelah awal bulan, hasil dibuat pada pemeriksaan berikutnya. **Perbarui prediksi** dapat menghitung ulang di bulan yang sama. `composer dev` menjalankan scheduler bersama proses dev. Jika memakai `php artisan serve`, jalankan scheduler berikut di terminal kedua.
 
 ```powershell
 php artisan schedule:list
 php artisan schedule:work
 ```
 
-Halaman `GET /owner/forecasting` dan data `GET /owner/forecasting/data` memakai sesi Owner aktif. Jika mengakses JSON dari frontend, kirim `Accept: application/json` agar sesi yang sudah berakhir mendapat `401` dalam JSON. Nominal dalam respons dikirim sebagai string rupiah. [Kontrak JSON dan contoh respons](forecasting/contract/v1/README.md) · [Catatan Pengerjaan Slice 12](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-12.md)
+Server yang dideploy perlu menjalankan `php artisan schedule:run` setiap menit melalui scheduler sistem. `GET /owner/forecasting`, `GET /owner/forecasting/data`, dan `POST /owner/forecasting/refresh` memakai sesi Owner aktif. Tombol manual mengirim POST dengan CSRF. Jika mengakses JSON dari frontend, kirim `Accept: application/json` agar sesi yang sudah berakhir mendapat `401` dalam JSON. Nominal dalam respons dikirim sebagai string rupiah. [Kontrak JSON dan contoh respons](forecasting/contract/v1/README.md) · [Catatan Pengerjaan Slice 12](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-12.md)
 
 ## Status pengerjaan per slice
 
@@ -291,7 +289,7 @@ Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [P
 | 09 | Rekap menggabungkan pemasukan dan pengeluaran lintas periode dengan pencarian, filter, dan hasil bersih tercatat di halaman serta XLSX. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-09.md) |
 | 10 | Home Owner menampilkan kartu dan grafik harian interaktif. Home, Pemasukan, Pengeluaran, dan Rekap memakai sidebar bersama. Katalog dibuka dari Pemasukan. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-10.md) |
 | 11 | Generator sintetis Juli–Oktober, impor CSV privat dengan rekonsiliasi dan satu sumber per bulan, pembaca tiga bulan, serta kontrak v1 untuk frontend. | Selesai dan diuji. [PR #17](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/17) · [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-11.md) |
-| 12 | Regresi Linier, evaluasi MAE, refresh bulanan, rute Owner, dan halaman acuan dengan tiga bulan historis serta satu prediksi. | Backend dan halaman acuan selesai diuji. Desain akhir Forecasting dikerjakan tim frontend. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-12.md) |
+| 12 | Regresi Linier, evaluasi MAE, refresh otomatis bulanan dan tombol manual, rute Owner, dan halaman acuan dengan tiga bulan historis serta satu prediksi. | Backend dan halaman acuan selesai diuji. Desain akhir Forecasting dikerjakan tim frontend. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-12.md) |
 | 13 | Uji integrasi MySQL, pembatasan akses, rekonsiliasi laporan, ekspor, dan UAT. | Direncanakan |
 | 14 | Periksa fungsi inti sebelum penerapan, lalu catat evaluasi dan penerimaan. | Direncanakan |
 

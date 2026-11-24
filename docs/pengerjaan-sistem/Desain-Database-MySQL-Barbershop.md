@@ -165,7 +165,7 @@ Rekap menampilkan tanggal pemasukan dalam WIB dan tanggal pengeluaran sesuai `in
 
 ## 6. Sumber histori dan Forecasting
 
-Slice 11 menyediakan data sintetis Juli–Oktober 2026. Pemasukan kotor dihitung dari harga saat pencatatan, mencakup layanan dan produk terjual. Alur membandingkan nominal item dengan rekap bulanan dari CSV privat. Database histori menyimpan agregat per batch dan metadata. Transaksi sumber dan nama pelanggan tetap di paket privat.
+Slice 11 menyediakan data sintetis Juli–Oktober 2026. Pemasukan kotor dihitung dari harga saat pencatatan, mencakup layanan dan produk terjual. Alur membandingkan nominal item dengan rekap bulanan dari CSV privat. Impor agregat menyimpan total bulanan dan metadata. Impor demo lokal Slice 12 mencatat induk dan item ke tabel Pemasukan asli agar histori tampil di Rekap. ID batch tercatat di `income_transactions.demo_import_id` dan harga disimpan sebagai snapshot.
 
 Bulan target memakai tiga bulan kalender WIB berurutan yang berakhir sebelum target. Contohnya Agustus–Oktober menjadi input untuk November. Juli–September dapat dipakai pada uji retrospektif Oktober. Slice 12 menjalankan Regresi Linier Python secara internal, menghitung MAE, dan menampilkan hasil ke Owner aktif. [Kontrak respons v1](../../forecasting/contract/v1/README.md) · [Catatan Slice 11](Catatan-Pengerjaan-Slice-11.md)
 
@@ -207,13 +207,13 @@ Bulan target memakai tiga bulan kalender WIB berurutan yang berakhir sebelum tar
 
 CHECK MySQL membatasi jenis data, hari pertama bulan, nominal nonnegatif, kelengkapan, serta kombinasi sumber dan ID. FK memakai `RESTRICT`. Impor menyimpan batch, agregat, dan pilihan sumber dalam satu transaksi. Identitas batch unik dan pemilihan sumber memakai PK bulan. Konflik aktivasi membatalkan seluruh transaksi. Penggantian sumber berlangsung melalui perintah pilihan eksplisit.
 
-Pembaca sumber `application` menghitung item layanan dan penjualan produk dari `IncomeItems` pada rentang UTC yang ekuivalen dengan bulan WIB. Window menyatakan `insufficient_data` ketika bulan belum berakhir, belum dipilih, atau agregat impor belum lengkap. Hasil membawa asal per bulan dan label `mixed` jika operator memilih campuran aktual dan sintetis.
+Pembaca sumber `application` menghitung item layanan dan penjualan produk dari `IncomeItems` pada rentang UTC yang ekuivalen dengan bulan WIB. Jika pilihan eksplisit kosong, Forecasting membaca Pemasukan untuk bulan yang sudah berakhir dan memiliki transaksi. Bulan kosong perlu dikonfirmasi sebagai Rp0. Window menyatakan `insufficient_data` ketika histori belum lengkap. Penanda batch pada transaksi menjaga klasifikasi `synthetic` dan `mixed` meskipun sumbernya Pemasukan.
 
 ### Penyimpanan hasil Slice 12
 
-Forecasting membaca tabel histori Slice 11. Laravel mengirim tiga agregat bulanan ke Python melalui stdin JSON. Saat tersedia empat bulan berturut-turut, bulan terakhir juga menjadi pembanding untuk model uji yang dilatih pada tiga bulan sebelumnya. Nilai hasil dibulatkan ke rupiah utuh. Prediksi negatif ditandai perlu ditinjau, dengan nilai mentah tersimpan pada metadata privat.
+Forecasting membaca histori Pemasukan dan pilihan sumber bulanan. Laravel mengirim tiga agregat bulanan ke Python melalui stdin JSON. Saat tersedia empat bulan berturut-turut, bulan terakhir juga menjadi pembanding untuk model uji yang dilatih pada tiga bulan sebelumnya. Nilai hasil dibulatkan ke rupiah utuh. Prediksi negatif ditandai perlu ditinjau, dengan nilai mentah tersimpan pada metadata privat.
 
-Snapshot terakhir dipublikasikan atomik pada `storage/app/private/forecasting/latest.json`. Snapshot mencatat versi model, sidik jari sumber, input, keluaran, evaluasi, dan waktu pembangkitan. Scheduler memeriksa kebutuhan pembaruan per jam. Penguncian cache mencegah pembangkitan serentak. Setelah bulan berganti, pemutakhiran memakai tiga bulan lengkap terbaru saat sumbernya tersedia. [Catatan Slice 12](Catatan-Pengerjaan-Slice-12.md)
+Snapshot terakhir dipublikasikan atomik pada `storage/app/private/forecasting/latest.json`. Snapshot mencatat versi model, sidik jari sumber, input, keluaran, evaluasi, dan waktu pembangkitan. Scheduler memeriksa kebutuhan pembaruan per jam dan menerbitkan satu hasil siap per bulan target. Owner dapat meminta refresh manual melalui POST dengan CSRF. Penguncian cache mencegah pembangkitan serentak. Setelah bulan berganti, pemutakhiran memakai tiga bulan lengkap terbaru saat sumbernya tersedia. [Catatan Slice 12](Catatan-Pengerjaan-Slice-12.md)
 
 ## 7. Urutan migrasi Laravel yang diusulkan
 
@@ -232,7 +232,7 @@ Pemeriksaan repo menemukan tiga migrasi bawaan `0001_01_01_000000_create_users_t
 | Ditunda | 08 | Tambahkan atribut audit dan relasi pengganti sesuai alur yang disetujui. | K6. Owner memegang izin. Tetapkan cakupan tindakan, periode, dan aturan status sebelum migrasi. |
 | 6 | 11 | Migrasi `0001_01_01_000010_create_forecasting_history_tables.php` membuat `historical_imports`, `historical_monthly_revenues`, lalu `forecast_month_sources`. | Uji pada MySQL 8.4. Rollback melepas tabel sesuai urutan FK pada skema yang belum berisi histori atau pilihan sumber. |
 
-Slice 06, 09, dan 10 membaca sumber operasional yang sama. Slice 12 memakai sumber bulanan Slice 11 dan menyimpan snapshot privat tanpa migrasi tambahan. Gunakan migrasi baru setiap kali mengubah fondasi yang sudah diterapkan. Uji penerapan dan rollback pada MySQL 8.4 di skema uji terpisah. Dalam rollback skema fitur, lepaskan tabel anak sebelum induknya. [Migrasi Laravel](https://laravel.com/docs/13.x/migrations)
+Slice 06, 09, dan 10 membaca sumber operasional yang sama. Migrasi `0001_01_01_000011_add_demo_import_to_income_transactions.php` pada Slice 12 menambahkan FK batch demo setelah migrasi tabel histori. Slice 12 menyimpan hasil prediksi sebagai snapshot privat. Gunakan migrasi baru setiap kali mengubah fondasi yang sudah diterapkan. Uji penerapan dan rollback pada MySQL 8.4 di skema uji terpisah. Dalam rollback skema fitur, lepaskan tabel anak sebelum induknya. [Migrasi Laravel](https://laravel.com/docs/13.x/migrations)
 
 ## 8. Data uji fiktif dan rekonsiliasi
 
@@ -339,7 +339,7 @@ erDiagram
 
 | Tabel | Perubahan yang diusulkan |
 | --- | --- |
-| `income_transactions` | PK `id`. Simpan nama Kapster dari sesi, nama pelanggan opsional, waktu pencatatan UTC, cakupan sesi, kunci permintaan unik, dan hash payload transaksi. Indeks `(recorded_at, id)` untuk laporan dan `(session_scope, recorded_at, id)` untuk dashboard sesi. |
+| `income_transactions` | PK `id`. Simpan nama Kapster, nama pelanggan opsional, waktu pencatatan UTC, cakupan sesi, kunci permintaan unik, dan hash payload transaksi. `demo_import_id BIGINT UNSIGNED NULL` adalah FK ke `historical_imports.id` untuk membedakan data demo dari pencatatan reguler. Indeks `(recorded_at, id)` untuk laporan dan `(session_scope, recorded_at, id)` untuk dashboard sesi. |
 | `income_entries` | Pertahankan ID, snapshot layanan dan harga, serta FK wajib `income_transaction_id`. FK opsional `used_product_id` dan snapshot `used_product_name VARCHAR(120) NULL` dipertahankan untuk riwayat pemakaian produk dari versi sebelumnya. |
 | `products` | PK `id`, `name VARCHAR(120)`, `sale_price DECIMAL(15,0) NULL`, dan `archived_at DATETIME(6) NULL`. Owner mengisi katalog. Form penjualan Kapster hanya menampilkan produk aktif dengan harga jual positif. |
 | `income_product_sales` | PK `id`. FK wajib `income_transaction_id` ke induk dan `product_id` ke katalog. Simpan `product_name VARCHAR(120)`, `quantity INT UNSIGNED` positif, dan snapshot `unit_price DECIMAL(15,0)` positif. Nilai penjualan per item dihitung dari `quantity × unit_price`. |

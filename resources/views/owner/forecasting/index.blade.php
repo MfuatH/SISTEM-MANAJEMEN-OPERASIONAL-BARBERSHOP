@@ -30,6 +30,17 @@
         };
     @endphp
 
+    @if ($forecast['status'] !== 'disabled')
+        <form method="post" action="{{ route('owner.forecasting.refresh') }}">
+            @csrf
+            <button type="submit">Perbarui prediksi</button>
+        </form>
+    @endif
+
+    @if (session('forecast_refresh'))
+        <p role="status">{{ session('forecast_refresh') }}</p>
+    @endif
+
     @if ($message !== null)
         <p role="status">{{ $message }}</p>
     @endif

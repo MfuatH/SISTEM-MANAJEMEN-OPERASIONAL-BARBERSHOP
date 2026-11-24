@@ -20,7 +20,7 @@
 | `transaction_items.csv` | `source_transaction_id`, `item_number`, `item_type`, `item_name`, `quantity`, `unit_price`, `amount`. Jenis item `service` atau `product`. Nominal rupiah utuh, dengan `amount = quantity × unit_price`. |
 | `monthly_revenues.csv` | `month_start`, `revenue`, `transaction_count`, `complete`. Awal bulan berformat `YYYY-MM-01` dan kelengkapan bernilai 0 atau 1. Identitas dataset mengikuti manifest. |
 
-CSV memakai UTF-8, koma, dan header sesuai urutan tabel. Impor membaca paket hanya dari `storage/app/private/imports/` dan memeriksa hash, duplikat, relasi item, cakupan tanggal, jumlah transaksi, serta total rupiah. Database menyimpan metadata dan total bulanan. Baris sintetis maupun aktual tetap berada pada berkas privat. Pemetaan buku/Excel aktual memerlukan contoh struktur file. Importer menerima paket aktual yang telah dinormalisasi ke `csv-v1` dengan `data_kind=actual`.
+CSV memakai UTF-8, koma, dan header sesuai urutan tabel. Impor membaca paket hanya dari `storage/app/private/imports/` dan memeriksa hash, duplikat, relasi item, cakupan tanggal, jumlah transaksi, serta total rupiah. Database menyimpan metadata dan total bulanan. Untuk impor agregat Slice 11, baris transaksi tetap di berkas privat. Revisi Slice 12 menyediakan perintah demo lokal yang mencatat transaksi sintetis langsung ke Pemasukan. [Lihat Catatan Slice 12](Catatan-Pengerjaan-Slice-12.md#cara-meninjau) Pemetaan buku/Excel aktual memerlukan contoh struktur file. Importer menerima paket aktual yang telah dinormalisasi ke `csv-v1` dengan `data_kind=actual`.
 
 ## Perilaku sumber dan integritas
 
