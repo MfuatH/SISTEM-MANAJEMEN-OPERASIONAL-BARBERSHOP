@@ -1,6 +1,6 @@
 # Catatan Pengerjaan Slice 11 — Data Histori Forecasting
 
-**Status** Implementasi dan pengujian selesai pada branch `feat/slice-11-data-historis`. Menunggu review ke `main`. [PR #17](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/17)
+**Status** Implementasi dan pengujian selesai. Komit `877891b` telah diverifikasi sebagai bagian dari Slice 12. [PR #17](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/17)
 
 **Fondasi** Berangkat dari `main` commit `900a769`. Lingkungan uji memakai PHP 8.5.12, Laravel 13.42.0, MySQL 8.4.3 LTS, dan Python 3.14.0. Generator memakai pustaka standar Python. [Branch Slice 11](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/tree/feat/slice-11-data-historis)
 
@@ -69,7 +69,7 @@ php artisan forecast:month-source 2026-09 import --import-id=1
 
 Tim frontend dapat memakai fixture `disabled`, `processing`, `insufficient_data`, `ready`, `stale`, dan `unavailable`. `ready` dan `stale` berisi tiga bulan historis dan satu proyeksi. Gunakan label asal data dan bulan pada respons. [Kontrak dan fixture v1](../../forecasting/contract/v1/README.md)
 
-Slice 11 menambahkan CLI, tabel histori, dan artefak kontrak. Rute, layout, Blade, serta aset halaman yang dipakai frontend tetap sama. Endpoint Owner, model Python, MAE, dan pembaruan bulanan menjadi pekerjaan Slice 12 setelah review Slice 11. Ketepatan prediksi lapangan menunggu histori aktual dan evaluasi.
+Slice 11 menambahkan CLI, tabel histori, dan artefak kontrak. Rute, layout, Blade, serta aset halaman yang dipakai frontend tetap sama. Endpoint Owner, model Python, MAE, serta pembaruan bulanan tersedia melalui acuan Slice 12. [Catatan Slice 12](Catatan-Pengerjaan-Slice-12.md) Ketepatan prediksi lapangan menunggu histori aktual dan evaluasi.
 
 Simulasi merge terhadap branch frontend lokal pada commit 773ce5b menemukan konflik lama di layout login Owner. Konflik yang sama muncul ketika branch tersebut dibandingkan langsung dengan main, dengan ketiga versi file yang identik. Integrasi layout tetap dikerjakan bersama tim frontend saat branch itu ditinjau.
 
