@@ -104,15 +104,14 @@ class MonthlyRevenueHistory
                 $label = $month->format('Y-m');
                 $source = $sources->get($date);
 
-                if ($month >= $currentMonth || $source === null || ($source->source === 'import' && ! $source->is_complete)) {
+                if ($month >= $currentMonth || ($source?->source === 'import' && ! $source->is_complete)) {
                     $missing[] = $label;
 
                     continue;
                 }
 
-                $actual[] = $source->source === 'application'
-                    ? $this->applicationMonth($month)
-                    : [
+                if ($source?->source === 'import') {
+                    $actual[] = [
                         'month' => $label,
                         'amount' => (string) $source->revenue,
                         'transaction_count' => (int) $source->transaction_count,
@@ -123,6 +122,18 @@ class MonthlyRevenueHistory
                         'dataset_version' => $source->dataset_version,
                         'manifest_sha256' => $source->manifest_sha256,
                     ];
+
+                    continue;
+                }
+
+                $application = $this->applicationMonth($month);
+                if ($source === null && $application['transaction_count'] === 0) {
+                    $missing[] = $label;
+
+                    continue;
+                }
+
+                $actual[] = $application;
             }
 
             $kinds = array_unique(array_column($actual, 'data_kind'));
@@ -157,7 +168,8 @@ class MonthlyRevenueHistory
             ->where('tx.recorded_at', '>=', $month->utc()->toDateTimeString())
             ->where('tx.recorded_at', '<', $month->addMonth()->utc()->toDateTimeString())
             ->select([])
-            ->selectRaw('COALESCE(SUM(items.amount), 0) AS revenue, COUNT(DISTINCT tx.id) AS transaction_count')
+            ->selectRaw('COALESCE(SUM(items.amount), 0) AS revenue, COUNT(DISTINCT tx.id) AS transaction_count,
+                COUNT(DISTINCT CASE WHEN tx.demo_import_id IS NOT NULL THEN tx.id END) AS demo_count')
             ->first();
 
         return [
@@ -166,7 +178,11 @@ class MonthlyRevenueHistory
             'transaction_count' => (int) $totals->transaction_count,
             'complete' => true,
             'source' => 'application',
-            'data_kind' => 'actual',
+            'data_kind' => match (true) {
+                (int) $totals->demo_count === 0 => 'actual',
+                (int) $totals->demo_count === (int) $totals->transaction_count => 'synthetic',
+                default => 'mixed',
+            },
             'import_id' => null,
             'dataset_version' => null,
             'manifest_sha256' => null,

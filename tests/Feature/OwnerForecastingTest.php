@@ -43,8 +43,10 @@ class OwnerForecastingTest extends TestCase
         config(['forecasting.enabled' => false]);
         $this->get(route('owner.forecasting.index'))->assertRedirect(route('login'));
         $this->getJson(route('owner.forecasting.data'))->assertUnauthorized();
+        $this->postJson(route('owner.forecasting.refresh'))->assertUnauthorized();
         $this->actingAs(User::factory()->create(['disabled_at' => now()]));
         $this->getJson(route('owner.forecasting.data'))->assertUnauthorized();
+        $this->postJson(route('owner.forecasting.refresh'))->assertUnauthorized();
 
         $this->actingAs(User::factory()->create());
         $this->getJson(route('owner.forecasting.data'))
@@ -156,9 +158,43 @@ class OwnerForecastingTest extends TestCase
             ->assertJsonPath('status', 'unavailable')->assertJsonPath('reason_code', 'generation_failed');
     }
 
-    private function history(): void
+    public function test_monthly_refresh_waits_for_the_next_period_but_owner_can_refresh_manually(): void
     {
-        $months = ['2026-07' => '8898000', '2026-08' => '9010000', '2026-09' => '8573000', '2026-10' => '8792000'];
+        $this->history();
+        $this->successfulProcess();
+        $this->artisan('forecast:refresh', ['--monthly' => true])->expectsOutput('Forecasting: ready')->assertSuccessful();
+
+        $this->history(october: '8792001');
+        $this->artisan('forecast:refresh', ['--monthly' => true])->expectsOutput('Forecasting: up_to_date')->assertSuccessful();
+        Process::assertRanTimes(fn (): bool => true, 1);
+
+        $this->actingAs(User::factory()->create());
+        $this->get(route('owner.forecasting.index'))->assertOk()->assertSee('Perbarui prediksi');
+        $this->getJson(route('owner.forecasting.data'))->assertJsonPath('status', 'stale');
+        $this->post(route('owner.forecasting.refresh'))->assertStatus(303)
+            ->assertRedirect(route('owner.forecasting.index'))->assertSessionHas('forecast_refresh', 'Prediksi berhasil diperbarui.');
+        Process::assertRanTimes(fn (): bool => true, 2);
+        $this->getJson(route('owner.forecasting.data'))->assertJsonPath('status', 'ready')->assertJsonPath('actual.2.amount', '8792001');
+    }
+
+    public function test_monthly_refresh_rebuilds_a_legacy_snapshot_for_the_current_period(): void
+    {
+        $this->history();
+        $this->successfulProcess();
+        $this->artisan('forecast:refresh')->expectsOutput('Forecasting: ready')->assertSuccessful();
+        $snapshot = File::json($this->snapshotPath);
+        unset($snapshot['version']);
+        $snapshot['fingerprint'] = 'legacy';
+        File::put($this->snapshotPath, json_encode($snapshot, JSON_THROW_ON_ERROR));
+
+        $this->artisan('forecast:refresh', ['--monthly' => true])->expectsOutput('Forecasting: ready')->assertSuccessful();
+        Process::assertRanTimes(fn (): bool => true, 2);
+        $this->assertSame(2, File::json($this->snapshotPath)['version']);
+    }
+
+    private function history(string $october = '8792000'): void
+    {
+        $months = ['2026-07' => '8898000', '2026-08' => '9010000', '2026-09' => '8573000', '2026-10' => $october];
         $points = [];
         foreach ($months as $month => $amount) {
             $points[] = ['month' => $month, 'amount' => $amount, 'data_kind' => 'synthetic'];
