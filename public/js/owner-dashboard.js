@@ -7,6 +7,7 @@ const seriesButtons = [...controls.querySelectorAll('button[data-series]')];
 const chartArea = section.querySelector('[data-chart-area]');
 const table = section.querySelector('details');
 const empty = section.querySelector('[data-chart-empty]');
+const fixedSeries = plot.dataset.fixedSeries;
 const scale = Number(plot.dataset.scale);
 const style = getComputedStyle(section);
 
@@ -32,6 +33,8 @@ function drawLine(activeSeries) {
             padding + (1 - Number(day.dataset[series]) / scale) * (height - 2 * padding),
         ]);
 
+        const projection = days.at(-1).hasAttribute('data-projection') ? coordinates.pop() : null;
+        const projectionColor = style.getPropertyValue('--dashboard-expenses').trim();
         context.strokeStyle = color;
         context.fillStyle = color;
         context.beginPath();
@@ -41,7 +44,21 @@ function drawLine(activeSeries) {
         }
         context.stroke();
 
-        for (const [x, y] of coordinates) {
+        if (projection !== null) {
+            context.save();
+            context.setLineDash([5, 4]);
+            context.strokeStyle = projectionColor;
+            context.beginPath();
+            context.moveTo(...coordinates.at(-1));
+            context.lineTo(...projection);
+            context.stroke();
+            context.restore();
+            coordinates.push(projection);
+        }
+
+        for (const point of coordinates) {
+            const [x, y] = point;
+            context.fillStyle = point === projection ? projectionColor : color;
             context.beginPath();
             context.arc(x, y, 3, 0, 2 * Math.PI);
             context.fill();
@@ -51,7 +68,7 @@ function drawLine(activeSeries) {
 
 function render() {
     const type = controls.querySelector('input:checked').value;
-    const active = seriesButtons
+    const active = fixedSeries ? [fixedSeries] : seriesButtons
         .filter((button) => button.getAttribute('aria-pressed') === 'true')
         .map((button) => button.dataset.series);
 
@@ -62,7 +79,9 @@ function render() {
     plot.dataset.type = type;
     chartArea.hidden = active.length === 0;
     table.hidden = active.length === 0;
-    empty.hidden = active.length !== 0;
+    if (empty) {
+        empty.hidden = active.length !== 0;
+    }
     canvas.hidden = type !== 'line';
 
     if (type === 'line' && active.length > 0) {
@@ -81,5 +100,5 @@ for (const button of seriesButtons) {
 controls.addEventListener('change', render);
 new ResizeObserver(render).observe(plot);
 controls.hidden = false;
-section.querySelector('[data-chart-legend]').hidden = true;
+section.querySelector('[data-chart-legend]').hidden = seriesButtons.length > 0;
 render();

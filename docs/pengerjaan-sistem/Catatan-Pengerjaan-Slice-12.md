@@ -18,11 +18,11 @@ Scheduler memeriksa setiap jam. Saat bulan kalender berganti, proyeksi menunggu 
 
 Pemeriksaan `feature/ui-redesign` pada komit `356e19a` mencakup layout Owner, laporan, katalog, Kapster, dan beranda. Tema Modern Classic dan sidebar bisa dipakai sebagai acuan bersama. Gabungan backend dan desain tersedia di branch khusus. [Branch redesign](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/tree/feature/ui-redesign) · [Branch integrasi](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/tree/feat/integrasi-backend-frontend)
 
-Halaman `resources/views/owner/forecasting/index.blade.php` adalah acuan fungsional. Alurnya dimulai dari judul dan status, lalu proyeksi, waktu pembaruan, grafik dasar dan rincian, serta hasil evaluasi. Tim frontend menentukan tipografi, kartu, dan grafik akhir dengan mempertahankan perilaku berikut.
+Halaman `resources/views/owner/forecasting/index.blade.php` adalah acuan fungsional. Alurnya dimulai dari judul dan status, lalu proyeksi, waktu pembaruan, grafik Batang atau Garis dan rincian, serta hasil evaluasi. Tim frontend menentukan tipografi, kartu, dan grafik akhir dengan mempertahankan perilaku berikut.
 
 | Bagian | Acuan integrasi |
 | --- | --- |
-| Periode dan nilai | Saat `ready`, tiga bulan lengkap dan satu bulan prediksi. Tampilkan label jenis tiap titik dan nilai rupiah utuh di tabel. |
+| Periode dan nilai | Saat `ready`, grafik menampilkan tiga bulan lengkap dan satu bulan prediksi. Pilih Batang atau Garis. Prediksi memakai warna berbeda dan segmen garis putus-putus. Untuk nominal penuh, buka **Lihat angka per bulan**. |
 | Status | Sediakan `disabled`, `processing`, `insufficient_data`, `ready`, `stale`, dan `unavailable`. Status `stale` mempertahankan periode hasil lama. |
 | Sumber dan kesegaran | Tampilkan penanda sintetis atau campuran, bulan target, serta waktu pembaruan dari respons. |
 | Evaluasi | Tampilkan MAE, galat pembanding bulan terakhir, dan jumlah bulan uji jika tersedia. Jelaskan kebutuhan pembanding bila evaluasi kosong. |
@@ -30,7 +30,7 @@ Halaman `resources/views/owner/forecasting/index.blade.php` adalah acuan fungsio
 
 Gunakan enam fixture sebagai bahan pengembangan sebelum memakai data lokal. [Kontrak dan fixture](../../forecasting/contract/v1/README.md)
 
-Pada branch ini, backend berasal dari main 57742ad dan tema berasal dari feature/ui-redesign 356e19a. Benturan pada sidebar diselesaikan dengan mempertahankan layout redesign dan tautan Forecasting bersyarat. Regresi gabungan lulus **71 tes dan 976 assertion** pada MySQL 8.4.3.
+Pada branch ini, backend berasal dari main 57742ad dan tema berasal dari feature/ui-redesign 356e19a. Benturan pada sidebar diselesaikan dengan mempertahankan layout redesign dan tautan Forecasting bersyarat. Regresi awal gabungan lulus **71 tes dan 976 assertion** pada MySQL 8.4.3. Setelah revisi grafik bulanan dari main, regresi gabungan lulus **71 tes dan 980 assertion**.
 
 ## Cara meninjau
 
@@ -46,7 +46,7 @@ php artisan forecast:refresh
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-Masuk sebagai Owner, buka **Forecasting**, dan cocokkan angka layar dengan `/owner/forecasting/data`. Hasil contoh November 2026 berlaku saat target adalah November dan sumber Agustus–Oktober telah dipilih. Untuk terminal scheduler terpisah, letakkan pengaturan di `.env` lokal dan jalankan `php artisan schedule:work`. Cek jadwal melalui `php artisan schedule:list`.
+Masuk sebagai Owner, buka **Forecasting**, dan cocokkan angka layar dengan `/owner/forecasting/data`. Uji pilihan **Batang** dan **Garis**, urutan tiga bulan historis lalu satu prediksi, dan nominal pada **Lihat angka per bulan**. Jika prediksi belum tersedia, grafik hanya menampilkan histori ketika tiga bulan lengkap tersedia. Hasil contoh November 2026 berlaku saat target adalah November dan sumber Agustus–Oktober telah dipilih. Untuk terminal scheduler terpisah, letakkan pengaturan di `.env` lokal dan jalankan `php artisan schedule:work`. Cek jadwal melalui `php artisan schedule:list`.
 
 ## Bukti pengujian
 
@@ -55,6 +55,7 @@ Masuk sebagai Owner, buka **Forecasting**, dan cocokkan angka layar dengan `/own
 | Model nyata melalui Laravel | Agustus–Oktober 2026 menghasilkan proyeksi November **Rp8.573.667** pada `barbershop_test`. Refresh kedua memakai snapshot yang sama. |
 | Uji retrospektif satu bulan | Prediksi Oktober dari Juli–September **Rp8.502.000** terhadap aktual sintetis **Rp8.792.000**. MAE **Rp290.000**. Pembanding memakai Rp8.573.000 dari September dan menghasilkan galat **Rp219.000**. |
 | Tes regresi | Kandidat backend lulus **71 tes dan 975 assertion** pada MySQL 8.4.3. Rangkaian tes meliputi akses Owner, enam status, jendela latih dan uji, output Python rusak, timeout, prediksi negatif, penguncian, navigasi, serta tampilan acuan. |
+| Revisi grafik bulanan | 71 tes Laravel dan 979 assertion lulus di MySQL 8.4.3. Uji JavaScript memeriksa pilihan Batang/Garis, empat titik Forecasting, segmen prediksi putus-putus, dan tombol seri Home. |
 | Jalur Python Windows | Laravel berhasil menjalankan Python dari jalur berspasi. Keluaran untuk fixture adalah Rp5.750.000. |
 | Jadwal dan format | `schedule:list` mencantumkan refresh per jam, Pint dan `git diff --check` lulus. |
 
