@@ -3,10 +3,15 @@
 @section('title', $service->exists ? 'Ubah layanan' : 'Tambah layanan')
 
 @section('catalog-content')
-    <p><a href="{{ route('owner.services.index') }}">Kembali ke katalog</a></p>
+    <p>
+        <a class="back-link" href="{{ route('owner.services.index') }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+            Kembali ke katalog
+        </a>
+    </p>
     <h1>{{ $service->exists ? 'Ubah layanan' : 'Tambah layanan' }}</h1>
 
-    <form method="post" action="{{ $service->exists ? route('owner.services.update', $service) : route('owner.services.store') }}">
+    <form class="catalog-form" method="post" action="{{ $service->exists ? route('owner.services.update', $service) : route('owner.services.store') }}">
         @csrf
         @if ($service->exists)
             @method('PUT')
