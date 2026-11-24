@@ -1,12 +1,12 @@
 # Catatan Pengerjaan Slice 11 — Data Histori Forecasting
 
-**Status** Implementasi dan pengujian selesai pada branch `feat/slice-11-data-historis». Menunggu review ke `main».
+**Status** Implementasi dan pengujian selesai pada branch `feat/slice-11-data-historis`. Menunggu review ke `main`. [PR #17](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/17)
 
-**Fondasi** Berangkat dari `main» commit `900a769». Lingkungan uji memakai PHP 8.5.12, Laravel 13.42.0, MySQL 8.4.3 LTS, dan Python 3.14.0. Generator memakai pustaka standar Python. [Branch Slice 11](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/tree/feat/slice-11-data-historis)
+**Fondasi** Berangkat dari `main` commit `900a769`. Lingkungan uji memakai PHP 8.5.12, Laravel 13.42.0, MySQL 8.4.3 LTS, dan Python 3.14.0. Generator memakai pustaka standar Python. [Branch Slice 11](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/tree/feat/slice-11-data-historis)
 
 ## Cakupan pengerjaan
 
-1. Membuat generator paket sintetis Juli–Oktober 2026 dengan seed default `20261124». Asumsi demo adalah buka setiap hari pukul 09.00–21.00 WIB, dua Kapster fiktif, dan sekitar 60% nama pelanggan kosong. Satu transaksi dapat memuat beberapa layanan dan produk terjual, atau penjualan produk saja.
+1. Membuat generator paket sintetis Juli–Oktober 2026 dengan seed default `20261124`. Asumsi demo adalah buka setiap hari pukul 09.00–21.00 WIB, dua Kapster fiktif, dan sekitar 60% nama pelanggan kosong. Satu transaksi dapat memuat beberapa layanan dan produk terjual, atau penjualan produk saja.
 2. Menggunakan harga referensi Potong rambut Rp18.000, Keramas Rp5.000, Semir hitam Rp25.000, Bleaching dan Highlight masing-masing Rp65.000, serta Hair Tonic Rp15.000. Foto menjadi acuan pola dan harga contoh. Volume tetap mengikuti ketentuan 14–15 transaksi per hari.
 3. Menambah tiga tabel histori, pilihan satu sumber per bulan, dan perintah untuk pratinjau, impor, perubahan sumber, serta pembacaan window. Pemasukan operasional, Pengeluaran, Home, Rekap, dan ekspor tetap membaca tabel operasional.
 4. Menyediakan skema dan enam fixture JSON. Slice 12 memakai tiga bulan lengkap berurutan dan memprediksi satu bulan berikutnya. Target pada kontrak v1 adalah pemasukan kotor dari layanan dan produk terjual.
@@ -15,12 +15,12 @@
 
 | Berkas | Isi |
 | --- | --- |
-| `manifest.json» | `schema_version» 1, versi dataset, jenis data, zona WIB, mata uang IDR, tanggal cakupan, dan SHA-256 tiap CSV. Manifest sintetis juga mencatat seed, versi generator, asumsi, serta harga. |
-| `transactions.csv» | `source_transaction_id», `recorded_at_wib», `barber_name», `customer_name». Nama pelanggan boleh kosong. Tanggal waktu berformat `YYYY-MM-DD HH:MM:SS», dalam WIB. |
-| `transaction_items.csv» | `source_transaction_id», `item_number», `item_type», `item_name», `quantity», `unit_price», `amount». Jenis item `service» atau `product». Nominal rupiah utuh, dengan `amount = quantity × unit_price». |
-| `monthly_revenues.csv» | `month_start», `revenue», `transaction_count», `complete». Awal bulan berformat `YYYY-MM-01» dan kelengkapan bernilai 0 atau 1. Identitas dataset mengikuti manifest. |
+| `manifest.json` | `schema_version` 1, versi dataset, jenis data, zona WIB, mata uang IDR, tanggal cakupan, dan SHA-256 tiap CSV. Manifest sintetis juga mencatat seed, versi generator, asumsi, serta harga. |
+| `transactions.csv` | `source_transaction_id`, `recorded_at_wib`, `barber_name`, `customer_name`. Nama pelanggan boleh kosong. Tanggal waktu berformat `YYYY-MM-DD HH:MM:SS`, dalam WIB. |
+| `transaction_items.csv` | `source_transaction_id`, `item_number`, `item_type`, `item_name`, `quantity`, `unit_price`, `amount`. Jenis item `service` atau `product`. Nominal rupiah utuh, dengan `amount = quantity × unit_price`. |
+| `monthly_revenues.csv` | `month_start`, `revenue`, `transaction_count`, `complete`. Awal bulan berformat `YYYY-MM-01` dan kelengkapan bernilai 0 atau 1. Identitas dataset mengikuti manifest. |
 
-CSV memakai UTF-8, koma, dan header sesuai urutan tabel. Impor membaca paket hanya dari `storage/app/private/imports/» dan memeriksa hash, duplikat, relasi item, cakupan tanggal, jumlah transaksi, serta total rupiah. Database menyimpan metadata dan total bulanan. Baris sintetis maupun aktual tetap berada pada berkas privat. Pemetaan buku/Excel aktual memerlukan contoh struktur file. Importer menerima paket aktual yang telah dinormalisasi ke `csv-v1» dengan `data_kind=actual».
+CSV memakai UTF-8, koma, dan header sesuai urutan tabel. Impor membaca paket hanya dari `storage/app/private/imports/` dan memeriksa hash, duplikat, relasi item, cakupan tanggal, jumlah transaksi, serta total rupiah. Database menyimpan metadata dan total bulanan. Baris sintetis maupun aktual tetap berada pada berkas privat. Pemetaan buku/Excel aktual memerlukan contoh struktur file. Importer menerima paket aktual yang telah dinormalisasi ke `csv-v1` dengan `data_kind=actual`.
 
 ## Perilaku sumber dan integritas
 

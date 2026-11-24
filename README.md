@@ -87,7 +87,7 @@ Aplikasi Laravel ditempatkan di root repositori. Rencana tampilan Kapster dan Ow
 | 02–03 | `database/`, `app/Models/`, dan `app/Http/` untuk katalog serta sesi Kapster. Tampilan terkait berada di `resources/views/master/`, `resources/views/pos/`, dan beranda. |
 | 05–08 | `app/Services/`, `database/migrations/`, serta tampilan `pos/`, `expenses/`, dan `owner/` untuk pencatatan, pemasukan, pengeluaran, dan koreksi bersyarat. |
 | 09–10 | `app/Services/`, `resources/views/owner/`, dan `resources/js/` untuk pembukuan serta dashboard. |
-| 11–12 | `forecasting/» untuk generator dan kontrak, `app/Console/Commands/» serta `app/Services/Forecasting/» untuk impor dan sumber bulanan, dan `storage/app/private/imports/» untuk file lokal. |
+| 11–12 | `forecasting/` untuk generator dan kontrak, `app/Console/Commands/` serta `app/Services/Forecasting/` untuk impor dan sumber bulanan, dan `storage/app/private/imports/` untuk file lokal. |
 | 13–14 | `tests/` untuk kode uji, `docs/pengerjaan-sistem/` untuk bukti UAT dan penyerahan, serta `config/` dan `public/` untuk pengaturan lingkungan target. |
 
 ### Menjalankan aplikasi untuk pengembangan
