@@ -251,7 +251,7 @@ php artisan serve --host=127.0.0.1 --port=8000
 
 #### 3. Baca hasil dan status
 
-Halaman menampilkan bulan target, tiga nominal historis, nilai prediksi, sumber data sintetis atau campuran jika digunakan, dan waktu pembaruan. Jika empat bulan lengkap tersedia, MAE menunjukkan rata-rata selisih absolut antara prediksi uji dan nilai aktual. Bandingkan dengan galat pembanding yang memakai pemasukan bulan terakhir sebagai prediksi. Uji demo satu bulan menghasilkan proyeksi November **Rp8.573.667** dan MAE Oktober **Rp290.000**. Hasil tersebut menguji alur dengan data sintetis. [Rincian evaluasi](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-12.md#bukti-pengujian)
+Pilih **Batang** atau **Garis (Line Chart)** pada grafik bulanan. Saat prediksi siap, grafik memuat tiga bulan historis dan satu bulan proyeksi. Warna pembeda dan segmen garis putus-putus menandai prediksi. Buka **Lihat angka per bulan** untuk memeriksa nominal. Halaman juga menampilkan sumber data sintetis atau campuran jika digunakan dan waktu pembaruan. Jika empat bulan lengkap tersedia, MAE menunjukkan rata-rata selisih absolut antara prediksi uji dan nilai aktual. Bandingkan dengan galat pembanding yang memakai pemasukan bulan terakhir sebagai prediksi. Uji demo satu bulan menghasilkan proyeksi November **Rp8.573.667** dan MAE Oktober **Rp290.000**. Hasil tersebut menguji alur dengan data sintetis. [Rincian evaluasi](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-12.md#bukti-pengujian)
 
 | Status halaman | Arti dan cara memeriksa |
 | --- | --- |
@@ -301,7 +301,7 @@ Contoh kueri Rekap telah diperiksa pada MySQL 8.4.3 menggunakan data fiktif. Gun
 
 Per **18 November 2026**, Slice 10 sudah masuk `main`. Landing Page, halaman Kapster, login Owner, Home, Pemasukan, Pengeluaran, dan Rekap siap diintegrasikan. Area Owner memakai sidebar bersama, dengan kartu dan grafik di Home serta pop-up katalog di Pemasukan.
 
-Forecasting siap diuji melalui halaman acuan dan kontrak JSON Owner. Acuan memuat status, histori, prediksi, grafik dasar, rincian, dan MAE. Kombinasi backend dengan tema Modern Classic dari `feature/ui-redesign` tersedia untuk tim frontend pada branch `feat/integrasi-backend-frontend`. [Branch integrasi](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/tree/feat/integrasi-backend-frontend) · [Handoff Forecasting](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-12.md#handoff-frontend)
+Forecasting siap diuji melalui halaman acuan dan kontrak JSON Owner. Acuan memuat status, histori, prediksi, grafik Batang atau Garis, rincian, dan MAE. Kombinasi backend dengan tema Modern Classic dari `feature/ui-redesign` tersedia untuk tim frontend pada branch `feat/integrasi-backend-frontend`. [Branch integrasi](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/tree/feat/integrasi-backend-frontend) · [Handoff Forecasting](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-12.md#handoff-frontend)
 
 ## Alur kerja Git dan GitHub
 

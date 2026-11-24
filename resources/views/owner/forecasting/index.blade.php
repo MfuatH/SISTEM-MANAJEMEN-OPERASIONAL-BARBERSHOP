@@ -12,7 +12,7 @@
         $prediction = $forecast['predictions'][0] ?? null;
         $evaluation = $forecast['evaluation'];
         $points = array_merge($forecast['actual'], $forecast['predictions']);
-        $maximum = max([1, ...array_column($points, 'amount')]);
+        $hasHistory = count($forecast['actual']) === 3;
         $monthLabel = fn ($month) => \Carbon\CarbonImmutable::parse($month.'-01', 'Asia/Jakarta')
             ->locale('id')->translatedFormat('F Y');
         $money = fn ($amount) => \App\Services\OwnerReport::rupiah($amount);
@@ -47,32 +47,38 @@
     @endif
 
     @if ($points !== [])
-        <section aria-labelledby="forecast-series">
+        <section class="dashboard-chart-section" aria-labelledby="forecast-series" @if ($hasHistory) data-dashboard-chart @endif>
             <h2 id="forecast-series">Pemasukan bulanan</h2>
-            <div class="table-scroll">
-                <table>
-                    <caption>Histori dan prediksi pemasukan</caption>
-                    <thead>
-                        <tr>
-                            <th scope="col">Bulan WIB</th>
-                            <th scope="col">Jenis</th>
-                            <th scope="col" class="number">Nominal</th>
-                            <th scope="col">Grafik</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($points as $point)
-                            @php($kind = isset($point['complete']) ? 'Historis' : 'Prediksi')
+
+            @if ($hasHistory)
+                @include('owner.forecasting.chart')
+            @endif
+
+            <details @if (! $hasHistory) open @endif>
+                <summary>Lihat angka per bulan</summary>
+                <div class="table-scroll">
+                    <table>
+                        <caption>Histori dan prediksi pemasukan</caption>
+                        <thead>
                             <tr>
-                                <th scope="row">{{ $monthLabel($point['month']) }}</th>
-                                <td>{{ $kind }}</td>
-                                <td class="number">{{ $money($point['amount']) }}</td>
-                                <td><meter min="0" max="{{ $maximum }}" value="{{ $point['amount'] }}" aria-hidden="true"></meter></td>
+                                <th scope="col">Bulan WIB</th>
+                                <th scope="col">Jenis</th>
+                                <th scope="col" class="number">Nominal</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            @foreach ($points as $point)
+                                @php($kind = isset($point['complete']) ? 'Historis' : 'Prediksi')
+                                <tr>
+                                    <th scope="row">{{ $monthLabel($point['month']) }}</th>
+                                    <td>{{ $kind }}</td>
+                                    <td class="number">{{ $money($point['amount']) }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </details>
         </section>
     @endif
 
