@@ -194,35 +194,84 @@ Di `main`, masuk sebagai Owner dan buka **Rekap**. Pilih bulan atau kosongkan un
 
 Di `main`, masuk sebagai Owner dan buka **Home**. Cocokkan kartu pemasukan, pengeluaran, dan hasil bersih bulan berjalan WIB dengan **Rekap** pada bulan yang sama. Pilih grafik **Batang** atau **Garis** dan aktifkan seri **Pemasukan** atau **Pengeluaran**. Klik **Lihat angka per hari** untuk memeriksa nominal grafik. [Cara meninjau Slice 10](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-10.md#cara-meninjau)
 
-### Mencoba data histori Forecasting
+### Menjalankan Forecasting Owner
 
-Siapkan Python dan jalankan migrasi di database lokal yang dipilih. Contoh berikut membuat paket sintetis Juli–Oktober 2026, memvalidasi rekap, memilih sumber impor, dan membaca tiga bulan sebelum target November 2026.
+Forecasting memperkirakan **pemasukan kotor** dari layanan dan produk terjual. Laravel menjalankan satu model Regresi Linier Python dengan **tiga bulan kalender lengkap dan berurutan dalam WIB** untuk memprediksi **satu bulan berikutnya**. Target refresh adalah bulan berjalan WIB. Sebagai contoh, refresh pada November 2026 memakai histori Agustus–Oktober 2026. Pengeluaran dan hasil bersih tetap dapat dilihat di Home dan Rekap.
+
+Jalankan perintah berikut dari root repo setelah [menyiapkan Laravel dan MySQL lokal](#menjalankan-aplikasi-untuk-pengembangan). Gunakan database pengembangan dan akun Owner lokal. Bagian ini memakai PowerShell.
+
+#### 1. Siapkan histori bulanan
+
+Pastikan `php artisan db:show` mengarah ke database pengembangan, lalu terapkan migrasi. Untuk demo, generator membuat paket CSV sintetis Juli–Oktober 2026 di penyimpanan privat.
 
 ```powershell
+php artisan db:show
 php artisan migrate
 python forecasting/generate_synthetic_history.py storage/app/private/imports/slice11-synthetic-20261124
 php artisan forecast:history-import slice11-synthetic-20261124 --preview
 php artisan forecast:history-import slice11-synthetic-20261124 --activate
-php artisan forecast:history-window 2026-11
 ```
 
-`--preview` memeriksa file tanpa menulis database. `--activate` hanya memilih bulan lengkap yang sudah berakhir dan mempertahankan pilihan sumber yang telah ada. Laporan operasional membaca transaksi Kapster dan pengeluaran seperti sebelumnya. [Panduan peninjauan Slice 11](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-11.md#cara-meninjau)
+`--preview` memvalidasi paket dan menampilkan total tanpa menulis ke database. `--activate` memilih bulan lengkap yang sudah berakhir. Jika bulan sudah memakai sumber berbeda, simpan paket dengan menjalankan impor tanpa `--activate`, lalu tentukan sumber bulan yang akan dipakai. Agregat impor hanya digunakan untuk Forecasting. [Format CSV dan panduan impor](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-11.md#paket-csv-privat)
 
-### Menjalankan Forecasting Owner
-
-Selesaikan impor histori di atas. Siapkan lingkungan Python proyek, lalu jalankan refresh. Gunakan versi dependensi di `forecasting/requirements.txt`.
+Untuk histori operasional, pilih satu sumber untuk setiap bulan yang sudah selesai. Contoh berikut menunjukkan dua pilihan untuk Oktober 2026. Jalankan pilihan yang sesuai dan ganti `1` dengan ID batch sebenarnya jika memakai impor.
 
 ```powershell
+php artisan forecast:month-source 2026-10 application
+php artisan forecast:month-source 2026-10 import --import-id=1
+```
+
+Periksa tiga bulan input dengan `php artisan forecast:history-window`. Jika statusnya `insufficient_data`, lihat `missing_months` untuk mengetahui bulan yang belum lengkap atau belum memiliki sumber. Untuk meninjau periode demo secara eksplisit, gunakan `php artisan forecast:history-window 2026-11`. Argumen bulan pada perintah ini hanya untuk pemeriksaan. Refresh tetap memakai bulan berjalan WIB, sehingga paket Juli–Oktober 2026 saja tidak mencukupi untuk refresh pada Desember 2026 atau sesudahnya.
+
+#### 2. Aktifkan fitur dan buat prediksi
+
+Siapkan Python 3.14 dan pasang dependensi versi proyek di lingkungan virtual.
+
+```powershell
+python --version
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r forecasting/requirements.txt
-$env:FORECAST_ENABLED='true'
-$env:FORECAST_PYTHON=(Resolve-Path -LiteralPath .\.venv\Scripts\python.exe).Path
+(Resolve-Path -LiteralPath .\.venv\Scripts\python.exe).Path.Replace('\', '/')
+```
+
+Tambahkan pengaturan berikut ke `.env` lokal. Isi `FORECAST_PYTHON` dengan jalur absolut yang ditampilkan perintah terakhir.
+
+```dotenv
+FORECAST_ENABLED=true
+FORECAST_PYTHON="C:/path/to/Scaffold-Barbershop/.venv/Scripts/python.exe"
+```
+
+```powershell
 php artisan config:clear
 php artisan forecast:refresh
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-Masuk sebagai Owner lalu pilih **Forecasting** di sidebar. Pengaturan PowerShell berlaku pada terminal yang sama. Untuk mempertahankannya di terminal lain, simpan `FORECAST_ENABLED=true` dan jalur absolut `FORECAST_PYTHON` dalam `.env` lokal. Jalankan `php artisan schedule:work` pada terminal terpisah untuk mencoba pemutakhiran terjadwal. Proyeksi memakai bulan berjalan WIB sebagai target, sehingga tiga bulan sebelumnya harus lengkap dan memiliki sumber yang sudah dipilih. [Cara meninjau Slice 12](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-12.md#cara-meninjau)
+`forecast:refresh` menghasilkan `ready` jika prediksi tersimpan dan `up_to_date` jika input serta hasil siap masih sama. Masuk sebagai Owner, lalu buka **Forecasting** dari sidebar. [Buka halaman Forecasting lokal](http://127.0.0.1:8000/owner/forecasting)
+
+#### 3. Baca hasil dan status
+
+Halaman menampilkan bulan target, tiga nominal historis, nilai prediksi, sumber data sintetis atau campuran jika digunakan, dan waktu pembaruan. Jika empat bulan lengkap tersedia, MAE menunjukkan rata-rata selisih absolut antara prediksi uji dan nilai aktual. Bandingkan dengan galat pembanding yang memakai pemasukan bulan terakhir sebagai prediksi. Uji demo satu bulan menghasilkan proyeksi November **Rp8.573.667** dan MAE Oktober **Rp290.000**. Hasil tersebut menguji alur dengan data sintetis. [Rincian evaluasi](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-12.md#bukti-pengujian)
+
+| Status halaman | Arti dan cara memeriksa |
+| --- | --- |
+| `disabled` | Fitur belum aktif. Setel `FORECAST_ENABLED=true` dan bersihkan cache konfigurasi. |
+| `processing` | Refresh sedang berjalan. Muat ulang halaman setelah selesai. |
+| `insufficient_data` | Histori belum lengkap. Periksa `missing_months` lewat `forecast:history-window`. |
+| `ready` | Prediksi sesuai dengan periode dan sumber terkini. |
+| `stale` | Halaman menampilkan hasil terakhir saat periode atau sumber berubah. Periksa histori terkini, lalu jalankan refresh. |
+| `unavailable` | Prediksi periode ini belum dibuat atau gagal. Jalankan refresh, lalu periksa `reason_code` jika status berlanjut. |
+
+#### 4. Jalankan pembaruan rutin dan cek endpoint
+
+Scheduler memeriksa kebutuhan refresh **setiap jam** dan membuat prediksi baru saat tiga bulan sumber terbaru siap. Pilih sumber untuk bulan yang baru selesai. Untuk mencoba scheduler lokal, jalankan perintah berikut di terminal terpisah dengan `.env` yang sama.
+
+```powershell
+php artisan schedule:list
+php artisan schedule:work
+```
+
+Halaman `GET /owner/forecasting` dan data `GET /owner/forecasting/data` memakai sesi Owner aktif. Jika mengakses JSON dari frontend, kirim `Accept: application/json` agar sesi yang sudah berakhir mendapat `401` dalam JSON. Nominal dalam respons dikirim sebagai string rupiah. [Kontrak JSON dan contoh respons](forecasting/contract/v1/README.md) · [Catatan Pengerjaan Slice 12](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-12.md)
 
 ## Status pengerjaan per slice
 
