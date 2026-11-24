@@ -3,10 +3,15 @@
 @section('title', $product->exists ? 'Ubah produk' : 'Tambah produk')
 
 @section('catalog-content')
-    <p><a href="{{ route('owner.products.index') }}">Kembali ke katalog produk</a></p>
+    <p>
+        <a class="back-link" href="{{ route('owner.products.index') }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+            Kembali ke katalog produk
+        </a>
+    </p>
     <h1>{{ $product->exists ? 'Ubah produk' : 'Tambah produk' }}</h1>
 
-    <form method="post" action="{{ $product->exists ? route('owner.products.update', $product) : route('owner.products.store') }}">
+    <form class="catalog-form" method="post" action="{{ $product->exists ? route('owner.products.update', $product) : route('owner.products.store') }}">
         @csrf
         @if ($product->exists)
             @method('PUT')

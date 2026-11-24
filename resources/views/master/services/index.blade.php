@@ -5,26 +5,36 @@
 
 @section('catalog-content')
     @unless (request()->header('Sec-Fetch-Dest') === 'iframe')
-        <p><a href="{{ route('owner.income.index') }}">Kembali ke Pemasukan</a></p>
+        <p>
+            <a class="back-link" href="{{ route('owner.income.index') }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+                Kembali ke Pemasukan
+            </a>
+        </p>
     @endunless
     <h1>Katalog layanan</h1>
 
     @if (session('status'))
-        <p role="status">{{ session('status') }}</p>
+        <p class="owner-alert" role="status">{{ session('status') }}</p>
     @endif
 
     @if (session('error'))
-        <p class="error" role="alert">{{ session('error') }}</p>
+        <p class="error owner-alert owner-alert-error" role="alert">{{ session('error') }}</p>
     @endif
 
-    <p><a class="button" href="{{ route('owner.services.create') }}">Tambah layanan</a></p>
+    <p>
+        <a class="button" href="{{ route('owner.services.create') }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+            Tambah layanan
+        </a>
+    </p>
 
-    <div class="table-scroll">
+    <div class="table-scroll owner-card">
         <table>
             <thead>
                 <tr>
                     <th scope="col">Layanan</th>
-                    <th scope="col">Harga</th>
+                    <th scope="col" class="number">Harga</th>
                     <th scope="col">Status</th>
                     <th scope="col">Tindakan</th>
                 </tr>
@@ -33,8 +43,10 @@
                 @forelse ($services as $service)
                     <tr>
                         <td>{{ $service->name }}</td>
-                        <td>Rp{{ number_format((int) $service->current_price, 0, ',', '.') }}</td>
-                        <td>{{ $service->archived_at === null ? 'Aktif' : 'Diarsipkan' }}</td>
+                        <td class="number amount">Rp{{ number_format((int) $service->current_price, 0, ',', '.') }}</td>
+                        <td>
+                            <span class="badge {{ $service->archived_at === null ? 'badge-active' : 'badge-archived' }}">{{ $service->archived_at === null ? 'Aktif' : 'Diarsipkan' }}</span>
+                        </td>
                         <td>
                             @include('master.catalog.actions', [
                                 'resource' => 'owner.services',
@@ -51,7 +63,7 @@
     </div>
 
     @if ($services->hasPages())
-        <nav class="actions" aria-label="Halaman katalog">
+        <nav class="actions owner-pager" aria-label="Halaman katalog">
             @if ($services->previousPageUrl())
                 <a href="{{ $services->previousPageUrl() }}">Sebelumnya</a>
             @endif

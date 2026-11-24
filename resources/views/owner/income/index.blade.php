@@ -3,11 +3,13 @@
 @section('title', 'Pemasukan')
 
 @section('owner-content')
-    <h1>Pemasukan</h1>
-    <p>{{ $report->month->locale('id')->translatedFormat('F Y') }}</p>
+    <header class="owner-page-header">
+        <h1>Pemasukan</h1>
+        <p>{{ $report->month->locale('id')->translatedFormat('F Y') }}</p>
+    </header>
     @include('owner.income.catalog-dialog')
 
-    <form method="get" action="{{ route('owner.income.index') }}">
+    <form class="owner-toolbar" method="get" action="{{ route('owner.income.index') }}">
         <div class="field">
             <label for="search">Cari pemasukan</label>
             <input id="search" name="q" type="search" maxlength="120" value="{{ $report->search }}"
@@ -17,19 +19,23 @@
             @enderror
         </div>
         <div class="actions">
-            <button type="submit">Cari</button>
+            <button type="submit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                Cari
+            </button>
             @if ($report->search !== '')
                 <a href="{{ route('owner.income.index') }}">Hapus pencarian</a>
             @endif
             <a class="button secondary" href="{{ route('owner.income.export', $report->search !== '' ? ['q' => $report->search] : []) }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
                 Ekspor Excel
             </a>
         </div>
     </form>
 
-    <p><strong>Total {{ $report->search !== '' ? 'hasil pencarian' : 'bulan berjalan' }} {{ $report::rupiah($total) }}</strong></p>
+    <p class="owner-total"><strong>Total {{ $report->search !== '' ? 'hasil pencarian' : 'bulan berjalan' }} <span class="owner-total-value">{{ $report::rupiah($total) }}</span></strong></p>
 
-    <div class="table-scroll">
+    <div class="table-scroll owner-card">
         <table aria-label="Rincian pemasukan">
             <thead>
                 <tr>
@@ -51,7 +57,7 @@
                         <td class="report-time">{{ $report::localTime($item->recorded_at)->format('d/m/Y H:i') }}</td>
                         <td>{{ $item->barber_name }}</td>
                         <td>{{ $item->customer_name ?? '—' }}</td>
-                        <td>{{ $report::itemType($item->item_type) }}</td>
+                        <td><span class="badge badge-{{ $item->item_type }}">{{ $report::itemType($item->item_type) }}</span></td>
                         <td>
                             {{ $item->item_name }}
                             @if ($item->used_product_name !== null)
@@ -60,7 +66,7 @@
                         </td>
                         <td class="number">{{ $item->quantity }}</td>
                         <td class="number">{{ $report::rupiah($item->unit_price) }}</td>
-                        <td class="number">{{ $report::rupiah($item->amount) }}</td>
+                        <td class="number amount">{{ $report::rupiah($item->amount) }}</td>
                     </tr>
                 @empty
                     <tr>
@@ -72,7 +78,7 @@
     </div>
 
     @if ($items->hasPages())
-        <nav class="actions" aria-label="Halaman pemasukan">
+        <nav class="actions owner-pager" aria-label="Halaman pemasukan">
             @if ($items->previousPageUrl())
                 <a href="{{ $items->previousPageUrl() }}">Sebelumnya</a>
             @endif
