@@ -4,6 +4,8 @@
 - **Branch tugas** `chore/slice-00-laravel-foundation`
 - **Pull request** [PR #1 ke main](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/1)
 
+---
+
 ## Status pengerjaan
 
 | Pekerjaan | Status | Hasil atau tindak lanjut |
@@ -14,11 +16,15 @@
 | Review dan merge fondasi | Selesai | Fondasi masuk ke `main` pada commit `505f053`. |
 | Keputusan bisnis dan kontrak fitur | Terbuka sesuai slice terkait | Gunakan daftar keputusan di desain database dan sepakati kontrak dengan frontend sebelum menulis migrasi yang terdampak. |
 
+---
+
 ## Kondisi awal
 
 - Repositori berisi dokumentasi dan struktur direktori. `artisan`, `composer.json`, `bootstrap/app.php`, serta `routes/web.php` belum tersedia. Direktori model dan migrasi berisi `.gitkeep`.
 - PHP pada PATH global mengarah ke XAMPP 8.2.12. Port MySQL 3306 sedang digunakan saat penyiapan lingkungan lokal.
 - Tim sudah menetapkan Laravel 13.x, PHP 8.5.x, dan MySQL 8.4 LTS. Aturan Git untuk berkas impor aktual sudah tersedia di `storage/app/private/.gitignore`.
+
+---
 
 ## Pekerjaan yang diselesaikan
 
@@ -55,9 +61,13 @@
 
 Laravel juga membuat tabel `migrations`. Setelah migrasi, setiap skema berisi sembilan tabel. Slice 01 menambahkan kolom `username` dan `disabled_at` untuk Owner melalui migrasi baru. Skema akun pada Slice 01 memakai username dan kata sandi. Tabel `sessions` bawaan menjadi dasar sesi Laravel untuk Owner dan sesi nama Kapster.
 
+---
+
 ## Kesiapan frontend
 
 **Perancangan Wireframe.** Lingkungan Laravel dan MySQL sudah tersedia untuk menguji halaman dan alur pengguna. Tim frontend dapat memakai desain database untuk memetakan alur beranda, sesi Kapster, autentikasi Owner, serta halaman laporan yang direncanakan. Gunakan data fiktif pada rancangan awal halaman yang masih menunggu backend. [Peta kesiapan per tahap](Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
+
+---
 
 ## Bukti pemeriksaan
 
@@ -77,6 +87,8 @@ Laravel juga membuat tabel `migrations`. Setelah migrasi, setiap skema berisi se
 2. Jalankan `composer install`. Jika berkas environment baru dibuat, jalankan `php artisan key:generate` dan `php artisan key:generate --env=testing`.
 3. Jalankan `php artisan about` dan `php artisan db:show` untuk kedua lingkungan. Periksa versi MySQL serta nama skema sebelum melanjutkan.
 4. Jalankan `php artisan migrate`, `php artisan migrate --env=testing`, dan `php artisan test`. Untuk mengulang pemeriksaan rollback, gunakan skema pengujian yang baru disiapkan dan konfirmasi tujuan koneksinya melalui `php artisan db:show --env=testing` terlebih dahulu.
+
+---
 
 ## Riwayat perubahan dan kelanjutan
 

@@ -4,9 +4,13 @@
 
 [PR #11](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/11)
 
+---
+
 ## Status pengerjaan
 
 Slice 07 menyediakan pencatatan pengeluaran manual untuk Owner, riwayat bulan berjalan WIB, pencarian, total, dan unduhan Excel. Menu **Pengeluaran** ditautkan dari Home Owner. Dasarnya adalah autentikasi Slice 01 dan pola laporan Slice 06. [Desain database](Desain-Database-MySQL-Barbershop.md#3-kamus-tabel-lainnya) · [Catatan Slice 06](Catatan-Pengerjaan-Slice-06.md)
+
+---
 
 ## Pengerjaan database dan backend
 
@@ -14,6 +18,8 @@ Slice 07 menyediakan pencatatan pengeluaran manual untuk Owner, riwayat bulan be
 2. Owner mengisi tanggal, deskripsi, dan jumlah rupiah bulat. Server mengambil pencatat dari akun yang sedang login dan menampilkan referensi `EXP-{id}` dari primary key otomatis. **Aturan implementasi.** Nilai awal tanggal adalah hari ini dalam WIB. Owner dapat mencatat tanggal lain yang valid, dan tanggal tersebut menentukan periode laporan. [Validasi](../../app/Http/Requests/StoreExpenseRequest.php) · [Model](../../app/Models/Expense.php)
 3. Form membawa UUID untuk setiap pencatatan. Kombinasi pencatat dan UUID unik di database. Pengiriman ulang dengan isi sama mengembalikan referensi yang sama. Penggunaan UUID yang sama dengan isi berbeda ditolak dan Owner diminta membuka form baru. [Controller](../../app/Http/Controllers/OwnerExpenseController.php)
 4. Daftar memuat catatan dari awal bulan WIB hingga sebelum awal bulan berikutnya, diurutkan dari tanggal terbaru lalu ID terbaru. Pencarian menerima deskripsi atau ID seperti `EXP-42` dan `42`. Daftar, total, dan Excel memakai kriteria yang sama. Excel mencakup seluruh hasil pencarian, termasuk yang berada di halaman berikutnya. Riwayat lama tetap tersimpan untuk Rekap lintas periode pada Slice 09. [Kueri laporan](../../app/Services/OwnerExpenseReport.php) · [Ekspor](../../app/Services/OwnerExpenseWorkbook.php)
+
+---
 
 ## Kesiapan frontend
 
@@ -27,6 +33,8 @@ Halaman Pengeluaran siap diintegrasikan dari `main`. Gunakan sesi login Owner ya
 | `GET /owner/pengeluaran/ekspor` | Unduh `pengeluaran-YYYY-MM.xlsx`. Sertakan nilai `q` yang sama dengan daftar. |
 
 Menu **Pengeluaran** pada sidebar bersama membuka daftar di atas. Di `main`, Home menampilkan kartu pemasukan, pengeluaran, dan hasil bersih serta grafik harian. [Catatan Slice 10](Catatan-Pengerjaan-Slice-10.md#kesiapan-frontend) [Peta kesiapan sembilan tahap](Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
+
+---
 
 ## Bukti pengujian
 
@@ -44,6 +52,8 @@ Menu **Pengeluaran** pada sidebar bersama membuka daftar di atas. Di `main`, Hom
 
 [Uji fitur Pengeluaran Owner](../../tests/Feature/OwnerExpenseTest.php)
 
+---
+
 ## Cara meninjau
 
 1. Ambil `main` terbaru dengan PHP 8.5 dan MySQL 8.4 aktif. Periksa konfigurasi lokal mengarah ke `barbershop_dev`, lalu jalankan `php artisan migrate` sebelum membuka menu Pengeluaran.
@@ -51,6 +61,8 @@ Menu **Pengeluaran** pada sidebar bersama membuka daftar di atas. Di `main`, Hom
 3. Ekspor dengan pencarian yang sama. Cocokkan dua baris dan total Rp175.000 pada Excel.
 4. Untuk mengulang uji otomatis gunakan `php artisan migrate --env=testing` lalu `php artisan test --env=testing`.
 
+---
+
 ## Kelanjutan
 
-Slice 08 ditunda per 18 November 2026. Slice 09 memakai data pemasukan dan pengeluaran untuk Rekap lintas periode dan perhitungan hasil bersih tercatat. [Catatan Slice 09](Catatan-Pengerjaan-Slice-09.md) [Urutan pengerjaan](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
+Slice 08 sempat ditunda pada 18 November 2026 dan kemudian dilewati karena alur operasional saat ini sudah sesuai kebutuhan. Slice 09 memakai data pemasukan dan pengeluaran untuk Rekap lintas periode dan perhitungan hasil bersih tercatat. [Catatan Slice 09](Catatan-Pengerjaan-Slice-09.md) [Urutan pengerjaan](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)

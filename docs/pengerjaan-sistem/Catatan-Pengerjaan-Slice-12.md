@@ -4,6 +4,8 @@
 
 **Fondasi** Slice 12 memakai histori Slice 11 terbaru `877891b`. Kandidat backend untuk `main` memakai komit implementasi Forecasting, beserta halaman acuan. Dependensi yang diuji adalah PHP 8.5.12, Laravel 13.42.0, MySQL 8.4.3 LTS, Python 3.14.0, dan scikit-learn 1.9.0. [Dependensi Python](../../forecasting/requirements.txt)
 
+---
+
 ## Cakupan dan perilaku
 
 1. Model `LinearRegression` menerima tiga bulan historis lengkap yang berurutan. Targetnya pemasukan kotor dari layanan dan produk pada bulan berikutnya dalam kalender WIB. Indeks latih adalah 0–2 dan indeks prediksi adalah 3.
@@ -13,6 +15,8 @@
 5. Halaman dan JSON `/owner/forecasting` serta `/owner/forecasting/data` hanya dapat dibuka oleh Owner aktif, memakai respons kontrak v1 dan header privat tanpa cache. Forecasting aktif secara bawaan. Tombol **Perbarui prediksi** memakai `POST /owner/forecasting/refresh` dengan CSRF dan pembatas permintaan. [Kontrak JSON](../../forecasting/contract/v1/README.md)
 
 Scheduler memeriksa setiap jam melalui `forecast:refresh --monthly` dan menerbitkan satu hasil siap secara otomatis per bulan target. Bulan WIB yang sudah selesai dengan transaksi aplikasi dibaca otomatis. Pilihan eksplisit masih berlaku untuk batch impor atau konfirmasi Rp0. Jika data berubah setelah terbit, Owner dapat klik **Perbarui prediksi** untuk menghitung kembali pada bulan yang sama. [Cara meninjau histori Slice 11](Catatan-Pengerjaan-Slice-11.md#cara-meninjau)
+
+---
 
 ## Handoff frontend
 
@@ -32,6 +36,8 @@ Gunakan enam fixture sebagai bahan pengembangan sebelum memakai data lokal. [Kon
 
 Pada branch ini, backend berasal dari main 57742ad dan tema berasal dari feature/ui-redesign 356e19a. Benturan pada sidebar diselesaikan dengan mempertahankan layout redesign dan tautan Forecasting bersyarat. Regresi awal gabungan lulus **71 tes dan 976 assertion** pada MySQL 8.4.3. Setelah revisi grafik bulanan dari main, regresi gabungan lulus **71 tes dan 980 assertion**. Revisi histori Pemasukan dan pembaruan otomatis lulus **75 tes dan 1.020 assertion** pada branch integrasi.
 
+---
+
 ## Cara meninjau
 
 ### Demo dengan data sintetis
@@ -47,6 +53,8 @@ Gunakan catatan transaksi asli pada database operasional. Cek tiga bulan WIB ter
 Atur `FORECAST_PYTHON` ke Python lingkungan virtual. Di Windows, jalankan `php artisan serve --host=127.0.0.1 --port=8000 --no-reload` dan mulai ulang server setelah mengubah `.env`. Login sebagai Owner dan buka **Forecasting**. Uji tombol **Perbarui prediksi**, pilihan **Batang** dan **Garis**, serta nominal di **Lihat angka per bulan**. Cocokkan hasil dengan `/owner/forecasting/data`.
 
 Jalankan `php artisan schedule:work` di terminal kedua jika server dijalankan terpisah. Cek jadwal dengan `php artisan schedule:list`. [Panduan lengkap](../../README.md#menjalankan-forecasting-owner)
+
+---
 
 ## Bukti pengujian
 
