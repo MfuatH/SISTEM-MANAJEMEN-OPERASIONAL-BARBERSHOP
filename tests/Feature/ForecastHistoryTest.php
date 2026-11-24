@@ -7,6 +7,8 @@ use App\Models\Product;
 use App\Models\Service;
 use App\Services\Forecasting\HistoryPackage;
 use App\Services\Forecasting\MonthlyRevenueHistory;
+use App\Services\OwnerFinancialEntries;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -132,6 +134,45 @@ class ForecastHistoryTest extends TestCase
         $this->assertSame(['2026-08'], $history->window()['missing_months']);
         $this->artisan('forecast:month-source', ['month' => '2026-10', 'source' => 'application'])->assertFailed();
         $this->assertSame(['2026-08', '2026-10'], $history->window('2026-11')['missing_months']);
+    }
+
+    public function test_demo_import_records_operational_items_and_reuses_the_same_batch(): void
+    {
+        $package = $this->package('demo-income');
+        $this->artisan('forecast:history-import', ['directory' => $package, '--activate' => true])->assertSuccessful();
+        $this->artisan('forecast:demo-import', ['directory' => $package])
+            ->expectsOutputToContain('Transaksi demo baru: 15')->assertSuccessful();
+        $this->artisan('forecast:demo-import', ['directory' => $package])
+            ->expectsOutputToContain('Transaksi demo baru: 0')->assertSuccessful();
+        $this->assertDatabaseCount('income_transactions', 15);
+        $this->assertDatabaseCount('income_entries', 16);
+        $this->assertDatabaseCount('income_product_sales', 1);
+        $this->assertDatabaseHas('income_transactions', [
+            'demo_import_id' => DB::table('historical_imports')->value('id'),
+            'barber_name' => 'Bayu (Demo)',
+            'recorded_at' => '2026-08-01 03:00:00',
+            'customer_name' => null,
+        ]);
+
+        $month = CarbonImmutable::parse('2026-08-01', 'Asia/Jakarta');
+        $this->assertSame('277000', (string) OwnerFinancialEntries::query($month)->sum('amount'));
+        $result = app(MonthlyRevenueHistory::class)->window('2026-10');
+        $this->assertSame('synthetic', $result['data_kind']);
+        $this->assertSame('application', $result['actual'][1]['source']);
+        $this->assertSame('277000', $result['actual'][1]['amount']);
+    }
+
+    public function test_closed_months_read_operational_income_without_explicit_source(): void
+    {
+        $this->recordTransaction('2026-06-30 17:00:00.000000', withProduct: false);
+        $this->recordTransaction('2026-08-31 17:00:00.000000', withProduct: true);
+
+        $window = app(MonthlyRevenueHistory::class)->window('2026-10');
+
+        $this->assertSame(['2026-08'], $window['missing_months']);
+        $this->assertSame(['2026-07', '2026-09'], array_column($window['actual'], 'month'));
+        $this->assertSame(['18000', '48000'], array_column($window['actual'], 'amount'));
+        $this->assertDatabaseCount('forecast_month_sources', 0);
     }
 
     private function package(string $version, string $amount = '277000', string $complete = '1'): string
