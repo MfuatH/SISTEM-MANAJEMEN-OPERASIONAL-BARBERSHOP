@@ -146,7 +146,7 @@ Jalankan perintah dari root repositori di PowerShell. Siapkan **PHP 8.5.x**, **C
 5. **Jalankan server Laravel.**
 
    ```powershell
-   php artisan serve --host=127.0.0.1 --port=8000
+   php artisan serve --host=127.0.0.1 --port=8000 --no-reload
    ```
 
    Biarkan terminal server terbuka. Buka [beranda Kapster](http://127.0.0.1:8000) untuk memulai sesi dengan nama atau [login Owner](http://127.0.0.1:8000/owner/login) untuk masuk dengan username dan kata sandi yang dibuat tadi. Tekan `Ctrl+C` di terminal untuk menghentikan server.
@@ -200,9 +200,9 @@ Forecasting memperkirakan **pemasukan kotor** dari layanan dan produk terjual. L
 
 Jalankan perintah berikut dari root repo setelah [menyiapkan Laravel dan MySQL lokal](#menjalankan-aplikasi-untuk-pengembangan). Gunakan database pengembangan dan akun Owner lokal. Bagian ini memakai PowerShell.
 
-#### 1. Siapkan histori bulanan
+#### 1A. Forecasting demo dengan data sintetis
 
-Pastikan `php artisan db:show` mengarah ke database pengembangan, lalu terapkan migrasi. Untuk demo, generator membuat paket CSV sintetis Juli–Oktober 2026 di penyimpanan privat.
+Gunakan database lokal khusus demo. Paket contoh mencakup **Juli–Oktober 2026** dan dicatat sebagai transaksi Pemasukan berlabel **(Demo)**. Gunakan akun Owner pada database demo untuk meninjau hasilnya.
 
 ```powershell
 php artisan db:show
@@ -210,46 +210,51 @@ php artisan migrate
 python forecasting/generate_synthetic_history.py storage/app/private/imports/slice11-synthetic-20261124
 php artisan forecast:history-import slice11-synthetic-20261124 --preview
 php artisan forecast:demo-import slice11-synthetic-20261124
+php artisan forecast:history-window 2026-11
 ```
 
-`--preview` memvalidasi paket tanpa menulis ke database. `forecast:demo-import` menyimpan transaksi dan item ke tabel Pemasukan yang dipakai Kapster, dengan tanggal asli dan nama Kapster berlabel **(Demo)**. Pengulangan paket yang sama memakai batch yang sama. Perintah demo tersedia pada lingkungan lokal dan pengujian. Di aplikasi, buka **Rekap → Pemasukan** dan pilih bulan Juli–Oktober 2026 untuk melihat histori. Halaman Pemasukan menampilkan bulan berjalan. [Format CSV dan panduan impor](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-11.md#paket-csv-privat)
+Buka **Rekap**, pilih jenis **Pemasukan** dan salah satu bulan Juli–Oktober 2026. Impor paket yang sama dapat dijalankan ulang tanpa menambah transaksi. Hasil contoh berisi **1.783 transaksi** dengan total pemasukan kotor **Rp35.273.000**. Input Agustus–Oktober menghasilkan proyeksi demo November sebesar **Rp8.573.667**. Uji retrospektif Oktober menghasilkan MAE **Rp290.000** dengan satu bulan uji sintetis. Gunakan angka itu sebagai pembanding saat mengecek demo.
 
-Forecasting otomatis memakai transaksi aplikasi untuk bulan WIB yang sudah berakhir dan mempunyai catatan. Bulan tanpa transaksi perlu dikonfirmasi sebelum dipakai sebagai Rp0. Perintah berikut tersedia untuk memilih sumber secara eksplisit jika diperlukan. Ganti `1` dengan ID batch impor yang sesuai.
+`forecast:history-window 2026-11` menampilkan input untuk periode contoh. Refresh tetap memakai bulan berjalan WIB, sehingga mulai Desember 2026 diperlukan sumber tambahan untuk bulan yang tercantum di missing_months. [Rincian hasil demo](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-12.md#bukti-pengujian)
+
+#### 1B. Forecasting dengan data operasional
+
+Gunakan database operasional yang berisi transaksi asli Kapster. Pada setiap bulan WIB yang sudah berakhir, Forecasting otomatis membaca pemasukan kotor layanan dan produk dari catatan aplikasi. Periksa total bulanan di **Rekap → Pemasukan**, lalu cek tiga bulan input saat ini.
 
 ```powershell
-php artisan forecast:month-source 2026-10 application
-php artisan forecast:month-source 2026-10 import --import-id=1
+php artisan forecast:history-window
 ```
 
-Periksa tiga bulan input dengan `php artisan forecast:history-window`. Jika statusnya `insufficient_data`, lihat `missing_months` untuk mengetahui bulan yang belum lengkap atau belum memiliki sumber. Untuk meninjau periode demo secara eksplisit, gunakan `php artisan forecast:history-window 2026-11`. Argumen bulan pada perintah ini hanya untuk pemeriksaan. Refresh tetap memakai bulan berjalan WIB, sehingga paket Juli–Oktober 2026 saja tidak mencukupi untuk refresh pada Desember 2026 atau sesudahnya.
+Untuk penggunaan operasional, periksa `data_kind` bernilai `actual`. Jika nilainya `synthetic` atau `mixed`, periksa sumber bulanan dan transaksi demo yang masuk dalam periode tersebut. Pilih database operasional yang bersih dari data demo sebelum menggunakan hasil untuk barbershop. Status `insufficient_data` menyertakan `missing_months`. Bulan yang benar-benar tutup dengan Rp0 dapat dikonfirmasi lewat `php artisan forecast:month-source YYYY-MM application` setelah diperiksa di Rekap. Ganti `YYYY-MM` dengan bulan yang dikonfirmasi.
+
+Jika histori berasal dari catatan lama, normalisasi ke paket CSV v1 berlabel `actual`, simpan di `storage/app/private/imports/`, lalu validasi dan pilih sumber impor. Satu bulan memakai satu sumber. [Format paket dan cara memilih sumber](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-11.md#paket-csv-privat)
+
+Gunakan MAE dari histori aktual untuk meninjau kinerja model jika tersedia bulan pembanding. Ketepatan lapangan masih memerlukan evaluasi data aktual pada beberapa periode.
 
 #### 2. Siapkan Python dan buka Forecasting
 
-Siapkan Python 3.14 dan pasang dependensi versi proyek di lingkungan virtual.
+Langkah ini berlaku untuk demo maupun penggunaan operasional. Siapkan Python 3.14 dan pasang dependensi proyek di lingkungan virtual.
 
 ```powershell
 python --version
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r forecasting/requirements.txt
-(Resolve-Path -LiteralPath .\.venv\Scripts\python.exe).Path.Replace('\', '/')
+$forecastPython = (Resolve-Path -LiteralPath .\.venv\Scripts\python.exe).Path.Replace('\', '/')
+'FORECAST_PYTHON="' + $forecastPython + '"'
 ```
 
-Forecasting aktif secara bawaan. Jika `.env` lama berisi `FORECAST_ENABLED=false`, hapus baris itu atau ubah menjadi `true`. Isi `FORECAST_PYTHON` dengan jalur absolut yang ditampilkan perintah terakhir.
-
-```dotenv
-FORECAST_PYTHON="C:/path/to/Scaffold-Barbershop/.venv/Scripts/python.exe"
-```
+Salin baris `FORECAST_PYTHON` yang tercetak ke `.env`. Forecasting aktif secara bawaan. Jika `.env` lama berisi `FORECAST_ENABLED=false`, hapus baris itu atau ubah menjadi `true`.
 
 ```powershell
 php artisan config:clear
-php artisan serve --host=127.0.0.1 --port=8000
+php artisan serve --host=127.0.0.1 --port=8000 --no-reload
 ```
 
-Masuk sebagai Owner dan buka **Forecasting** di sidebar. Pilih **Perbarui prediksi** kapan saja untuk meminta perhitungan langsung. Pembaruan otomatis berjalan lewat scheduler pada langkah 4. [Buka halaman Forecasting lokal](http://127.0.0.1:8000/owner/forecasting)
+Di Windows, `--no-reload` menjaga lingkungan proses yang dibutuhkan Python. Mulai ulang server setelah mengubah `.env`. Login sebagai Owner dan pilih **Forecasting** di sidebar. Klik **Perbarui prediksi** untuk meminta perhitungan langsung, atau gunakan scheduler pada langkah 4. [Halaman Forecasting lokal](http://127.0.0.1:8000/owner/forecasting)
 
 #### 3. Baca hasil dan status
 
-Pilih **Batang** atau **Garis (Line Chart)** pada grafik bulanan. Saat prediksi siap, grafik memuat tiga bulan historis dan satu bulan proyeksi. Warna pembeda dan segmen garis putus-putus menandai prediksi. Buka **Lihat angka per bulan** untuk memeriksa nominal. Halaman juga menampilkan sumber data sintetis atau campuran jika digunakan dan waktu pembaruan. Jika empat bulan lengkap tersedia, MAE menunjukkan rata-rata selisih absolut antara prediksi uji dan nilai aktual. Bandingkan dengan galat pembanding yang memakai pemasukan bulan terakhir sebagai prediksi. Uji demo satu bulan menghasilkan proyeksi November **Rp8.573.667** dan MAE Oktober **Rp290.000**. Hasil tersebut menguji alur dengan data sintetis. [Rincian evaluasi](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-12.md#bukti-pengujian)
+Pilih **Batang** atau **Garis (Line Chart)** pada grafik bulanan. Saat prediksi siap, grafik memuat tiga bulan historis dan satu bulan proyeksi. Warna pembeda dan segmen garis putus-putus menandai prediksi. Buka **Lihat angka per bulan** untuk memeriksa nominal. Halaman juga menampilkan sumber data sintetis atau campuran jika digunakan dan waktu pembaruan. Jika empat bulan lengkap tersedia, MAE menunjukkan rata-rata selisih absolut antara prediksi uji dan nilai aktual. Bandingkan dengan galat pembanding yang memakai pemasukan bulan terakhir sebagai prediksi. [Rincian evaluasi](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-12.md#bukti-pengujian)
 
 | Status halaman | Arti dan cara memeriksa |
 | --- | --- |

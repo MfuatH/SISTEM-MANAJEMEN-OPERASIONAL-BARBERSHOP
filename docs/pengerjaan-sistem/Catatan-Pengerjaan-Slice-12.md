@@ -32,17 +32,19 @@ Gunakan enam fixture sebagai bahan pengembangan sebelum memakai data lokal. [Kon
 
 ## Cara meninjau
 
-Gunakan database pengembangan. Jalankan migrasi, bentuk paket sintetis, lalu jalankan `php artisan forecast:demo-import slice11-synthetic-20261124`. Rekap per bulan menampilkan transaksi berlabel **(Demo)**. Perintah berikut menyiapkan Python dan server untuk sesi PowerShell yang sama.
+### Demo dengan data sintetis
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r forecasting/requirements.txt
-$env:FORECAST_PYTHON=(Resolve-Path -LiteralPath .\.venv\Scripts\python.exe).Path
-php artisan config:clear
-php artisan serve --host=127.0.0.1 --port=8000
-```
+Jalankan migrasi dan `php artisan forecast:demo-import slice11-synthetic-20261124` setelah membuat paket dari generator. Gunakan database lokal khusus demo. Verifikasi transaksi **(Demo)** di Rekap Juli–Oktober 2026 dan pastikan sumber Forecasting berlabel sintetis. Proyeksi **Rp8.573.667** berlaku untuk target demo November 2026. [Langkah demo di README](../../README.md#1a-forecasting-demo-dengan-data-sintetis)
 
-Masuk sebagai Owner, buka **Forecasting**, klik **Perbarui prediksi**, dan cocokkan angka layar dengan `/owner/forecasting/data`. Uji pilihan **Batang** dan **Garis**, urutan tiga bulan historis lalu satu prediksi, dan nominal pada **Lihat angka per bulan**. Jika prediksi belum tersedia, grafik hanya menampilkan histori ketika tiga bulan lengkap tersedia. Hasil contoh November 2026 berlaku saat target adalah November dan histori Pemasukan Agustus–Oktober tersedia. Untuk terminal scheduler terpisah, letakkan pengaturan di `.env` lokal dan jalankan `php artisan schedule:work`. Cek jadwal melalui `php artisan schedule:list`.
+### Penggunaan dengan data operasional
+
+Gunakan catatan transaksi asli pada database operasional. Cek tiga bulan WIB terakhir yang sudah tutup melalui Rekap dan `php artisan forecast:history-window`. Pastikan `data_kind` bernilai `actual` sebelum memakai hasil untuk operasional. Histori lama bisa memakai batch CSV aktual tervalidasi jika diperlukan. [Langkah operasional di README](../../README.md#1b-forecasting-dengan-data-operasional)
+
+### Menjalankan dan memeriksa kedua alur
+
+Atur `FORECAST_PYTHON` ke Python lingkungan virtual. Di Windows, jalankan `php artisan serve --host=127.0.0.1 --port=8000 --no-reload` dan mulai ulang server setelah mengubah `.env`. Login sebagai Owner dan buka **Forecasting**. Uji tombol **Perbarui prediksi**, pilihan **Batang** dan **Garis**, serta nominal di **Lihat angka per bulan**. Cocokkan hasil dengan `/owner/forecasting/data`.
+
+Jalankan `php artisan schedule:work` di terminal kedua jika server dijalankan terpisah. Cek jadwal dengan `php artisan schedule:list`. [Panduan lengkap](../../README.md#menjalankan-forecasting-owner)
 
 ## Bukti pengujian
 
