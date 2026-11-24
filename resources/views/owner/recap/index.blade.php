@@ -3,9 +3,11 @@
 @section('title', 'Rekap')
 
 @section('owner-content')
-    <h1>Rekap</h1>
+    <header class="owner-page-header">
+        <h1>Rekap</h1>
+    </header>
 
-    <form method="get" action="{{ route('owner.recap.index') }}">
+    <form class="owner-toolbar owner-toolbar-stack" method="get" action="{{ route('owner.recap.index') }}">
         <div class="recap-filters">
             <div class="field">
                 <label for="report-month">Bulan (WIB)</label>
@@ -36,33 +38,39 @@
             </div>
         </div>
         <div class="actions">
-            <button type="submit">Terapkan filter</button>
+            <button type="submit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></svg>
+                Terapkan filter
+            </button>
             @if ($report->filters() !== [])
                 <a href="{{ route('owner.recap.index') }}">Hapus filter</a>
             @endif
-            <a class="button secondary" href="{{ route('owner.recap.export', $report->filters()) }}">Ekspor Excel</a>
+            <a class="button secondary" href="{{ route('owner.recap.export', $report->filters()) }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
+                Ekspor Excel
+            </a>
         </div>
     </form>
 
     <section aria-labelledby="recap-summary">
         <h2 id="recap-summary">Ringkasan · {{ $report->periodLabel() }}</h2>
-        <dl class="recap-totals">
-            <div>
+        <dl class="recap-totals dashboard-totals">
+            <div class="stat-income">
                 <dt>Total pemasukan</dt>
                 <dd>{{ $report::rupiah($summary['income']) }}</dd>
             </div>
-            <div>
+            <div class="stat-expenses">
                 <dt>Total pengeluaran</dt>
                 <dd>{{ $report::rupiah($summary['expenses']) }}</dd>
             </div>
-            <div>
+            <div class="stat-net">
                 <dt>Hasil bersih tercatat</dt>
                 <dd>{{ $report::rupiah($summary['net']) }}</dd>
             </div>
         </dl>
     </section>
 
-    <div class="table-scroll">
+    <div class="table-scroll owner-card">
         <table>
             <caption>Rincian transaksi</caption>
             <thead>
@@ -81,13 +89,13 @@
                 @forelse ($items as $item)
                     <tr>
                         <td class="report-time">{{ Carbon\CarbonImmutable::parse($item->business_date)->format('d/m/Y') }}</td>
-                        <td>{{ $report::TYPES[$item->entry_type] }}</td>
+                        <td><span class="badge badge-{{ $item->entry_type }}">{{ $report::TYPES[$item->entry_type] }}</span></td>
                         <td>{{ $report::category($item->item_type) }}</td>
                         <td>{{ $report::reference($item) }}</td>
                         <td>{{ $item->barber_name ?? '—' }}</td>
                         <td>{{ $item->customer_name ?? '—' }}</td>
                         <td>{{ $item->label }}</td>
-                        <td class="number">{{ $report::rupiah($item->amount) }}</td>
+                        <td class="number amount">{{ $report::rupiah($item->amount) }}</td>
                     </tr>
                 @empty
                     <tr>
@@ -99,7 +107,7 @@
                 @foreach ($detailTotals as $label => $amount)
                     <tr>
                         <th scope="row" colspan="7">{{ $label }}</th>
-                        <td class="number">{{ $report::rupiah($amount) }}</td>
+                        <td class="number amount">{{ $report::rupiah($amount) }}</td>
                     </tr>
                 @endforeach
             </tfoot>
@@ -107,7 +115,7 @@
     </div>
 
     @if ($items->hasPages())
-        <nav class="actions" aria-label="Halaman rekap">
+        <nav class="actions owner-pager" aria-label="Halaman rekap">
             @if ($items->previousPageUrl())
                 <a href="{{ $items->previousPageUrl() }}">Sebelumnya</a>
             @endif
