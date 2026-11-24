@@ -30,6 +30,8 @@ Halaman `resources/views/owner/forecasting/index.blade.php` adalah acuan fungsio
 
 Gunakan enam fixture sebagai bahan pengembangan sebelum memakai data lokal. [Kontrak dan fixture](../../forecasting/contract/v1/README.md)
 
+Pada branch ini, backend berasal dari main 57742ad dan tema berasal dari feature/ui-redesign 356e19a. Benturan pada sidebar diselesaikan dengan mempertahankan layout redesign dan tautan Forecasting bersyarat. Regresi gabungan lulus **71 tes dan 976 assertion** pada MySQL 8.4.3.
+
 ## Cara meninjau
 
 Gunakan database pengembangan dan selesaikan migrasi serta impor paket dari panduan Slice 11. Perintah berikut mengaktifkan Forecasting untuk sesi PowerShell yang sama.

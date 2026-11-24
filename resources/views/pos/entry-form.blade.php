@@ -1,15 +1,21 @@
 @extends('auth.owner-layout')
 
 @section('title', $productSale ? 'Penjualan produk' : 'Pencatatan layanan')
-@section('main-class', 'wide')
+@section('body-class', 'theme-dark pos')
+@section('main-class', 'pos-page')
 
 @section('content')
-    <p><a href="{{ route('barber.dashboard') }}">Kembali ke dashboard</a></p>
-    <h1>{{ $productSale ? 'Penjualan produk' : 'Pencatatan layanan' }}</h1>
-    <p>Kapster {{ session('barber_name') }}</p>
+    <div class="pos-heading">
+        <a class="pos-back" href="{{ route('barber.dashboard') }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+            Kembali ke dashboard
+        </a>
+        <h1>{{ $productSale ? 'Penjualan produk' : 'Pencatatan layanan' }}</h1>
+        <p>Kapster <strong>{{ session('barber_name') }}</strong></p>
+    </div>
 
     @if ($errors->any())
-        <ul class="error" role="alert">
+        <ul class="error pos-alert pos-alert-error" role="alert">
             @foreach ($errors->all() as $message)
                 <li>{{ $message }}</li>
             @endforeach
@@ -17,13 +23,13 @@
     @endif
 
     @if ($productSale && $products->isEmpty())
-        <p>Belum ada produk aktif dengan harga jual.</p>
+        <p class="pos-card pos-pad">Belum ada produk aktif dengan harga jual.</p>
     @elseif (! $productSale && $services->isEmpty())
-        <p>Belum ada layanan aktif.</p>
+        <p class="pos-card pos-pad">Belum ada layanan aktif.</p>
     @else
-        <form id="income-form" method="post" action="{{ route($productSale ? 'barber.products.store' : 'barber.entries.store') }}">
+        <form id="income-form" class="pos-form" method="post" action="{{ route($productSale ? 'barber.products.store' : 'barber.entries.store') }}">
             @csrf
-            <div class="field">
+            <div class="field pos-card pos-pad">
                 <label for="customer-name">Nama pelanggan (opsional)</label>
                 <input id="customer-name" name="customer_name" maxlength="120"
                     value="{{ is_string(old('customer_name')) ? old('customer_name') : '' }}">
@@ -82,11 +88,14 @@
                 @endif
             </div>
 
-            <p>Total <output id="income-total" aria-live="polite">—</output></p>
-            <noscript><p>Aktifkan JavaScript untuk memilih item dan melihat harga.</p></noscript>
+            <noscript><p class="pos-alert pos-alert-error">Aktifkan JavaScript untuk memilih item dan melihat harga.</p></noscript>
             <input type="hidden" name="request_key" value="{{ $requestKey }}">
             <input type="hidden" name="request_signature" value="{{ $requestSignature }}">
-            <button type="submit" id="save-entry" disabled>Simpan</button>
+
+            <div class="pos-summary">
+                <p class="pos-total"><span>Total</span> <output id="income-total" aria-live="polite">—</output></p>
+                <button type="submit" id="save-entry" disabled>Simpan</button>
+            </div>
         </form>
 
         <script>

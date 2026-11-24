@@ -82,7 +82,8 @@ class OwnerForecastingTest extends TestCase
             ->assertJsonPath('evaluation.test_months', 1)->assertJsonPath('evaluation.field_accuracy_verified', false);
         $page = $this->get(route('owner.forecasting.index'))->assertOk()
             ->assertSee('Rp8.573.667')->assertSee('Data sintetis')->assertSee('Rp290.000')->assertSee('Rp219.000')
-            ->assertSee('Histori dan prediksi pemasukan')->assertSee('<meter', false);
+            ->assertSee('Histori dan prediksi pemasukan')->assertSee('<meter', false)
+            ->assertSee('class="owner-brand"', false);
         $url = preg_quote(route('owner.forecasting.index'), '/');
         $this->assertMatchesRegularExpression('/href="'.$url.'"\s+aria-current="page"/', $page->getContent());
     }
