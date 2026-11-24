@@ -71,6 +71,8 @@ Tim frontend dapat memakai fixture `disabled`, `processing`, `insufficient_data`
 
 Slice 11 menambahkan CLI, tabel histori, dan artefak kontrak. Rute, layout, Blade, serta aset halaman yang dipakai frontend tetap sama. Endpoint Owner, model Python, MAE, dan pembaruan bulanan menjadi pekerjaan Slice 12 setelah review Slice 11. Ketepatan prediksi lapangan menunggu histori aktual dan evaluasi.
 
+Simulasi merge terhadap branch frontend lokal pada commit 773ce5b menemukan konflik lama di layout login Owner. Konflik yang sama muncul ketika branch tersebut dibandingkan langsung dengan main, dengan ketiga versi file yang identik. Integrasi layout tetap dikerjakan bersama tim frontend saat branch itu ditinjau.
+
 ## Referensi
 
 [Desain database dan urutan migrasi](Desain-Database-MySQL-Barbershop.md#6-sumber-histori-dan-forecasting) · [Rencana backend dan kesiapan frontend](Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
