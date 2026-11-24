@@ -43,6 +43,13 @@
                                 Rekap
                             </a>
                         </li>
+                        @if (config('forecasting.enabled'))
+                            <li>
+                                <a href="{{ route('owner.forecasting.index') }}" @if (request()->routeIs('owner.forecasting.*')) aria-current="page" @endif>
+                                    Forecasting
+                                </a>
+                            </li>
+                        @endif
                     </ul>
                 </nav>
             </div>

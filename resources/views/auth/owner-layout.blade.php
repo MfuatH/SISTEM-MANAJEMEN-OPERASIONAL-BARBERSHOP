@@ -646,6 +646,7 @@
         .catalog-form small { display: block; margin-top: .35rem; color: var(--muted); font-size: .82rem; }
         .catalog-form .error { margin: .35rem 0 0; }
     </style>
+    @stack('styles')
 </head>
 <body class="@yield('body-class')">
     <main class="@yield('main-class')">@yield('content')</main>

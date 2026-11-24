@@ -80,7 +80,10 @@ class OwnerForecastingTest extends TestCase
             ->assertJsonPath('predictions.0.month', '2026-11')->assertJsonPath('predictions.0.amount', '8573667')
             ->assertJsonPath('evaluation.mae_idr', '290000')->assertJsonPath('evaluation.baseline_mae_idr', '219000')
             ->assertJsonPath('evaluation.test_months', 1)->assertJsonPath('evaluation.field_accuracy_verified', false);
-        $this->get(route('owner.forecasting.index'))->assertOk()->assertSee('Rp8.573.667')->assertSee('Data sintetis');
+        $page = $this->get(route('owner.forecasting.index'))->assertOk()->assertSee('Rp8.573.667')->assertSee('Data sintetis')
+            ->assertSee('owner-forecasting.css')->assertSee('owner-brand');
+        $url = preg_quote(route('owner.forecasting.index'), '/');
+        $this->assertMatchesRegularExpression('/href="'.$url.'"\s+aria-current="page"/', $page->getContent());
     }
 
     public function test_status_distinguishes_missing_history_processing_and_stale_results(): void

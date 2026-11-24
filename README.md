@@ -27,7 +27,7 @@ Stack proyek mengikuti Project Charter dan draf desain database. Tim menetapkan 
 | Database | MySQL **8.4.3 LTS** | Penyimpanan data operasional melalui migrasi Laravel. Draf mengusulkan InnoDB, `utf8mb4`, dan tipe `DECIMAL` untuk nominal rupiah. |
 | Pengembangan lokal | Laragon **8.8.0**, Composer **2.10.3** | Menjalankan PHP dan MySQL secara lokal serta memasang dependensi Laravel. |
 | Pengujian | PHPUnit **12.5.44** | Menjalankan pengujian PHP melalui `php artisan test`. |
-| Peramalan | Python, scikit-learn | Slice 11 memakai Python 3.14.0 untuk membuat data sintetis. Slice 12 menjadwalkan satu Regresi Linier internal dengan tiga bulan historis lengkap dan satu bulan prediksi. |
+| Peramalan | Python **3.14.0**, scikit-learn **1.9.0** | Slice 11 membuat data sintetis. Slice 12 menjalankan Regresi Linier internal dengan tiga bulan historis lengkap untuk memprediksi satu bulan berikutnya. [Dependensi Python](forecasting/requirements.txt) |
 | Lingkungan target | VPS dan HTTPS | Menjalankan aplikasi web dan database, serta skrip peramalan jika disetujui. Pengamanan aplikasi mencakup hash kata sandi, pemeriksaan hak akses, validasi input, dan perlindungan CSRF. |
 | Kolaborasi | Git dan GitHub | Branch per tugas, pull request, peninjauan, dan merge ke `main`. |
 
@@ -208,6 +208,22 @@ php artisan forecast:history-window 2026-11
 
 `--preview` memeriksa file tanpa menulis database. `--activate` hanya memilih bulan lengkap yang sudah berakhir dan mempertahankan pilihan sumber yang telah ada. Laporan operasional membaca transaksi Kapster dan pengeluaran seperti sebelumnya. [Panduan peninjauan Slice 11](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-11.md#cara-meninjau)
 
+### Menjalankan Forecasting Owner
+
+Di branch Slice 12, selesaikan impor histori di atas. Siapkan lingkungan Python proyek, lalu jalankan refresh. Gunakan versi dependensi di `forecasting/requirements.txt`.
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r forecasting/requirements.txt
+$env:FORECAST_ENABLED='true'
+$env:FORECAST_PYTHON=(Resolve-Path -LiteralPath .\.venv\Scripts\python.exe).Path
+php artisan config:clear
+php artisan forecast:refresh
+php artisan serve --host=127.0.0.1 --port=8000
+```
+
+Masuk sebagai Owner lalu pilih **Forecasting** di sidebar. Pengaturan PowerShell berlaku pada terminal yang sama. Untuk mempertahankannya di terminal lain, simpan `FORECAST_ENABLED=true` dan jalur absolut `FORECAST_PYTHON` dalam `.env` lokal. Jalankan `php artisan schedule:work` pada terminal terpisah untuk mencoba pemutakhiran terjadwal. Proyeksi memakai bulan berjalan WIB sebagai target, sehingga tiga bulan sebelumnya harus lengkap dan memiliki sumber yang sudah dipilih. [Cara meninjau Slice 12](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-12.md#cara-meninjau)
+
 ## Status pengerjaan per slice
 
 Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [PR #1](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/1). Desain berikut menjadi acuan peninjauan fitur.
@@ -226,7 +242,7 @@ Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [P
 | 09 | Rekap menggabungkan pemasukan dan pengeluaran lintas periode dengan pencarian, filter, dan hasil bersih tercatat di halaman serta XLSX. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-09.md) |
 | 10 | Home Owner menampilkan kartu dan grafik harian interaktif. Home, Pemasukan, Pengeluaran, dan Rekap memakai sidebar bersama. Katalog dibuka dari Pemasukan. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-10.md) |
 | 11 | Generator sintetis Juli–Oktober, impor CSV privat dengan rekonsiliasi dan satu sumber per bulan, pembaca tiga bulan, serta kontrak v1 untuk frontend. | Dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-11.md) |
-| 12 | Jalankan satu Regresi Linier internal. Tampilkan tiga bulan historis dan satu bulan prediksi dengan evaluasi dan pembaruan bulanan. | Direncanakan setelah Slice 11. |
+| 12 | Regresi Linier, evaluasi MAE, refresh bulanan, rute Owner, dan halaman dengan tiga bulan historis serta satu prediksi. | Siap review pada branch Slice 12 yang sudah menggabungkan `feature/ui-redesign`. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-12.md) |
 | 13 | Uji integrasi MySQL, pembatasan akses, rekonsiliasi laporan, ekspor, dan UAT. | Direncanakan |
 | 14 | Periksa fungsi inti sebelum penerapan, lalu catat evaluasi dan penerimaan. | Direncanakan |
 
@@ -236,7 +252,7 @@ Contoh kueri Rekap telah diperiksa pada MySQL 8.4.3 menggunakan data fiktif. Gun
 
 Per **18 November 2026**, Slice 10 sudah masuk `main`. Landing Page, halaman Kapster, login Owner, Home, Pemasukan, Pengeluaran, dan Rekap siap diintegrasikan. Area Owner memakai sidebar bersama, dengan kartu dan grafik di Home serta pop-up katalog di Pemasukan.
 
-Frontend Forecasting dapat menggunakan enam fixture kontrak v1 untuk merancang tiga titik historis dan satu prediksi. Integrasi rute Owner dan pembangkitan prediksi dijadwalkan pada Slice 12. [Kontrak Forecasting](forecasting/contract/v1/README.md) · [Detail kesiapan sembilan tahap frontend](docs/pengerjaan-sistem/Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
+Pada branch integrasi Slice 12, halaman Forecasting memakai tema Modern Classic dan sidebar Owner dari `feature/ui-redesign`. Saat fitur diaktifkan, halaman dan rute JSON tersedia untuk Owner aktif. [Kontrak Forecasting](forecasting/contract/v1/README.md) · [Detail kesiapan sembilan tahap frontend](docs/pengerjaan-sistem/Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
 
 ## Alur kerja Git dan GitHub
 

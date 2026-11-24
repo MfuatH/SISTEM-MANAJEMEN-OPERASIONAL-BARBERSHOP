@@ -104,7 +104,7 @@ class OwnerDashboardTest extends TestCase
                     ->assertSee('data-catalog-url="'.route('owner.products.index', absolute: false).'"', false)
                     ->assertSee('aria-haspopup="dialog"', false);
             } else {
-                $page->assertDontSee('Katalog layanan')->assertDontSee('Katalog produk');
+                $page->assertDontSee('data-catalog-url=', false)->assertDontSee('id="owner-catalog-dialog"', false);
             }
         }
 

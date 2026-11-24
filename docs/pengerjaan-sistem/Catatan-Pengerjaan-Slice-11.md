@@ -69,7 +69,7 @@ php artisan forecast:month-source 2026-09 import --import-id=1
 
 Tim frontend dapat memakai fixture `disabled`, `processing`, `insufficient_data`, `ready`, `stale`, dan `unavailable`. `ready` dan `stale` berisi tiga bulan historis dan satu proyeksi. Gunakan label asal data dan bulan pada respons. [Kontrak dan fixture v1](../../forecasting/contract/v1/README.md)
 
-Slice 11 menambahkan CLI, tabel histori, dan artefak kontrak. Rute, layout, Blade, serta aset halaman yang dipakai frontend tetap sama. Endpoint Owner, model Python, MAE, dan pembaruan bulanan menjadi pekerjaan Slice 12 setelah review Slice 11. Ketepatan prediksi lapangan menunggu histori aktual dan evaluasi.
+Slice 11 menambahkan CLI, tabel histori, dan artefak kontrak. Rute, layout, Blade, serta aset halaman yang dipakai frontend tetap sama. Endpoint Owner, model Python, MAE, serta pembaruan bulanan tersedia untuk review di branch Slice 12. [Catatan Slice 12](Catatan-Pengerjaan-Slice-12.md) Ketepatan prediksi lapangan menunggu histori aktual dan evaluasi.
 
 Simulasi merge terhadap branch frontend lokal pada commit 773ce5b menemukan konflik lama di layout login Owner. Konflik yang sama muncul ketika branch tersebut dibandingkan langsung dengan main, dengan ketiga versi file yang identik. Integrasi layout tetap dikerjakan bersama tim frontend saat branch itu ditinjau.
 
