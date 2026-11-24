@@ -90,17 +90,85 @@ Aplikasi Laravel ditempatkan di root repositori. Rencana tampilan Kapster dan Ow
 | 11–12 | `app/Console/Commands/`, `storage/app/private/imports/`, `forecasting/`, dan `resources/views/owner/` jika impor histori atau proyeksi disetujui. |
 | 13–14 | `tests/` untuk kode uji, `docs/pengerjaan-sistem/` untuk bukti UAT dan penyerahan, serta `config/` dan `public/` untuk pengaturan lingkungan target. |
 
-### Menyiapkan lingkungan lokal
+### Menjalankan aplikasi untuk pengembangan
 
-1. Pilih PHP 8.5.x dan MySQL 8.4 LTS di Terminal Laragon, lalu jalankan `composer install` dari root repositori.
-2. Gunakan `.env.example` sebagai acuan untuk `.env` dan `.env.testing`. Arahkan keduanya ke skema terpisah, `barbershop_dev` dan `barbershop_test`, sesuai port MySQL lokal.
-3. Jalankan `php artisan about`, `php artisan db:show`, dan `php artisan db:show --env=testing` sebelum menerapkan migrasi bawaan. Simpan CSV/Excel aktual di `storage/app/private/imports/` dan gunakan data fiktif untuk pengujian. [Panduan dan bukti Slice 00](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-00.md#cara-mengulang-pemeriksaan)
+Jalankan perintah dari root repositori di PowerShell. Siapkan **PHP 8.5.x**, **Composer**, dan **MySQL 8.4 LTS**. Di Laragon, pilih PHP dan MySQL sesuai versi tersebut, lalu nyalakan MySQL.
 
-### Menyiapkan akun Owner
+1. **Periksa PHP dan pasang dependensi Laravel.**
 
-Jalankan `php artisan migrate`, lalu `php artisan owner:create pemilik --name="Pemilik"` pada lingkungan lokal. Masukkan kata sandi saat diminta, lalu buka `/owner/login`. Perintah membuat akun Owner dengan username dan kata sandi. Nama hanya digunakan untuk tampilan.
+   ```powershell
+   php -v
+   composer --version
+   composer install
+   ```
 
-Untuk menguji alur di MySQL, jalankan `php artisan migrate --env=testing`, lalu `php artisan test --env=testing`.
+   Jika `php -v` masih menampilkan PHP 8.2, jalankan `where.exe php` untuk memeriksa urutan lokasi PHP. Buka terminal baru dari Laragon dan pastikan PHP 8.5.x yang aktif sebelum melanjutkan.
+
+2. **Siapkan konfigurasi lokal.** Buat database kosong `barbershop_dev` di MySQL melalui Laragon, lalu salin konfigurasi contoh jika `.env` belum ada.
+
+   ```powershell
+   if (-not (Test-Path -LiteralPath .env)) {
+       Copy-Item -LiteralPath .env.example -Destination .env
+   }
+   ```
+
+   Di `.env`, sesuaikan pengaturan berikut dengan MySQL lokal.
+
+   ```dotenv
+   APP_URL=http://127.0.0.1:8000
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=barbershop_dev
+   DB_USERNAME=barbershop_dev
+   DB_PASSWORD=
+   ```
+
+   Ganti `DB_USERNAME` dan `DB_PASSWORD` dengan akun MySQL lokal yang berhak melakukan migrasi pada skema tersebut. Gunakan `DB_PORT=3307` jika MySQL Laragon berjalan pada port 3307. Simpan `.env` dan kredensial secara lokal.
+
+3. **Siapkan kunci dan migrasi.** Jalankan perintah berikut setelah mengisi `.env`. Jalankan `key:generate` hanya jika `APP_KEY` masih kosong.
+
+   ```powershell
+   php artisan config:clear
+   php artisan key:generate
+   php artisan db:show
+   php artisan migrate
+   ```
+
+   Sebelum menjalankan migrasi, pastikan `db:show` menampilkan **MySQL 8.4** dan database **`barbershop_dev`**.
+
+4. **Buat akun Owner sekali per database lokal.** Jalankan perintah berikut, lalu masukkan kata sandi saat diminta. Gunakan akun lokal yang sudah ada jika sebelumnya dibuat pada database yang sama.
+
+   ```powershell
+   php artisan owner:create pemilik --name="Pemilik"
+   ```
+
+5. **Jalankan server Laravel.**
+
+   ```powershell
+   php artisan serve --host=127.0.0.1 --port=8000
+   ```
+
+   Biarkan terminal server terbuka. Buka [beranda Kapster](http://127.0.0.1:8000) untuk memulai sesi dengan nama atau [login Owner](http://127.0.0.1:8000/owner/login) untuk masuk dengan username dan kata sandi yang dibuat tadi. Tekan `Ctrl+C` di terminal untuk menghentikan server.
+
+   Saat mengembangkan aset melalui Vite, siapkan **Node.js 24** dan **npm**, lalu jalankan perintah ini di terminal kedua dari root repositori. Buka aplikasi melalui alamat Laravel pada langkah 5.
+
+   ```powershell
+   npm install
+   npm run dev
+   ```
+
+### Menjalankan pengujian lokal
+
+Siapkan database terpisah `barbershop_test` dan buat `.env.testing` dari `.env.example`. Isi `APP_ENV=testing`, gunakan `APP_KEY` dari lingkungan lokal, dan atur koneksi MySQL agar mengarah ke `barbershop_test`. Setelah `db:show` mengonfirmasi skema pengujian, jalankan migrasi dan tes.
+
+```powershell
+php artisan db:show --env=testing
+php artisan migrate --env=testing
+php artisan test --env=testing
+```
+
+Simpan CSV/Excel aktual di `storage/app/private/imports/` dan gunakan data fiktif untuk pengujian. [Panduan dan bukti Slice 00](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-00.md#cara-mengulang-pemeriksaan)
 
 ### Mencoba katalog layanan dan produk
 
