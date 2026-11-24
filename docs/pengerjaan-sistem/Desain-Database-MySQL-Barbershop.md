@@ -13,6 +13,9 @@ erDiagram
     USERS ||..o{ EXPENSES : mencatat
     USERS |o..o{ SESSIONS : direferensikan
     SERVICES ||..o{ INCOME_ENTRIES : dipilih
+    USERS |o..o{ HISTORICAL_IMPORTS : mencatat
+    HISTORICAL_IMPORTS ||--|{ HISTORICAL_MONTHLY_REVENUES : memuat
+    HISTORICAL_MONTHLY_REVENUES |o..o| FORECAST_MONTH_SOURCES : dipilih
 ```
 
 ### Tabel `users`
@@ -21,7 +24,7 @@ erDiagram
 
 | Kolom | Tipe MySQL | Kunci dan fungsi | Status |
 | --- | --- | --- | --- |
-| `id` | `BIGINT UNSIGNED AUTO_INCREMENT` | PK. Direferensikan oleh `expenses.recorded_by_user_id`. | Ada |
+| `id` | `BIGINT UNSIGNED AUTO_INCREMENT` | PK. Direferensikan oleh `expenses.recorded_by_user_id` dan `historical_imports.imported_by`. | Ada |
 | `name` | `VARCHAR(255)` | Nama tampilan akun. | Ada |
 | `email` | `VARCHAR(255)` pada fondasi | Atribut dari migrasi awal. | Dihapus pada Slice 01 |
 | `email_verified_at` | `TIMESTAMP NULL` pada fondasi | Atribut dari migrasi awal. | Dihapus pada Slice 01 |
@@ -44,7 +47,7 @@ Satu Owner dapat mencatat nol hingga banyak pengeluaran. Satu record `sessions` 
 | Data layanan, kapster, pelanggan | Tiga master terpusat, transaksi menunjuk pelanggan dan kapster. | Nama Kapster berasal dari sesi. Nama pelanggan adalah keterangan teks opsional per pencatatan. Layanan berasal dari katalog dan harganya tampil otomatis. |
 | Pengeluaran | Kasir mencatat tanggal, deskripsi, dan nominal. | Owner memasukkan tanggal, deskripsi, dan jumlah. Sistem menerbitkan ID pengeluaran. Riwayat mendukung pencarian dan ekspor Excel. |
 | Laporan | Dashboard harian, mingguan, dan bulanan dengan rekap periode. | Home, Pemasukan, dan Pengeluaran menampilkan bulan berjalan. Home menampilkan total pemasukan, pengeluaran, dan hasil bersih serta grafik harian. Rekap menyajikan histori seluruh periode dan mendukung filter serta ekspor. |
-| Peramalan | Satu Regresi Linier Python dengan proyeksi bulanan. | Fitur opsional. Empat bulan aktual dan dua bulan prediksi, diperbarui setiap bulan bila disetujui. |
+| Peramalan | Satu Regresi Linier Python dengan proyeksi bulanan. | Tiga bulan historis lengkap WIB untuk memprediksi satu bulan berikutnya. Slice 11 menyediakan histori sintetis dan kontrak. Slice 12 mencakup model dan halaman. |
 
 ### Keputusan dan dampak skema
 
@@ -57,7 +60,7 @@ Satu Owner dapat mencatat nol hingga banyak pengeluaran. Satu record `sessions` 
 | K5 | **Dikonfirmasi.** Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Rekap mencakup seluruh histori. | Pada pergantian bulan, halaman bulanan memakai rentang baru. Rekap tetap dapat membaca bulan sebelumnya dan menyediakan filter bulan atau jenis. |
 | K6 | **Dikonfirmasi.** Pencatatan memakai layanan dan nominal, dengan aksi Kapster sebatas menambah. **Tafsiran draf.** Koreksi dan pembatalan yang diaktifkan berada di area Owner. | Slice 05 memakai waktu server dalam UTC. Kebutuhan mencatat pemasukan mundur masih terbuka. Sebelum Slice 08, pastikan cakupan koreksi atau pembatalan Owner, perlakuan periode, dan histori audit. Metode pembayaran dikeluarkan dari skema. |
 | K7 | **Dikonfirmasi.** Owner dan Admin adalah dua sebutan untuk akun yang sama. | Satu jenis akun Owner. Slice 01 menambahkan username dan menghapus atribut email akun. |
-| K8 | Apakah Forecasting disetujui, posisi prediksi di mana, dan apa yang diproyeksikan? Apakah data Juli–September 2026 masih diperlukan? | Usulan targetnya pemasukan bulanan, memakai empat bulan aktual terakhir yang sudah lengkap pada grafik dan dua bulan prediksi sesudahnya. Frasa “6 bulan kebelakang” juga dapat berarti dua prediksi atas bulan historis. Konfirmasi arti tersebut, sumber data, dan ketentuan baru sebelum Slice 11–12. |
+| K8 | **Dikonfirmasi.** Data awal sintetis, 14–15 transaksi per hari operasional, tiga bulan historis, dan satu bulan prediksi. | Slice 11 menerapkan target pemasukan kotor dan bulan target pertama setelah tiga bulan lengkap WIB. Asumsi dataset mencakup Juli–Oktober 2026 dan nama pelanggan sebagian kosong. Pemetaan file aktual dan ambang MAE masih terbuka. |
 | K9 | **Dikonfirmasi.** Dashboard Kapster memiliki tombol **Layanan** dan **Produk**. Form Layanan memuat minimal satu layanan dan bagian penjualan produk opsional. Form Produk mencatat penjualan saja. Owner mengisi katalog. | Pemasukan menjumlahkan layanan dan produk terjual. Kolom pemakaian produk dipertahankan untuk membaca catatan lama. Kebutuhan pencatatan stok masih terbuka. |
 | K10 | **Dikonfirmasi.** Rekap komisi bulanan Kapster berada di luar lingkup aplikasi. | Foto rekap komisi menjadi acuan proses manual. Rancangan pemasukan hanya memakai nilai layanan dan penjualan produk. |
 | K11 | **Dikonfirmasi 18 November 2026.** Rekap menampilkan hasil bersih dari pemasukan dan pengeluaran tercatat. | Slice 09 menghitung total pemasukan dikurangi total pengeluaran pada periode WIB yang sama. Tampilkan hasilnya pada Rekap dan XLSX. |
@@ -160,18 +163,51 @@ Di implementasi, Laravel menerapkan satu pembentuk rentang dan sumber kueri lapo
 
 Rekap menampilkan tanggal pemasukan dalam WIB dan tanggal pengeluaran sesuai `incurred_on`. Baris `OUT` memakai `EXP-{id}` sebagai referensi. Slice 08 ditunda. Saat tindakan Owner pada K6 diimplementasikan, terapkan aturan status yang sama pada daftar, agregat, dan ekspor.
 
-## 6. Forecasting opsional
+## 6. Sumber histori dan Forecasting
 
-**Keputusan terbuka K8.** Sumber menyebut enam bulan ke belakang dan juga empat bulan aktual ditambah dua bulan prediksi. Usulan untuk disepakati adalah menampilkan empat bulan lengkap terakhir sebagai aktual, diikuti dua bulan prediksi. Contohnya, dengan data aktual April–Juli, prediksi jatuh pada Agustus–September. Jika dua prediksi harus berada di dalam jendela historis, tetapkan sebagai evaluasi historis. Latih model dengan data yang tersedia sebelum bulan yang diuji dan tampilkan status aktual serta prediksi dengan jelas.
+Slice 11 menyediakan data sintetis Juli–Oktober 2026. Pemasukan kotor dihitung dari harga saat pencatatan, mencakup layanan dan produk terjual. Alur membandingkan nominal item dengan rekap bulanan dari CSV privat. Database histori menyimpan agregat per batch dan metadata. Transaksi sumber dan nama pelanggan tetap di paket privat.
 
-Jika disetujui, ambil omzet bulanan dari sumber pemasukan yang sudah direkonsiliasi. Gunakan satu model Regresi Linier Python yang dipanggil secara internal oleh Laravel. Perbarui saat bulan lokal baru mulai, setelah bulan sebelumnya lengkap. Simpan bukti periode latih/uji dan versi data. Empat bulan aktual pada grafik adalah cakupan tampilan. Jumlah bulan pelatihan dan kecukupan data evaluasi perlu disepakati. Data Juli–September 2026 pada Charter menyediakan tiga bulan jika lengkap, sehingga tampilan empat bulan aktual masih memerlukan bulan tambahan. Gunakan status data belum cukup dan catat evaluasi galat **belum terverifikasi** bila pembanding belum memadai.
+Bulan target memakai tiga bulan kalender WIB berurutan yang berakhir sebelum target. Contohnya Agustus–Oktober menjadi input untuk November. Juli–September dapat dipakai pada uji retrospektif Oktober. Regresi Linier Python, evaluasi MAE, akses Owner, dan pembaruan bulanan masuk Slice 12. [Kontrak respons v1](../../forecasting/contract/v1/README.md) · [Catatan Slice 11](Catatan-Pengerjaan-Slice-11.md)
 
-Jika impor CSV/Excel lama tetap diminta, periksa contoh file, unit per baris, identitas catatan, tanggal, nominal, dan kelengkapan bulan. Simpan sumber secara privat. Pilih satu sumber tervalidasi per bulan, termasuk bulan yang juga memiliki data aplikasi. Agregat impor untuk peramalan tetap terpisah dari Rekap operasional sampai tim menetapkan kebutuhan penggabungan. Tabel berikut adalah opsi hanya untuk impor yang disetujui.
+### Tabel `historical_imports`
 
-| Tabel opsional | Kolom, tipe, dan kunci | Isi dan kegunaan |
+**Isi dan fungsi.** Satu batch mencatat identitas paket dan versi validasi. Satu Owner dapat dirujuk banyak batch melalui opsi audit perintah.
+
+| Kolom | Tipe MySQL | Kunci dan kegunaan |
 | --- | --- | --- |
-| `historical_imports` | `id ID PK`, `source_name VARCHAR(255)`, `file_sha256 BINARY(32)`, `mapping_version VARCHAR(40)`, `imported_at UTC`. UQ `(file_sha256, mapping_version)`. | Versi impor dan identitas file yang direkonsiliasi. Satu batch terbit memuat satu atau lebih agregat bulanan. |
-| `historical_monthly_revenues` | `import_id ID FK` ke `historical_imports.id`, `month_start DATE` tanggal 1, `sales_amount Rp` nonnegatif, `transaction_count INT UNSIGNED`. PK `(import_id, month_start)`. | Total pemasukan dan jumlah catatan valid per bulan untuk satu versi impor. |
+| `id` | `ID` | PK. |
+| `dataset_version` | `VARCHAR(80)` | Versi dataset dari manifest. |
+| `data_kind` | `VARCHAR(24)` | `synthetic` atau `actual`. |
+| `manifest_sha256` | `CHAR(64)` | SHA-256 manifest. Bagian dari UQ identitas batch. |
+| `mapping_version` | `VARCHAR(40)` | Versi format `csv-v1`. UQ bersama `manifest_sha256`. |
+| `imported_at` | `DATETIME` | Waktu batch pertama kali disimpan dalam UTC. |
+| `imported_by` | `BIGINT UNSIGNED NULL` | FK ke `users.id` dan berindeks. Dapat diisi dengan Owner aktif melalui CLI. |
+
+### Tabel `historical_monthly_revenues`
+
+**Isi dan fungsi.** Agregat per bulan di satu batch. Total nol sah ketika paket secara eksplisit menyatakan bulan lengkap.
+
+| Kolom | Tipe MySQL | Kunci dan kegunaan |
+| --- | --- | --- |
+| `import_id` | `BIGINT UNSIGNED` | FK ke `historical_imports.id`. Kolom pertama PK gabungan. |
+| `month_start` | `DATE` | Hari pertama bulan WIB. Kolom kedua PK gabungan. |
+| `revenue` | `DECIMAL(30,0)` | Pemasukan kotor nonnegatif, divalidasi terhadap item. |
+| `transaction_count` | `INT UNSIGNED` | Jumlah ID transaksi berbeda. |
+| `is_complete` | `BOOLEAN` | Penanda kelengkapan kalender yang diklaim paket dan diperiksa terhadap cakupan tanggal. |
+
+### Tabel `forecast_month_sources`
+
+**Isi dan fungsi.** Satu pilihan sumber aktif per bulan. Pilihan aplikasi menyatakan operator sudah memeriksa kelengkapan bulan. Pilihan impor hanya dapat menunjuk agregat dari bulan yang sama.
+
+| Kolom | Tipe MySQL | Kunci dan kegunaan |
+| --- | --- | --- |
+| `month_start` | `DATE` | PK. Hari pertama bulan WIB. |
+| `source` | `VARCHAR(16)` | `application` atau `import`. |
+| `import_id` | `BIGINT UNSIGNED NULL` | Kosong untuk `application`. Untuk `import`, FK berindeks bersama `month_start` ke PK `historical_monthly_revenues`. |
+
+CHECK MySQL membatasi jenis data, hari pertama bulan, nominal nonnegatif, kelengkapan, serta kombinasi sumber dan ID. FK memakai `RESTRICT`. Impor menyimpan batch, agregat, dan pilihan sumber dalam satu transaksi. Identitas batch unik dan pemilihan sumber memakai PK bulan. Konflik aktivasi membatalkan seluruh transaksi. Penggantian sumber berlangsung melalui perintah pilihan eksplisit.
+
+Pembaca sumber `application` menghitung item layanan dan penjualan produk dari `IncomeItems` pada rentang UTC yang ekuivalen dengan bulan WIB. Window menyatakan `insufficient_data` ketika bulan belum berakhir, belum dipilih, atau agregat impor belum lengkap. Hasil membawa asal per bulan dan label `mixed` jika operator memilih campuran aktual dan sintetis.
 
 ## 7. Urutan migrasi Laravel yang diusulkan
 
@@ -188,7 +224,7 @@ Pemeriksaan repo menemukan tiga migrasi bawaan `0001_01_01_000000_create_users_t
 | 4 | 05 revisi | Migrasi `000006`–`000008` membuat katalog produk, induk transaksi, dan rincian penjualan produk. | Jalankan sesudah `000005`. [Rincian migrasi revisi](#penyimpanan-migrasi-dan-pengujian) |
 | 5 | 07 | Migrasi `0001_01_01_000009_create_expenses_table.php` membuat `expenses`. | Bergantung pada `users`. Sistem mengisi PK dan memakainya untuk referensi `EXP-{id}`. Rollback dibatasi pada tabel kosong. |
 | Ditunda | 08 | Tambahkan atribut audit dan relasi pengganti sesuai alur yang disetujui. | K6. Owner memegang izin. Tetapkan cakupan tindakan, periode, dan aturan status sebelum migrasi. |
-| Opsional | 11 | Buat `historical_imports`, lalu `historical_monthly_revenues`. | K8, termasuk kebutuhan impor dan pemetaan file aktual. |
+| 6 | 11 | Migrasi `0001_01_01_000010_create_forecasting_history_tables.php` membuat `historical_imports`, `historical_monthly_revenues`, lalu `forecast_month_sources`. | Uji pada MySQL 8.4. Rollback melepas tabel sesuai urutan FK pada skema yang belum berisi histori atau pilihan sumber. |
 
 Slice 06, 09, dan 10 membaca sumber operasional yang sama. Slice 12 dapat memakai sumber bulanan yang disepakati tanpa migrasi tambahan pada usulan awal. Gunakan migrasi baru setiap kali mengubah fondasi yang sudah diterapkan. Uji penerapan dan rollback pada MySQL 8.4 di skema uji terpisah. Dalam rollback skema fitur, lepaskan tabel anak sebelum induknya. [Migrasi Laravel](https://laravel.com/docs/13.x/migrations)
 
@@ -250,8 +286,8 @@ Contoh mengikuti keputusan satu layanan per simpan dan memakai harga katalog. `L
 | 08 · Tindakan Owner bersyarat | Ditunda per 18 November 2026. Tetapkan cakupan berdasarkan K6 saat pengerjaan dilanjutkan. | Jika diterapkan, izin terbatas pada Owner. Histori dan perhitungan rekapan dapat direkonsiliasi. |
 | 09 · Rekap lintas periode | Gabungkan hasil Slice 06–07. Sediakan pencarian, filter bulan/jenis, hasil bersih tercatat, dan XLSX. | Selesai dan di-merge. Histori dan rincian Excel cocok dengan filter. Ringkasan halaman dan Excel memuat total pemasukan, total pengeluaran, serta hasil bersih pada periode yang sama dengan selisih Rp0 terhadap pembanding. [Catatan Slice 09](Catatan-Pengerjaan-Slice-09.md) |
 | 10 · Home bulanan | Hitung pemasukan, pengeluaran, dan hasil bersih bulan berjalan dari sumber Rekap. Sajikan dua seri harian dalam bentuk Batang atau Garis dengan tombol seri. | Selesai dan di-merge. Total Home dan Rekap cocok pada bulan yang sama. Pergantian bulan menghitung rentang baru, dan hari tanpa catatan bernilai Rp0. [Catatan Slice 10](Catatan-Pengerjaan-Slice-10.md) |
-| 11 · Histori opsional | Jalankan setelah keputusan K8 dan pemetaan sumber. Verifikasi file privat, cakupan, dan impor ulang. | Setiap bulan direkonsiliasi dan tetap memiliki satu nilai sumber setelah impor ulang. |
-| 12 · Forecasting opsional | Setelah K8, gunakan deret bulanan tervalidasi dan jalankan satu model internal Python. | Empat bulan aktual dan dua prediksi berlabel jelas, diperbarui bulanan sesuai sumbu waktu yang disepakati. |
+| 11 · Histori Forecasting | Generator sintetis, validasi dan impor ulang CSV privat, pemilih sumber bulanan, pembaca tiga bulan, serta kontrak v1. | Dalam review. Uji selisih Rp0, impor serentak, konflik aktivasi, dan batas WIB. [Catatan Slice 11](Catatan-Pengerjaan-Slice-11.md) |
+| 12 · Model dan halaman Forecasting | Jalankan satu Regresi Linier internal dengan tiga bulan historis. | Tiga titik historis dan satu prediksi untuk bulan berikutnya, pemutakhiran bulanan, hasil MAE, serta akses Owner. |
 | 13 · Uji integrasi dan UAT | Uji migrasi MySQL, alur Kapster, akses Owner, ekspor dan rekonsiliasi. Sertakan peramalan jika disetujui. | Hasil aktual, status KP, temuan, dan uji ulang terdokumentasi. |
 | 14 · Penerapan dan penyerahan | Setelah pemeriksaan fungsi inti, uji lingkungan target dan catat keputusan penerimaan. | Dokumentasi skema, hasil uji, serta keputusan penerimaan tersedia. |
 
