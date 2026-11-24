@@ -15,7 +15,7 @@ Sistem melayani satu lokasi. Stack yang disepakati adalah Laravel 13.x, PHP 8.5.
 | Pemasukan dan pengeluaran | Pemasukan berasal dari pencatatan Kapster. Owner mengisi tanggal, deskripsi, dan jumlah pengeluaran, lalu sistem membuat ID. Metode pembayaran dan struk keluar dari cakupan. |
 | Periode dan ekspor | Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Home menampilkan total pemasukan, pengeluaran, dan hasil bersih bulanan serta grafik harian Pemasukan dan Pengeluaran. Rekap memuat seluruh histori dengan filter bulan atau jenis. Pemasukan, Pengeluaran, dan Rekap mendukung pencarian dan ekspor Excel pada cakupan masing-masing. |
 | Koreksi | Draf menempatkan tindakan koreksi yang diaktifkan di area Owner. Cakupan koreksi, kebutuhan pembatalan mandiri, dan jejak audit perlu diputuskan sebelum Slice 08. |
-| Forecasting | Slice 11 menyediakan sumber pemasukan kotor dan kontrak untuk tiga bulan historis WIB dan satu bulan prediksi. Slice 12 menjadwalkan satu Regresi Linier Python secara internal melalui Laravel, evaluasi MAE, dan pembaruan bulanan. |
+| Forecasting | Laravel menjalankan satu Regresi Linier Python secara internal. Tiga bulan lengkap WIB menghasilkan satu proyeksi pemasukan kotor, dengan histori dan performa evaluasi berlabel jelas. |
 
 QMP mencantumkan Andik Ari Mulyono sebagai penerima hasil. Kolom penerimaan akhir pada Charter masih terbuka. Manajer Proyek menyelaraskan pencatatan wewenang serta kriteria QMP yang terdampak perubahan alur sebelum penerimaan akhir. [Acuan tugas kuliah](../tugas-kuliah/README.md)
 
@@ -34,15 +34,15 @@ QMP mencantumkan Andik Ari Mulyono sebagai penerima hasil. Kolom penerimaan akhi
 | 08 | Koreksi Owner sesuai keputusan K6. | Ditunda. Tetapkan izin, tindakan, periode, dan histori audit saat pengerjaan dilanjutkan. |
 | 09 | Rekap lintas periode. | Selesai dan di-merge. Rekap dan XLSX menampilkan ringkasan periode, termasuk hasil bersih tercatat, serta rincian sesuai filter. [Catatan Slice 09](Catatan-Pengerjaan-Slice-09.md) |
 | 10 | Home bulanan. | Selesai dan di-merge. Kartu pemasukan, pengeluaran, hasil bersih, dan grafik harian WIB membaca sumber yang sama dengan Rekap. [Catatan Slice 10](Catatan-Pengerjaan-Slice-10.md) |
-| 11 | Histori sintetis dan kontrak Forecasting v1. | Dalam review. Impor CSV privat, satu sumber per bulan, dan rekonsiliasi pada MySQL 8.4. [Catatan Slice 11](Catatan-Pengerjaan-Slice-11.md) |
-| 12 | Regresi Linier, hasil bulanan, evaluasi, dan endpoint Owner. | Direncanakan setelah Slice 11 disetujui. Gunakan tiga bulan historis dan satu bulan target. |
+| 11 | Histori sintetis dan kontrak Forecasting v1. | Selesai diuji. Impor CSV privat, satu sumber per bulan, dan rekonsiliasi pada MySQL 8.4. [Catatan Slice 11](Catatan-Pengerjaan-Slice-11.md) |
+| 12 | Regresi Linier, snapshot hasil, MAE, endpoint Owner, dan halaman acuan Forecasting. | Selesai diuji. Uji sintetis membuktikan alur tiga bulan historis ke satu prediksi. Desain akhir menjadi pekerjaan frontend. [Catatan Slice 12](Catatan-Pengerjaan-Slice-12.md) |
 | 13–14 | Integrasi MySQL, UAT, penerapan, dan penyerahan. | Simpan hasil uji, temuan, perbaikan, pemeriksaan lingkungan target, dan keputusan penerimaan. |
 
 ERD, kamus data, integritas, indeks, dan urutan migrasi dijabarkan di [Desain Database MySQL](Desain-Database-MySQL-Barbershop.md). Gunakan `DECIMAL` untuk rupiah dan aritmetika presisi eksak di backend. [MySQL DECIMAL](https://dev.mysql.com/doc/refman/8.4/en/fixed-point-types.html)
 
 ## Kesiapan frontend per tahap
 
-Tahap 1–8 mengikuti backend yang sudah masuk `main` sampai Slice 10. Tahap 9 mengikuti kontrak v1 pada branch Slice 11. Halaman yang berstatus **Siap integrasi** dapat disambungkan ke rute web Laravel yang tersedia. Saat mengganti tampilan Blade, pertahankan token CSRF, autentikasi berbasis sesi, redirect, dan pesan validasi.
+Tahap 1–8 memakai rute backend dari Slice 00–10. Tahap 9 memakai kontrak dan halaman acuan dari Slice 11–12. Branch `feat/integrasi-backend-frontend` menggabungkan keduanya dengan tema Modern Classic. Saat mengubah Blade, pertahankan token CSRF, autentikasi sesi, redirect, dan pesan validasi.
 
 | Tahap frontend | Status backend | Bagian yang siap dibuat frontend |
 | --- | --- | --- |
@@ -54,7 +54,7 @@ Tahap 1–8 mengikuti backend yang sudah masuk `main` sampai Slice 10. Tahap 9 m
 | 6. Pengembangan Halaman Pemasukan | **Siap integrasi.** Slice 06 menyediakan `GET /owner/pemasukan` dan `GET /owner/pemasukan/ekspor` dengan parameter pencarian `q`. | Buat tabel satu baris per layanan atau penjualan produk, tampilan periode bulan berjalan WIB, pencarian, total hasil, paginasi, dan tombol ekspor Excel yang memakai pencarian yang sama. Tombol katalog layanan dan produk di Pemasukan membuka pop-up. [Catatan Slice 06](Catatan-Pengerjaan-Slice-06.md#kesiapan-frontend) · [Penempatan katalog](Catatan-Pengerjaan-Slice-10.md#kesiapan-frontend) |
 | 7. Pengembangan Halaman Pengeluaran | **Siap integrasi.** Tersedia `GET /owner/pengeluaran`, `GET /owner/pengeluaran/tambah`, `POST /owner/pengeluaran` dan `GET /owner/pengeluaran/ekspor`. | Buat form tanggal, deskripsi, dan jumlah, lalu tampilkan referensi yang dibuat sistem. Buat tabel, pencarian, total, dan paginasi bulan berjalan WIB. Gunakan pencarian `q` yang sama untuk daftar dan ekspor. [Catatan Slice 07](Catatan-Pengerjaan-Slice-07.md#kesiapan-frontend) |
 | 8. Pengembangan Halaman Rekap | **Siap integrasi.** Tersedia `GET /owner/rekap` dan `GET /owner/rekap/ekspor` dengan parameter `month`, `type`, dan `q`. | Buat tabel lintas periode, filter bulan dan jenis, pencarian, serta ringkasan pemasukan, pengeluaran, dan hasil bersih tercatat. Tampilkan total pendapatan kotor dan bersih di bawah tabel saat **Semua jenis** dipilih. Gunakan filter yang sama saat menautkan Excel. [Catatan Slice 09](Catatan-Pengerjaan-Slice-09.md#kesiapan-frontend) |
-| 9. Pengembangan Halaman Forecasting | **Siap untuk pengembangan dengan fixture.** Slice 11 menyediakan histori dan kontrak respons v1. Endpoint direncanakan pada Slice 12. | Gunakan fixture enam status untuk grafik tiga bulan historis dan satu prediksi, label periode dan sumber sintetis, serta keadaan kosong dan gagal. [Kontrak v1](../../forecasting/contract/v1/README.md) · [Catatan Slice 11](Catatan-Pengerjaan-Slice-11.md#kesiapan-frontend) |
+| 9. Pengembangan Halaman Forecasting | **Siap dirancang dan diintegrasikan.** Owner aktif membuka `GET /owner/forecasting` dan `GET /owner/forecasting/data`. | Gunakan halaman acuan untuk tiga historis, satu prediksi, tabel nominal, MAE, label sumber, waktu refresh, dan enam status. Tim frontend mengerjakan desain akhir pada branch integrasi. [Kontrak v1](../../forecasting/contract/v1/README.md) · [Handoff Forecasting](Catatan-Pengerjaan-Slice-12.md#handoff-frontend) |
 
 [Rangkuman di README](../../README.md#status-backend-dan-kesiapan-frontend) · [Desain database](Desain-Database-MySQL-Barbershop.md)
 

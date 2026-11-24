@@ -167,7 +167,7 @@ Rekap menampilkan tanggal pemasukan dalam WIB dan tanggal pengeluaran sesuai `in
 
 Slice 11 menyediakan data sintetis Juli–Oktober 2026. Pemasukan kotor dihitung dari harga saat pencatatan, mencakup layanan dan produk terjual. Alur membandingkan nominal item dengan rekap bulanan dari CSV privat. Database histori menyimpan agregat per batch dan metadata. Transaksi sumber dan nama pelanggan tetap di paket privat.
 
-Bulan target memakai tiga bulan kalender WIB berurutan yang berakhir sebelum target. Contohnya Agustus–Oktober menjadi input untuk November. Juli–September dapat dipakai pada uji retrospektif Oktober. Regresi Linier Python, evaluasi MAE, akses Owner, dan pembaruan bulanan masuk Slice 12. [Kontrak respons v1](../../forecasting/contract/v1/README.md) · [Catatan Slice 11](Catatan-Pengerjaan-Slice-11.md)
+Bulan target memakai tiga bulan kalender WIB berurutan yang berakhir sebelum target. Contohnya Agustus–Oktober menjadi input untuk November. Juli–September dapat dipakai pada uji retrospektif Oktober. Slice 12 menjalankan Regresi Linier Python secara internal, menghitung MAE, dan menampilkan hasil ke Owner aktif. [Kontrak respons v1](../../forecasting/contract/v1/README.md) · [Catatan Slice 11](Catatan-Pengerjaan-Slice-11.md)
 
 ### Tabel `historical_imports`
 
@@ -209,6 +209,12 @@ CHECK MySQL membatasi jenis data, hari pertama bulan, nominal nonnegatif, keleng
 
 Pembaca sumber `application` menghitung item layanan dan penjualan produk dari `IncomeItems` pada rentang UTC yang ekuivalen dengan bulan WIB. Window menyatakan `insufficient_data` ketika bulan belum berakhir, belum dipilih, atau agregat impor belum lengkap. Hasil membawa asal per bulan dan label `mixed` jika operator memilih campuran aktual dan sintetis.
 
+### Penyimpanan hasil Slice 12
+
+Forecasting membaca tabel histori Slice 11. Laravel mengirim tiga agregat bulanan ke Python melalui stdin JSON. Saat tersedia empat bulan berturut-turut, bulan terakhir juga menjadi pembanding untuk model uji yang dilatih pada tiga bulan sebelumnya. Nilai hasil dibulatkan ke rupiah utuh. Prediksi negatif ditandai perlu ditinjau, dengan nilai mentah tersimpan pada metadata privat.
+
+Snapshot terakhir dipublikasikan atomik pada `storage/app/private/forecasting/latest.json`. Snapshot mencatat versi model, sidik jari sumber, input, keluaran, evaluasi, dan waktu pembangkitan. Scheduler memeriksa kebutuhan pembaruan per jam. Penguncian cache mencegah pembangkitan serentak. Setelah bulan berganti, pemutakhiran memakai tiga bulan lengkap terbaru saat sumbernya tersedia. [Catatan Slice 12](Catatan-Pengerjaan-Slice-12.md)
+
 ## 7. Urutan migrasi Laravel yang diusulkan
 
 Pemeriksaan repo menemukan tiga migrasi bawaan `0001_01_01_000000_create_users_table.php`, `0001_01_01_000001_create_cache_table.php`, dan `0001_01_01_000002_create_jobs_table.php`. `migrate:status --env=testing` menunjukkan ketiganya `Ran`. Ketiga migrasi yang terdaftar meliputi fondasi Laravel. Migrasi akun Slice 01 telah masuk ke `main` pada commit `34d6ace`. Slice 02 menambahkan migrasi katalog `0001_01_01_000004_create_services_table.php`. [Catatan Slice 00](Catatan-Pengerjaan-Slice-00.md)
@@ -226,7 +232,7 @@ Pemeriksaan repo menemukan tiga migrasi bawaan `0001_01_01_000000_create_users_t
 | Ditunda | 08 | Tambahkan atribut audit dan relasi pengganti sesuai alur yang disetujui. | K6. Owner memegang izin. Tetapkan cakupan tindakan, periode, dan aturan status sebelum migrasi. |
 | 6 | 11 | Migrasi `0001_01_01_000010_create_forecasting_history_tables.php` membuat `historical_imports`, `historical_monthly_revenues`, lalu `forecast_month_sources`. | Uji pada MySQL 8.4. Rollback melepas tabel sesuai urutan FK pada skema yang belum berisi histori atau pilihan sumber. |
 
-Slice 06, 09, dan 10 membaca sumber operasional yang sama. Slice 12 dapat memakai sumber bulanan yang disepakati tanpa migrasi tambahan pada usulan awal. Gunakan migrasi baru setiap kali mengubah fondasi yang sudah diterapkan. Uji penerapan dan rollback pada MySQL 8.4 di skema uji terpisah. Dalam rollback skema fitur, lepaskan tabel anak sebelum induknya. [Migrasi Laravel](https://laravel.com/docs/13.x/migrations)
+Slice 06, 09, dan 10 membaca sumber operasional yang sama. Slice 12 memakai sumber bulanan Slice 11 dan menyimpan snapshot privat tanpa migrasi tambahan. Gunakan migrasi baru setiap kali mengubah fondasi yang sudah diterapkan. Uji penerapan dan rollback pada MySQL 8.4 di skema uji terpisah. Dalam rollback skema fitur, lepaskan tabel anak sebelum induknya. [Migrasi Laravel](https://laravel.com/docs/13.x/migrations)
 
 ## 8. Data uji fiktif dan rekonsiliasi
 
@@ -286,8 +292,8 @@ Contoh mengikuti keputusan satu layanan per simpan dan memakai harga katalog. `L
 | 08 · Tindakan Owner bersyarat | Ditunda per 18 November 2026. Tetapkan cakupan berdasarkan K6 saat pengerjaan dilanjutkan. | Jika diterapkan, izin terbatas pada Owner. Histori dan perhitungan rekapan dapat direkonsiliasi. |
 | 09 · Rekap lintas periode | Gabungkan hasil Slice 06–07. Sediakan pencarian, filter bulan/jenis, hasil bersih tercatat, dan XLSX. | Selesai dan di-merge. Histori dan rincian Excel cocok dengan filter. Ringkasan halaman dan Excel memuat total pemasukan, total pengeluaran, serta hasil bersih pada periode yang sama dengan selisih Rp0 terhadap pembanding. [Catatan Slice 09](Catatan-Pengerjaan-Slice-09.md) |
 | 10 · Home bulanan | Hitung pemasukan, pengeluaran, dan hasil bersih bulan berjalan dari sumber Rekap. Sajikan dua seri harian dalam bentuk Batang atau Garis dengan tombol seri. | Selesai dan di-merge. Total Home dan Rekap cocok pada bulan yang sama. Pergantian bulan menghitung rentang baru, dan hari tanpa catatan bernilai Rp0. [Catatan Slice 10](Catatan-Pengerjaan-Slice-10.md) |
-| 11 · Histori Forecasting | Generator sintetis, validasi dan impor ulang CSV privat, pemilih sumber bulanan, pembaca tiga bulan, serta kontrak v1. | Dalam review. Uji selisih Rp0, impor serentak, konflik aktivasi, dan batas WIB. [Catatan Slice 11](Catatan-Pengerjaan-Slice-11.md) |
-| 12 · Model dan halaman Forecasting | Jalankan satu Regresi Linier internal dengan tiga bulan historis. | Tiga titik historis dan satu prediksi untuk bulan berikutnya, pemutakhiran bulanan, hasil MAE, serta akses Owner. |
+| 11 · Histori Forecasting | Generator sintetis, validasi dan impor ulang CSV privat, pemilih sumber bulanan, pembaca tiga bulan, serta kontrak v1. | Selesai diuji dengan selisih Rp0, impor serentak, konflik aktivasi, dan batas WIB. [Catatan Slice 11](Catatan-Pengerjaan-Slice-11.md) |
+| 12 · Model dan halaman Forecasting | Jalankan satu Regresi Linier internal dengan tiga bulan historis. | Backend dan acuan selesai diuji. Tersedia tiga historis dan satu prediksi, evaluasi MAE sintetis, pemutakhiran terjadwal, serta akses Owner. [Catatan Slice 12](Catatan-Pengerjaan-Slice-12.md) |
 | 13 · Uji integrasi dan UAT | Uji migrasi MySQL, alur Kapster, akses Owner, ekspor dan rekonsiliasi. Sertakan peramalan jika disetujui. | Hasil aktual, status KP, temuan, dan uji ulang terdokumentasi. |
 | 14 · Penerapan dan penyerahan | Setelah pemeriksaan fungsi inti, uji lingkungan target dan catat keputusan penerimaan. | Dokumentasi skema, hasil uji, serta keputusan penerimaan tersedia. |
 

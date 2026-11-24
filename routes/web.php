@@ -50,6 +50,8 @@ Route::prefix('owner')->group(function (): void {
             Route::get('pengeluaran/ekspor', [OwnerExpenseController::class, 'export'])->name('expenses.export');
             Route::get('rekap', [OwnerRecapController::class, 'index'])->name('recap.index');
             Route::get('rekap/ekspor', [OwnerRecapController::class, 'export'])->name('recap.export');
+            require __DIR__.'/forecasting.php';
+
             Route::resource('services', ServiceController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
             Route::patch('services/{service}/archive', [ServiceController::class, 'archive'])->name('services.archive');
             Route::patch('services/{service}/restore', [ServiceController::class, 'restore'])->name('services.restore');
