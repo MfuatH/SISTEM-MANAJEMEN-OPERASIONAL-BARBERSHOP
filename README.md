@@ -27,7 +27,7 @@ Stack proyek mengikuti Project Charter dan draf desain database. Tim menetapkan 
 | Database | MySQL **8.4.3 LTS** | Penyimpanan data operasional melalui migrasi Laravel. Draf mengusulkan InnoDB, `utf8mb4`, dan tipe `DECIMAL` untuk nominal rupiah. |
 | Pengembangan lokal | Laragon **8.8.0**, Composer **2.10.3** | Menjalankan PHP dan MySQL secara lokal serta memasang dependensi Laravel. |
 | Pengujian | PHPUnit **12.5.44** | Menjalankan pengujian PHP melalui `php artisan test`. |
-| Peramalan | Python, pandas, scikit-learn | Jika disetujui, satu model Regresi Linier dipanggil secara internal oleh Laravel. Dashboard memuat empat bulan aktual dan dua prediksi. Versi paket dicatat saat Slice 11–12 dikerjakan. |
+| Peramalan | Python, scikit-learn | Slice 11 memakai Python 3.14.0 untuk membuat data sintetis. Slice 12 menjadwalkan satu Regresi Linier internal dengan tiga bulan historis lengkap dan satu bulan prediksi. |
 | Lingkungan target | VPS dan HTTPS | Menjalankan aplikasi web dan database, serta skrip peramalan jika disetujui. Pengamanan aplikasi mencakup hash kata sandi, pemeriksaan hak akses, validasi input, dan perlindungan CSRF. |
 | Kolaborasi | Git dan GitHub | Branch per tugas, pull request, peninjauan, dan merge ke `main`. |
 
@@ -87,7 +87,7 @@ Aplikasi Laravel ditempatkan di root repositori. Rencana tampilan Kapster dan Ow
 | 02–03 | `database/`, `app/Models/`, dan `app/Http/` untuk katalog serta sesi Kapster. Tampilan terkait berada di `resources/views/master/`, `resources/views/pos/`, dan beranda. |
 | 05–08 | `app/Services/`, `database/migrations/`, serta tampilan `pos/`, `expenses/`, dan `owner/` untuk pencatatan, pemasukan, pengeluaran, dan koreksi bersyarat. |
 | 09–10 | `app/Services/`, `resources/views/owner/`, dan `resources/js/` untuk pembukuan serta dashboard. |
-| 11–12 | `app/Console/Commands/`, `storage/app/private/imports/`, `forecasting/`, dan `resources/views/owner/` jika impor histori atau proyeksi disetujui. |
+| 11–12 | `forecasting/` untuk generator dan kontrak, `app/Console/Commands/` serta `app/Services/Forecasting/` untuk impor dan sumber bulanan, dan `storage/app/private/imports/` untuk file lokal. |
 | 13–14 | `tests/` untuk kode uji, `docs/pengerjaan-sistem/` untuk bukti UAT dan penyerahan, serta `config/` dan `public/` untuk pengaturan lingkungan target. |
 
 ### Menjalankan aplikasi untuk pengembangan
@@ -194,6 +194,20 @@ Di `main`, masuk sebagai Owner dan buka **Rekap**. Pilih bulan atau kosongkan un
 
 Di `main`, masuk sebagai Owner dan buka **Home**. Cocokkan kartu pemasukan, pengeluaran, dan hasil bersih bulan berjalan WIB dengan **Rekap** pada bulan yang sama. Pilih grafik **Batang** atau **Garis** dan aktifkan seri **Pemasukan** atau **Pengeluaran**. Klik **Lihat angka per hari** untuk memeriksa nominal grafik. [Cara meninjau Slice 10](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-10.md#cara-meninjau)
 
+### Mencoba data histori Forecasting
+
+Pada branch Slice 11, siapkan Python dan jalankan migrasi di database lokal yang dipilih. Contoh berikut membuat paket sintetis Juli–Oktober 2026, memvalidasi rekap, memilih sumber impor, dan membaca tiga bulan sebelum target November 2026.
+
+```powershell
+php artisan migrate
+python forecasting/generate_synthetic_history.py storage/app/private/imports/slice11-synthetic-20261124
+php artisan forecast:history-import slice11-synthetic-20261124 --preview
+php artisan forecast:history-import slice11-synthetic-20261124 --activate
+php artisan forecast:history-window 2026-11
+```
+
+`--preview` memeriksa file tanpa menulis database. `--activate` hanya memilih bulan lengkap yang sudah berakhir dan mempertahankan pilihan sumber yang telah ada. Laporan operasional membaca transaksi Kapster dan pengeluaran seperti sebelumnya. [Panduan peninjauan Slice 11](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-11.md#cara-meninjau)
+
 ## Status pengerjaan per slice
 
 Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [PR #1](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/1). Desain berikut menjadi acuan peninjauan fitur.
@@ -211,8 +225,8 @@ Fondasi Laravel dan MySQL sudah diuji di Slice 00 dan masuk ke `main` melalui [P
 | 08 | Tindakan koreksi Owner dan jejak audit menunggu penetapan cakupan. | Ditunda. Pengerjaan dilanjutkan ke Slice 09. |
 | 09 | Rekap menggabungkan pemasukan dan pengeluaran lintas periode dengan pencarian, filter, dan hasil bersih tercatat di halaman serta XLSX. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-09.md) |
 | 10 | Home Owner menampilkan kartu dan grafik harian interaktif. Home, Pemasukan, Pengeluaran, dan Rekap memakai sidebar bersama. Katalog dibuka dari Pemasukan. | Selesai dan di-merge. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-10.md) |
-| 11 | Bila sumber historis dipakai, rekonsiliasi CSV/Excel privat dan uji impor ulang. | Opsional |
-| 12 | Bila disetujui, perbarui tampilan empat bulan aktual dan dua prediksi setiap bulan. | Opsional |
+| 11 | Generator sintetis Juli–Oktober, impor CSV privat dengan rekonsiliasi dan satu sumber per bulan, pembaca tiga bulan, serta kontrak v1 untuk frontend. | Dalam review. [Catatan pengerjaan](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-11.md) |
+| 12 | Jalankan satu Regresi Linier internal. Tampilkan tiga bulan historis dan satu bulan prediksi dengan evaluasi dan pembaruan bulanan. | Direncanakan setelah Slice 11. |
 | 13 | Uji integrasi MySQL, pembatasan akses, rekonsiliasi laporan, ekspor, dan UAT. | Direncanakan |
 | 14 | Periksa fungsi inti sebelum penerapan, lalu catat evaluasi dan penerimaan. | Direncanakan |
 
@@ -222,7 +236,7 @@ Contoh kueri Rekap telah diperiksa pada MySQL 8.4.3 menggunakan data fiktif. Gun
 
 Per **18 November 2026**, Slice 10 sudah masuk `main`. Landing Page, halaman Kapster, login Owner, Home, Pemasukan, Pengeluaran, dan Rekap siap diintegrasikan. Area Owner memakai sidebar bersama, dengan kartu dan grafik di Home serta pop-up katalog di Pemasukan.
 
-Acuan wireframe tersedia dan Forecasting bersifat opsional. [Kesiapan frontend Slice 10](docs/pengerjaan-sistem/Catatan-Pengerjaan-Slice-10.md#kesiapan-frontend) [Detail kesiapan sembilan tahap frontend](docs/pengerjaan-sistem/Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
+Frontend Forecasting dapat menggunakan enam fixture kontrak v1 untuk merancang tiga titik historis dan satu prediksi. Integrasi rute Owner dan pembangkitan prediksi dijadwalkan pada Slice 12. [Kontrak Forecasting](forecasting/contract/v1/README.md) · [Detail kesiapan sembilan tahap frontend](docs/pengerjaan-sistem/Rencana-Backend-Sistem-Operasional-Barbershop.md#kesiapan-frontend-per-tahap)
 
 ## Alur kerja Git dan GitHub
 

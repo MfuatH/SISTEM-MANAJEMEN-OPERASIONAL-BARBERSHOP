@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "reason_code": "generation_failed",
+  "target": "gross_revenue",
+  "currency": "IDR",
+  "timezone": "Asia/Jakarta",
+  "data_kind": null,
+  "training_window_months": 3,
+  "horizon_months": 1,
+  "data_through": null,
+  "generated_at": null,
+  "actual": [],
+  "predictions": [],
+  "evaluation": null,
+  "warnings": [],
+  "status": "unavailable"
+}
