@@ -35,6 +35,18 @@
             --font-body: Inter, system-ui, -apple-system, sans-serif;
         }
 
+        /* UKURAN HURUF FLUID
+           Semua ukuran memakai rem, jadi cukup mengatur ukuran dasar ini:
+           ~14px di HP, ~16px di laptop, ~19px di layar besar. */
+        html { font-size: clamp(14px, 0.4vw + 11px, 19px); -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+        @media (min-width: 769px) and (max-height: 700px) {
+            html { font-size: clamp(13.5px, 0.4vw + 10.5px, 17px); }
+        }
+        /* Cegah iOS memperbesar layar saat input difokus */
+        @media (max-width: 48rem) {
+            :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]) { font-size: max(1rem, 16px); }
+        }
+
         body {
             margin: 0;
             min-height: 100vh;
@@ -645,6 +657,108 @@
         .owner-catalog td.muted { color: var(--muted); font-size: .85rem; font-style: italic; font-weight: 400; }
         .catalog-form small { display: block; margin-top: .35rem; color: var(--muted); font-size: .82rem; }
         .catalog-form .error { margin: .35rem 0 0; }
+
+        /* =========================================================
+           LAYAR PENUH + WADAH TETAP (revisi)
+           - Halaman memenuhi layar, tanpa ruang latar di sekelilingnya.
+           - Ukuran wadah tetap; hanya area data (tabel/form) yang scroll.
+           ========================================================= */
+        body.theme-dark, body.bg-dark, body.owner-catalog { display: block; margin: 0; padding: 0; min-height: 100dvh; }
+
+        /* --- Beranda + login owner --- */
+        .theme-dark main.login-shell {
+            width: 100%; max-width: none; min-height: 100dvh;
+            border: 0; border-radius: 0; box-shadow: none;
+            background: radial-gradient(40rem 28rem at 100% 100%, rgb(122 31 43 / 0.22), transparent 60%), var(--dark-panel);
+        }
+        @media (min-width: 48.01rem) {
+            body.theme-dark:not(.pos) { height: 100dvh; overflow: hidden; }
+            .theme-dark main.login-shell { height: 100dvh; grid-template-columns: 1.05fr 1fr; }
+            .theme-dark .login-brand { padding: 3.5rem 4rem 3.5rem 3.5rem; }
+            .theme-dark .login-form { width: 100%; max-width: 28rem; box-sizing: border-box; justify-self: center; padding: 2.75rem 2rem; }
+        }
+
+        /* --- Area owner --- */
+        .bg-dark main.owner-area { width: 100%; max-width: none; margin: 0; border: 0; border-radius: 0; box-shadow: none; }
+        @media (min-width: 48.01rem) {
+            body.bg-dark { height: 100dvh; overflow: hidden; }
+            .bg-dark main.owner-area { height: 100dvh; }
+            .owner-area-layout { height: 100%; }
+            .owner-sidebar { box-sizing: border-box; height: 100%; overflow-y: auto; }
+            .owner-area-content { box-sizing: border-box; height: 100%; display: flex; flex-direction: column; overflow-y: auto; padding: 1.75rem 2rem; }
+            .owner-area-content > * { flex: none; }
+            .owner-area-content > .owner-card { flex: 1 1 auto; min-height: 10rem; overflow: auto; }
+            .owner-area-content > .dashboard-chart-section { flex: 0 1 auto; min-height: 14rem; overflow: auto; }
+        }
+        @media (max-width: 48rem) {
+            body.bg-dark { height: 100dvh; overflow: hidden; }
+            .bg-dark main.owner-area { height: 100dvh; }
+            .owner-area-layout { height: 100%; grid-template-rows: auto minmax(0, 1fr); }
+            .owner-area-content { box-sizing: border-box; min-height: 0; display: flex; flex-direction: column; overflow-y: auto; }
+            .owner-area-content > * { flex: none; }
+            .owner-area-content > .owner-card { flex: 1 1 auto; min-height: 10rem; overflow: auto; }
+            .owner-area-content > .dashboard-chart-section { flex: 0 1 auto; min-height: 14rem; overflow: auto; }
+        }
+        .owner-card thead th { position: sticky; top: 0; z-index: 2; background: var(--surface-soft); box-shadow: inset 0 -1px 0 var(--border-color); }
+
+        /* --- Katalog (isi dialog / iframe) --- */
+        body.owner-catalog { height: 100dvh; overflow: hidden; }
+        .owner-catalog main, .owner-catalog main.wide {
+            box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto;
+            width: 100%; max-width: none; height: 100dvh; margin: 0; padding: 1.25rem 1.5rem;
+            border: 0; border-radius: 0; box-shadow: none;
+        }
+        .owner-catalog main > * { flex: none; }
+        .owner-catalog main > .owner-card { flex: 1 1 auto; min-height: 8rem; overflow: auto; }
+
+        /* --- Halaman kapster --- */
+        body.pos { height: 100dvh; overflow: hidden; }
+        .theme-dark main.pos-page {
+            box-sizing: border-box; display: flex; flex-direction: column; gap: 1.25rem; overflow-y: auto;
+            width: 100%; max-width: none; height: 100dvh; padding: 1.25rem 2rem;
+        }
+        .pos-page > * { flex: none; }
+        .pos-page > section.pos-card { flex: 1 1 auto; min-height: 11rem; display: flex; flex-direction: column; }
+        .pos-card > .table-scroll { flex: 1 1 auto; min-height: 0; overflow: auto; }
+        .pos-page > form.pos-form { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 1.25rem; padding-right: .25rem; }
+        .pos-form > * { flex: none; }
+        .pos-page .pos-summary { margin-top: auto; bottom: 0; }
+        .theme-dark main.pos-page { gap: 1rem; }
+        .theme-dark a.pos-action { min-height: 4.25rem; padding: .85rem 1.1rem; }
+        .pos-action-icon { width: 2.9rem; height: 2.9rem; }
+        .pos-page .pos-heading h1 { font-size: 1.6rem; }
+        @media (max-width: 40rem) { .theme-dark main.pos-page { padding: 1rem; } }
+
+        /* --- Tabel kapster: garis lebih tegas --- */
+        .pos-card table { border-collapse: separate; border-spacing: 0; }
+        .pos-card th, .pos-card td { border-bottom: 1px solid rgb(255 255 255 / 0.2); }
+        .pos-card th + th, .pos-card td + td { border-left: 1px solid rgb(255 255 255 / 0.09); }
+        .pos-card thead th { position: sticky; top: 0; z-index: 2; background: #221e19; border-bottom: 2px solid rgb(201 162 75 / 0.55); }
+        .pos-card tbody tr:last-child td { border-bottom: 0; }
+        .theme-dark .pos-form .entry-row { border-bottom-color: rgb(255 255 255 / 0.22); }
+
+        /* HP: panel brand ringkas di atas, form mengisi sisa layar */
+        @media (max-width: 48rem) {
+            .theme-dark main.login-shell { grid-template-rows: auto 1fr; }
+            .theme-dark .login-form { align-self: center; }
+        }
+
+        /* LAPTOP PENDEK: rapatkan bagian atas agar tabel punya lebih banyak ruang */
+        @media (min-width: 769px) and (max-height: 700px) {
+            .owner-area-content { padding: 1.1rem 1.75rem; }
+            .owner-page-header { margin-bottom: .9rem; padding-bottom: .7rem; }
+            .owner-page-header h1 { font-size: 1.5rem; }
+            .owner-area-content > .income-catalog-actions { margin-bottom: .75rem; }
+            .owner-toolbar { margin-bottom: .75rem; padding: .7rem 1rem; }
+            .owner-toolbar-stack .actions { margin-top: .7rem; }
+            .owner-total { margin-bottom: .75rem; padding: .6rem 1rem; }
+            .owner-total-value { font-size: 1.3rem; }
+            .dashboard-totals { margin-bottom: 1rem; }
+            .dashboard-totals div { padding: .7rem 1rem; }
+            .theme-dark main.pos-page { padding: 1rem 1.5rem; gap: .75rem; }
+            .pos-topbar { padding: .6rem 1rem .8rem; }
+            .pos-heading p { display: none; }
+        }
     </style>
 </head>
 <body class="@yield('body-class')">
