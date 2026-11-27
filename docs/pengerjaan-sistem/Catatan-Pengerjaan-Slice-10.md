@@ -4,9 +4,13 @@
 
 [PR #14](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/pull/14)
 
+---
+
 ## Status dan lingkup
 
 Slice 10 dimulai dari `main` setelah Rekap Slice 09 di-merge pada commit `3e8ef52`. Home Owner menampilkan kartu total pemasukan, pengeluaran, dan hasil bersih bulan berjalan serta grafik harian dari tanggal 1 sampai hari ini dalam WIB. Home, Pemasukan, Pengeluaran, dan Rekap memakai sidebar dan tata letak Owner yang sama. Tombol kedua katalog berada di Pemasukan dan membuka pop-up. [Catatan Slice 09](Catatan-Pengerjaan-Slice-09.md)
+
+---
 
 ## Implementasi
 
@@ -16,6 +20,8 @@ Slice 10 dimulai dari `main` setelah Rekap Slice 09 di-merge pada commit `3e8ef5
 - Layout Blade `auth.owner-area` dipakai oleh Home, Pemasukan, Pengeluaran, form tambah pengeluaran, dan Rekap. Sidebar menandai menu aktif. Tombol katalog pada Pemasukan membuka dialog yang memuat `/owner/services` atau `/owner/products`, termasuk form dan pesan validasi. [Layout Owner](../../resources/views/auth/owner-area.blade.php) · [Dialog katalog](../../resources/views/owner/income/catalog-dialog.blade.php)
 - Kedua katalog memakai aksi **Ubah**, **Arsipkan**, **Aktifkan kembali**, dan **Hapus**. Produk yang pernah terjual atau tercatat sebagai pemakaian lama dilindungi FK. Produk tanpa riwayat dapat dihapus. Produk yang diaktifkan kembali muncul di pilihan Kapster jika sudah memiliki harga jual. [Catatan katalog Slice 05](Catatan-Pengerjaan-Slice-05.md#kesiapan-frontend)
 - `GET /owner` tetap berada di area Owner dan menggunakan skema dari slice sebelumnya. Saat bulan berganti, Home membaca bulan baru. Rekap tetap dapat membaca catatan sebelumnya.
+
+---
 
 ## Kesiapan frontend
 
@@ -32,6 +38,8 @@ Gunakan sidebar untuk Home, Pemasukan, Pengeluaran, dan Rekap. Tempatkan tombol 
 ### Integrasi layout login Owner
 
 Simulasi merge branch desain login frontend menunjukkan konflik pada `resources/views/auth/owner-layout.blade.php`, baik terhadap `main` sebelum Slice 10 maupun terhadap branch Slice 10. File tersebut memasok layout dasar untuk area Owner. Saat desain login diintegrasikan, tempatkan gaya login pada layout khusus dan pertahankan layout area Owner untuk sidebar, grafik, serta pop-up. [Branch desain login](https://github.com/MfuatH/SISTEM-MANAJEMEN-OPERASIONAL-BARBERSHOP/tree/feat/frontend-slice-01-auth-owner)
+
+---
 
 ## Hasil pengujian
 
@@ -50,6 +58,8 @@ Suite Laravel lulus dengan **60 tes dan 869 asersi** pada MySQL 8.4.3 di `barber
 
 [Uji Home Owner](../../tests/Feature/OwnerDashboardTest.php)
 
+---
+
 ## Cara meninjau
 
 1. Ambil `main` terbaru, jalankan Laravel pada PHP 8.5 dan MySQL 8.4, lalu masuk sebagai Owner.
@@ -58,6 +68,8 @@ Suite Laravel lulus dengan **60 tes dan 869 asersi** pada MySQL 8.4.3 di `barber
 4. Buka **Pemasukan** lalu jalankan aksi pada kedua pop-up. Coba arsip, aktifkan kembali, dan hapus produk uji yang belum dipakai. Tutup pop-up dan periksa Pemasukan tetap pada periode dan pencarian yang sedang dibuka.
 5. Jalankan `php artisan test --env=testing` untuk mengulang suite pada database pengujian yang telah dimigrasikan.
 
+---
+
 ## Kelanjutan
 
-Slice 11 dan 12 mengikuti keputusan tentang data historis serta Forecasting. Pengujian integrasi dan UAT dijadwalkan pada Slice 13. [Urutan pengerjaan](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)
+Slice 11 dan 12 mengikuti keputusan tentang data historis serta Forecasting. [Urutan pengerjaan](Desain-Database-MySQL-Barbershop.md#10-urutan-pengerjaan-per-slice)

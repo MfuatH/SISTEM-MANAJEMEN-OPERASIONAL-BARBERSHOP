@@ -4,6 +4,8 @@
 
 **Tim** Kelompok 6, Kelas 2023C
 
+---
+
 ## 1. Kebutuhan operasional terkini
 
 Sistem melayani satu lokasi. Stack yang disepakati adalah Laravel 13.x, PHP 8.5.x, dan MySQL 8.4 LTS, dengan Laragon untuk pengembangan lokal. Kebutuhan fitur mengikuti *Deskripsi Sistem (Terurut)* dan konfirmasi berikutnya. Project Charter dan QMP v1.1 mencatat lingkup dan kriteria penerimaan awal. QMP menetapkan Pangkas Rambut Upin Ipin 11 sebagai lokasi uji. [Desain database dan keputusan skema](Desain-Database-MySQL-Barbershop.md) · [Catatan fondasi Slice 00](Catatan-Pengerjaan-Slice-00.md)
@@ -11,13 +13,15 @@ Sistem melayani satu lokasi. Stack yang disepakati adalah Laravel 13.x, PHP 8.5.
 | Area | Alur dan keluaran |
 | --- | --- |
 | Sesi Kapster | Kapster memasukkan nama berbentuk teks dari beranda. Form **Layanan** menerima satu atau beberapa layanan dan penjualan produk opsional. Form **Produk** menerima penjualan produk. Harga muncul otomatis dari katalog. Server mengambil nama Kapster dari sesi dan menyimpan harga pada tiap item. Nama pelanggan dapat diisi sebagai keterangan opsional. |
-| Owner | Owner, yang juga disebut Admin dalam deskripsi sistem, masuk dengan akun yang sama melalui username dan kata sandi. Area Owner memakai sidebar bersama untuk Home, Pemasukan, Pengeluaran, dan Rekap. Owner mengelola kedua katalog melalui pop-up di Pemasukan. Forecasting mengikuti persetujuan fitur. |
+| Owner | Owner, yang juga disebut Admin dalam deskripsi sistem, masuk dengan akun yang sama melalui username dan kata sandi. Area Owner memakai sidebar bersama untuk Home, Pemasukan, Pengeluaran, dan Rekap. Owner mengelola kedua katalog melalui pop-up di Pemasukan. Forecasting tersedia secara bawaan. |
 | Pemasukan dan pengeluaran | Pemasukan berasal dari pencatatan Kapster. Owner mengisi tanggal, deskripsi, dan jumlah pengeluaran, lalu sistem membuat ID. Metode pembayaran dan struk keluar dari cakupan. |
 | Periode dan ekspor | Home, Pemasukan, dan Pengeluaran memakai bulan berjalan. Home menampilkan total pemasukan, pengeluaran, dan hasil bersih bulanan serta grafik harian Pemasukan dan Pengeluaran. Rekap memuat seluruh histori dengan filter bulan atau jenis. Pemasukan, Pengeluaran, dan Rekap mendukung pencarian dan ekspor Excel pada cakupan masing-masing. |
-| Koreksi | Draf menempatkan tindakan koreksi yang diaktifkan di area Owner. Cakupan koreksi, kebutuhan pembatalan mandiri, dan jejak audit perlu diputuskan sebelum Slice 08. |
-| Forecasting | Jika disetujui, Laravel memanggil satu model Regresi Linier Python secara internal. Tampilan memuat empat bulan aktual dan dua bulan prediksi yang diperbarui setiap bulan. Posisi dua bulan prediksi dan kebutuhan histori Juli–September 2026 masih perlu dikonfirmasi. |
+| Koreksi | Slice 08 dilewati karena alur operasional saat ini sudah sesuai kebutuhan. |
+| Forecasting | Laravel menjalankan satu Regresi Linier Python secara internal. Tiga bulan lengkap WIB menghasilkan satu proyeksi pemasukan kotor, dengan histori dan performa evaluasi berlabel jelas. |
 
 QMP mencantumkan Andik Ari Mulyono sebagai penerima hasil. Kolom penerimaan akhir pada Charter masih terbuka. Manajer Proyek menyelaraskan pencatatan wewenang serta kriteria QMP yang terdampak perubahan alur sebelum penerimaan akhir. [Acuan tugas kuliah](../tugas-kuliah/README.md)
+
+---
 
 ## 2. Urutan pengerjaan backend
 
@@ -31,17 +35,19 @@ QMP mencantumkan Andik Ari Mulyono sebagai penerima hasil. Kolom penerimaan akhi
 | 05 | Pencatatan satu layanan berkembang menjadi transaksi multi-layanan dan penjualan produk. Katalog Owner juga mendukung pengaktifan kembali arsip dan penghapusan layanan yang belum tercatat. | Selesai dan di-merge pada commit `3762ae0`. Uji mencakup kedua form, backfill, perlindungan riwayat, dan rekonsiliasi. [Catatan Slice 05](Catatan-Pengerjaan-Slice-05.md#revisi-kebutuhan-setelah-merge) |
 | 06 | Pemasukan Owner per item, pencarian, total, dan ekspor XLSX bulan berjalan WIB. | Selesai dan di-merge pada commit `685dbc1`. Daftar dan XLSX memakai kueri yang sama. Pengujian memeriksa batas bulan, pencarian, dan selisih Rp0. [Catatan Slice 06](Catatan-Pengerjaan-Slice-06.md) |
 | 07 | Pencatatan dan ekspor pengeluaran Owner dengan ID buatan sistem. | Selesai dan di-merge. Daftar, pencarian, total, dan XLSX mengikuti tanggal pengeluaran pada bulan berjalan WIB. [Catatan Slice 07](Catatan-Pengerjaan-Slice-07.md) |
-| 08 | Koreksi Owner sesuai keputusan K6. | Ditunda. Tetapkan izin, tindakan, periode, dan histori audit saat pengerjaan dilanjutkan. |
+| 08 | Koreksi Owner sesuai keputusan K6. | Dilewati karena alur operasional saat ini sudah sesuai kebutuhan. |
 | 09 | Rekap lintas periode. | Selesai dan di-merge. Rekap dan XLSX menampilkan ringkasan periode, termasuk hasil bersih tercatat, serta rincian sesuai filter. [Catatan Slice 09](Catatan-Pengerjaan-Slice-09.md) |
 | 10 | Home bulanan. | Selesai dan di-merge. Kartu pemasukan, pengeluaran, hasil bersih, dan grafik harian WIB membaca sumber yang sama dengan Rekap. [Catatan Slice 10](Catatan-Pengerjaan-Slice-10.md) |
-| 11–12 | Impor histori dan Forecasting bila disetujui. | Konfirmasi bentuk file aktual, sumber per bulan, posisi prediksi, dan evaluasi galat. Simpan file impor di direktori privat. |
-| 13–14 | Integrasi MySQL, UAT, penerapan, dan penyerahan. | Simpan hasil uji, temuan, perbaikan, pemeriksaan lingkungan target, dan keputusan penerimaan. |
+| 11 | Histori sintetis dan kontrak Forecasting v1. | Selesai diuji. Impor CSV privat, satu sumber per bulan, dan rekonsiliasi pada MySQL 8.4. [Catatan Slice 11](Catatan-Pengerjaan-Slice-11.md) |
+| 12 | Regresi Linier, snapshot hasil, MAE, endpoint Owner, impor demo Pemasukan, pembaruan otomatis bulanan, dan tombol refresh. | Selesai diuji. Uji sintetis membuktikan alur tiga bulan historis ke satu prediksi. Desain akhir menjadi pekerjaan frontend. [Catatan Slice 12](Catatan-Pengerjaan-Slice-12.md) |
 
 ERD, kamus data, integritas, indeks, dan urutan migrasi dijabarkan di [Desain Database MySQL](Desain-Database-MySQL-Barbershop.md). Gunakan `DECIMAL` untuk rupiah dan aritmetika presisi eksak di backend. [MySQL DECIMAL](https://dev.mysql.com/doc/refman/8.4/en/fixed-point-types.html)
 
+---
+
 ## Kesiapan frontend per tahap
 
-Status mengikuti backend yang sudah masuk `main` per 18 November 2026. Halaman yang berstatus **Siap integrasi** dapat disambungkan ke rute web Laravel yang tersedia. Saat mengganti tampilan Blade, pertahankan token CSRF pada form yang mengubah data, autentikasi berbasis sesi, redirect, dan pesan validasi.
+Tahap 1–8 memakai rute backend dari Slice 00–10. Tahap 9 memakai kontrak dan halaman acuan dari Slice 11–12. Branch `feat/integrasi-backend-frontend` menggabungkan keduanya dengan tema Modern Classic. Saat mengubah Blade, pertahankan token CSRF, autentikasi sesi, redirect, dan pesan validasi.
 
 | Tahap frontend | Status backend | Bagian yang siap dibuat frontend |
 | --- | --- | --- |
@@ -53,9 +59,11 @@ Status mengikuti backend yang sudah masuk `main` per 18 November 2026. Halaman y
 | 6. Pengembangan Halaman Pemasukan | **Siap integrasi.** Slice 06 menyediakan `GET /owner/pemasukan` dan `GET /owner/pemasukan/ekspor` dengan parameter pencarian `q`. | Buat tabel satu baris per layanan atau penjualan produk, tampilan periode bulan berjalan WIB, pencarian, total hasil, paginasi, dan tombol ekspor Excel yang memakai pencarian yang sama. Tombol katalog layanan dan produk di Pemasukan membuka pop-up. [Catatan Slice 06](Catatan-Pengerjaan-Slice-06.md#kesiapan-frontend) · [Penempatan katalog](Catatan-Pengerjaan-Slice-10.md#kesiapan-frontend) |
 | 7. Pengembangan Halaman Pengeluaran | **Siap integrasi.** Tersedia `GET /owner/pengeluaran`, `GET /owner/pengeluaran/tambah`, `POST /owner/pengeluaran` dan `GET /owner/pengeluaran/ekspor`. | Buat form tanggal, deskripsi, dan jumlah, lalu tampilkan referensi yang dibuat sistem. Buat tabel, pencarian, total, dan paginasi bulan berjalan WIB. Gunakan pencarian `q` yang sama untuk daftar dan ekspor. [Catatan Slice 07](Catatan-Pengerjaan-Slice-07.md#kesiapan-frontend) |
 | 8. Pengembangan Halaman Rekap | **Siap integrasi.** Tersedia `GET /owner/rekap` dan `GET /owner/rekap/ekspor` dengan parameter `month`, `type`, dan `q`. | Buat tabel lintas periode, filter bulan dan jenis, pencarian, serta ringkasan pemasukan, pengeluaran, dan hasil bersih tercatat. Tampilkan total pendapatan kotor dan bersih di bawah tabel saat **Semua jenis** dipilih. Gunakan filter yang sama saat menautkan Excel. [Catatan Slice 09](Catatan-Pengerjaan-Slice-09.md#kesiapan-frontend) |
-| 9. Pengembangan Halaman Forecasting | **Opsional pada Slice 11–12.** Impor histori, hasil prediksi, dan kontrak halaman bergantung pada keputusan K8. | Jika fitur disetujui, rancang grafik dengan empat bulan aktual dan dua bulan prediksi sebagai acuan awal. Label dan posisi periode mengikuti keputusan K8. |
+| 9. Pengembangan Halaman Forecasting | **Siap dirancang dan diintegrasikan.** Owner aktif membuka `GET /owner/forecasting` dan `GET /owner/forecasting/data`. | Gunakan halaman acuan untuk tiga historis, satu prediksi, pilihan grafik Batang atau Garis, tabel nominal, MAE, label sumber, waktu refresh, tombol Perbarui prediksi, dan enam status. Tim frontend mengerjakan desain akhir pada branch integrasi. [Kontrak v1](../../forecasting/contract/v1/README.md) · [Handoff Forecasting](Catatan-Pengerjaan-Slice-12.md#handoff-frontend) |
 
 [Rangkuman di README](../../README.md#status-backend-dan-kesiapan-frontend) · [Desain database](Desain-Database-MySQL-Barbershop.md)
+
+---
 
 ## 3. Catatan historis jadwal awal
 
@@ -71,6 +79,8 @@ Project Charter mencatat rencana awal delapan minggu. Tabel ini merangkum target
 | Minggu 7 | Penyiapan lingkungan dan pemeriksaan setelah penerapan. |
 | Minggu 8 | Dokumentasi, evaluasi, dan penerimaan akhir. |
 
+---
+
 ## 4. Bukti yang harus disiapkan backend
 
 | Kriteria QMP awal | Pemeriksaan pada rancangan terkini |
@@ -83,9 +93,13 @@ Project Charter mencatat rencana awal delapan minggu. Tabel ini merangkum target
 | KP-06 · Peramalan | Jika disetujui, uji empat aktual dan dua prediksi serta pembaruan bulanan. Gunakan data uji setelah periode latih untuk menilai galat. Catat **belum terverifikasi** jika pembanding belum memadai. Jika fitur dikeluarkan, selaraskan KP-06 dengan Sponsor/Owner. |
 | KP-07 · Penyerahan | Catat versi aplikasi dan migrasi, hasil uji, catatan perbaikan, dan cara menjalankan ulang sistem. |
 
+---
+
 ## 5. Persiapan tugas implementasi
 
 Ambil satu slice per branch. Periksa migrasi yang sudah ada dan gunakan migrasi baru untuk setiap perubahan skema. Catat keputusan yang memengaruhi tabel terkait, contoh masukan dan keluaran untuk frontend, serta bukti uji MySQL sebelum mengajukan PR ke `main`. Gunakan data fiktif dari desain database saat memeriksa rekap dan ekspor. [Alur kerja Git dan GitHub](../../README.md#alur-kerja-git-dan-github)
+
+---
 
 ## Dokumen acuan proyek
 
@@ -93,6 +107,8 @@ Ambil satu slice per branch. Periksa migrasi yang sudah ada dan gunakan migrasi 
 - Project Charter, hlm. 1–2, mencatat lingkup, teknologi, batasan, dan jadwal awal.
 - Quality Management Plan versi 1.1, hlm. 1 dan 4–6, mencatat kriteria penerimaan, bukti pengujian, dan UAT.
 - Presentasi Manajemen Operasional Barbershop, slide 5–12 dan 15, memberi konteks observasi dan jadwal awal.
+
+---
 
 ## Jadwal pelaksanaan aktual
 

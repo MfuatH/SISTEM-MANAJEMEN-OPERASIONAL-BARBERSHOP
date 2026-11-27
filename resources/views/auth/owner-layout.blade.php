@@ -759,6 +759,20 @@
             .pos-topbar { padding: .6rem 1rem .8rem; }
             .pos-heading p { display: none; }
         }
+
+        /* =========================================================
+           FORECASTING
+           ========================================================= */
+        .owner-alert.owner-alert-warn { background: #fff6e0; border-color: #ecd28f; color: #7a5c12; }
+        .owner-meta { margin: 0 0 1rem; color: var(--muted); font-size: .85rem; }
+        .forecast-refresh { align-self: flex-start; margin: 0 0 1rem; }
+        .forecast-refresh button { display: inline-flex; align-items: center; gap: .45rem; min-height: 2.75rem; box-sizing: border-box; }
+        .forecast-refresh svg { flex: none; width: 1.05rem; height: 1.05rem; }
+        .forecast-evaluation { margin-top: 1.25rem; }
+        .owner-area-content > .forecast-chart { flex: none; min-height: 0; overflow: visible; }
+        .dashboard-day time { display: block; margin-top: .3rem; font-size: .78rem; }
+        .dashboard-chart[data-fixed-series] .dashboard-bar { width: clamp(1.5rem, 35%, 4rem); border-radius: .3rem .3rem 0 0; }
+        .dashboard-day[data-projection] .dashboard-bar { background: repeating-linear-gradient(45deg, #7a1f2b 0 .4rem, #a14a56 .4rem .8rem); outline: 1px dashed #7a1f2b; outline-offset: 1px; }
     </style>
 </head>
 <body class="@yield('body-class')">

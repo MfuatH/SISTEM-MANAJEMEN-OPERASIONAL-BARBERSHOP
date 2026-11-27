@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Forecasting Owner response v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "status",
+    "reason_code",
+    "target",
+    "currency",
+    "timezone",
+    "data_kind",
+    "training_window_months",
+    "horizon_months",
+    "data_through",
+    "generated_at",
+    "actual",
+    "predictions",
+    "evaluation",
+    "warnings"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "status": {
+      "enum": [
+        "disabled",
+        "processing",
+        "insufficient_data",
+        "ready",
+        "stale",
+        "unavailable"
+      ]
+    },
+    "reason_code": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ]
+    },
+    "target": {
+      "const": "gross_revenue"
+    },
+    "currency": {
+      "const": "IDR"
+    },
+    "timezone": {
+      "const": "Asia/Jakarta"
+    },
+    "data_kind": {
+      "$ref": "#/$defs/data_kind"
+    },
+    "training_window_months": {
+      "const": 3
+    },
+    "horizon_months": {
+      "const": 1
+    },
+    "data_through": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/month"
+        }
+      ]
+    },
+    "generated_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "actual": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": [
+          "month",
+          "amount",
+          "complete"
+        ],
+        "properties": {
+          "month": {
+            "$ref": "#/$defs/month"
+          },
+          "amount": {
+            "$ref": "#/$defs/amount"
+          },
+          "complete": {
+            "const": true
+          }
+        }
+      }
+    },
+    "predictions": {
+      "type": "array",
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "month",
+          "amount"
+        ],
+        "properties": {
+          "month": {
+            "$ref": "#/$defs/month"
+          },
+          "amount": {
+            "$ref": "#/$defs/amount"
+          }
+        }
+      }
+    },
+    "evaluation": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "required": [
+            "status",
+            "data_kind",
+            "test_months",
+            "mae_idr",
+            "field_accuracy_verified"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "not_evaluated",
+                "evaluated_synthetic",
+                "evaluated_actual",
+                "evaluated_mixed"
+              ]
+            },
+            "data_kind": {
+              "$ref": "#/$defs/data_kind"
+            },
+            "test_months": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "mae_idr": {
+              "type": [
+                "null",
+                "string"
+              ],
+              "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+            },
+            "field_accuracy_verified": {
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "ready",
+              "stale"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "actual": {
+            "minItems": 3
+          },
+          "predictions": {
+            "minItems": 1
+          },
+          "data_through": {
+            "type": "string"
+          },
+          "data_kind": {
+            "type": "string"
+          },
+          "generated_at": {
+            "type": "string"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "predictions": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "month": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{3}-(0[1-9]|1[0-2])$"
+    },
+    "amount": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)$"
+    },
+    "data_kind": {
+      "enum": [
+        null,
+        "synthetic",
+        "actual",
+        "mixed"
+      ]
+    }
+  }
+}

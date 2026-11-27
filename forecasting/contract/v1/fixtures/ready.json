@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "reason_code": null,
+  "target": "gross_revenue",
+  "currency": "IDR",
+  "timezone": "Asia/Jakarta",
+  "data_kind": "synthetic",
+  "training_window_months": 3,
+  "horizon_months": 1,
+  "data_through": "2026-10",
+  "generated_at": "2026-11-01T00:10:00+07:00",
+  "actual": [
+    {
+      "month": "2026-08",
+      "amount": "5200000",
+      "complete": true
+    },
+    {
+      "month": "2026-09",
+      "amount": "5450000",
+      "complete": true
+    },
+    {
+      "month": "2026-10",
+      "amount": "5550000",
+      "complete": true
+    }
+  ],
+  "predictions": [
+    {
+      "month": "2026-11",
+      "amount": "5750000"
+    }
+  ],
+  "evaluation": {
+    "status": "not_evaluated",
+    "data_kind": "synthetic",
+    "test_months": 0,
+    "mae_idr": null,
+    "field_accuracy_verified": false
+  },
+  "warnings": [
+    "Data sintetis untuk demonstrasi dan pengujian"
+  ],
+  "status": "ready"
+}
